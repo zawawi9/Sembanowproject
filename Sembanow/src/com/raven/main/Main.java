@@ -4,8 +4,10 @@ import com.raven.component.MenuLayout;
 import com.raven.event.EventMenuSelected;
 import com.raven.form.Form_1;
 import com.raven.form.Form_2;
+import com.raven.form.Form_Produk;
 import com.raven.form.MainForm;
 import com.raven.form.pilihan;
+import com.raven.form.pilihanpendataan;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -105,7 +107,9 @@ public class Main extends javax.swing.JFrame {
                 if (index == 8) {
                     main.show(new pilihan());
                 } else if (index == 9) {
-                    main.show(new Form_2());
+                    main.show(new Form_Produk());
+                }else if (index == 11) {
+                    main.show(new pilihanpendataan());
                 }
             }
         });
