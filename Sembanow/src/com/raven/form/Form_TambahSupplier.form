@@ -21,56 +21,58 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
-              <EmptySpace min="20" pref="20" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jLabel1" min="-2" pref="150" max="-2" attributes="0"/>
-                  <Component id="IDPelanggan" min="-2" pref="430" max="-2" attributes="0"/>
-                  <Component id="jLabel2" min="-2" pref="170" max="-2" attributes="0"/>
-                  <Component id="Nama_Pelanggan" min="-2" pref="430" max="-2" attributes="0"/>
-                  <Component id="jLabel3" min="-2" pref="220" max="-2" attributes="0"/>
-                  <Component id="Telepon_Pelanggan" min="-2" pref="430" max="-2" attributes="0"/>
-                  <Component id="jLabel4" min="-2" pref="170" max="-2" attributes="0"/>
-                  <Component id="Alamat_Pelanggan" min="-2" pref="430" max="-2" attributes="0"/>
-                  <Group type="102" attributes="0">
-                      <Component id="tombolsimpan" min="-2" pref="143" max="-2" attributes="0"/>
-                      <EmptySpace min="17" pref="17" max="-2" attributes="0"/>
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="tomboltambah" min="-2" pref="143" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="tombolbatal" min="-2" pref="143" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="Telepon_Supplier" alignment="0" max="32767" attributes="0"/>
+                  <Component id="IDSupplier" alignment="0" max="32767" attributes="0"/>
+                  <Component id="Nama_Supplier" alignment="0" max="32767" attributes="0"/>
+                  <Component id="Alamat_Supplier" alignment="0" min="-2" pref="393" max="-2" attributes="0"/>
               </Group>
+              <EmptySpace pref="578" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
-              <EmptySpace min="40" pref="40" max="-2" attributes="0"/>
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace min="-2" pref="43" max="-2" attributes="0"/>
               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="14" pref="14" max="-2" attributes="0"/>
-              <Component id="IDPelanggan" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="14" pref="14" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Component id="IDSupplier" min="-2" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="14" pref="14" max="-2" attributes="0"/>
-              <Component id="Nama_Pelanggan" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="14" pref="14" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Component id="Nama_Supplier" min="-2" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="14" pref="14" max="-2" attributes="0"/>
-              <Component id="Telepon_Pelanggan" min="-2" pref="38" max="-2" attributes="0"/>
-              <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Component id="Telepon_Supplier" min="-2" pref="38" max="-2" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="14" pref="14" max="-2" attributes="0"/>
-              <Component id="Alamat_Pelanggan" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="14" pref="14" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="tombolsimpan" min="-2" pref="40" max="-2" attributes="0"/>
-                  <Component id="tombolbatal" min="-2" pref="40" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Component id="Alamat_Supplier" min="-2" max="-2" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Component id="tombolbatal" max="32767" attributes="0"/>
+                  <Component id="tomboltambah" min="-2" pref="40" max="-2" attributes="0"/>
               </Group>
+              <EmptySpace pref="127" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="jtextfield.TextFieldSuggestion" name="IDPelanggan">
+    <Component class="jtextfield.TextFieldSuggestion" name="IDSupplier">
       <Properties>
         <Property name="text" type="java.lang.String" value="ID"/>
       </Properties>
@@ -80,7 +82,7 @@
         <Property name="text" type="java.lang.String" value="ID"/>
       </Properties>
     </Component>
-    <Component class="jtextfield.TextFieldSuggestion" name="Nama_Pelanggan">
+    <Component class="jtextfield.TextFieldSuggestion" name="Nama_Supplier">
       <Properties>
         <Property name="text" type="java.lang.String" value="Nama"/>
       </Properties>
@@ -95,7 +97,7 @@
         <Property name="text" type="java.lang.String" value="Nomor Telepon"/>
       </Properties>
     </Component>
-    <Component class="jtextfield.TextFieldSuggestion" name="Telepon_Pelanggan">
+    <Component class="jtextfield.TextFieldSuggestion" name="Telepon_Supplier">
       <Properties>
         <Property name="text" type="java.lang.String" value="Number phone"/>
       </Properties>
@@ -105,14 +107,14 @@
         <Property name="text" type="java.lang.String" value="Alamat"/>
       </Properties>
     </Component>
-    <Component class="jtextfield.TextFieldSuggestion" name="Alamat_Pelanggan">
+    <Component class="jtextfield.TextFieldSuggestion" name="Alamat_Supplier">
       <Properties>
         <Property name="text" type="java.lang.String" value="Address"/>
       </Properties>
     </Component>
-    <Component class="com.raven.swing.CustomButton_Rounded" name="tombolsimpan">
+    <Component class="com.raven.swing.CustomButton_Rounded" name="tomboltambah">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Simpan Perubahan"/>
+        <Property name="text" type="java.lang.String" value="Tambahkan"/>
       </Properties>
     </Component>
     <Component class="com.raven.swing.CustomButton_Rounded" name="tombolbatal">
