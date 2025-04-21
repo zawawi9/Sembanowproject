@@ -29,7 +29,7 @@ public class Masukkan extends javax.swing.JDialog {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        tomboliya = new custom.Custom_ButtonRounded();
+        tomboliya = new Custom.Custom_ButtonRounded();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -177,6 +177,6 @@ public class Masukkan extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
-    private custom.Custom_ButtonRounded tomboliya;
+    private Custom.Custom_ButtonRounded tomboliya;
     // End of variables declaration//GEN-END:variables
 }

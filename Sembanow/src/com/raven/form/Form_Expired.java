@@ -29,7 +29,7 @@ public class Form_Expired extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new com.raven.swing.Table1();
         jLabel9 = new javax.swing.JLabel();
-        custom_ButtonRounded1 = new custom.Custom_ButtonRounded();
+        custom_ButtonRounded1 = new Custom.Custom_ButtonRounded();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -85,7 +85,7 @@ public class Form_Expired extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private custom.Custom_ButtonRounded custom_ButtonRounded1;
+    private Custom.Custom_ButtonRounded custom_ButtonRounded1;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private com.raven.swing.Table1 table;

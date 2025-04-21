@@ -96,7 +96,7 @@
             <Property name="text" type="java.lang.String" value="Dapatkan hadiah dengan minimum total belanja 500K"/>
           </Properties>
         </Component>
-        <Component class="custom.Custom_ButtonRounded" name="tombollanjut">
+        <Component class="Custom.Custom_ButtonRounded" name="tombollanjut">
           <Properties>
             <Property name="text" type="java.lang.String" value="Lanjut"/>
           </Properties>
@@ -116,7 +116,7 @@
             <Property name="text" type="java.lang.String" value="Apakah ingin lanjutkan proses pembayaran?"/>
           </Properties>
         </Component>
-        <Component class="custom.Custom_ButtonRounded" name="tombollanjut1">
+        <Component class="Custom.Custom_ButtonRounded" name="tombollanjut1">
           <Properties>
             <Property name="text" type="java.lang.String" value="Kembali"/>
             <Property name="fillClick" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">

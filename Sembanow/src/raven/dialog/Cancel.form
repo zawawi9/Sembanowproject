@@ -74,12 +74,12 @@
             <Property name="text" type="java.lang.String" value="Ingin membatalkan?"/>
           </Properties>
         </Component>
-        <Component class="custom.Custom_ButtonRounded" name="tomboliya">
+        <Component class="Custom.Custom_ButtonRounded" name="tomboliya">
           <Properties>
             <Property name="text" type="java.lang.String" value="Ya"/>
           </Properties>
         </Component>
-        <Component class="custom.Custom_ButtonRounded" name="tomboltidak">
+        <Component class="Custom.Custom_ButtonRounded" name="tomboltidak">
           <Properties>
             <Property name="text" type="java.lang.String" value="Tidak"/>
             <Property name="fillClick" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">

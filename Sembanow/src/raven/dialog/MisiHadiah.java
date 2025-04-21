@@ -29,11 +29,11 @@ public class MisiHadiah extends javax.swing.JDialog {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        tombollanjut = new custom.Custom_ButtonRounded();
+        tombollanjut = new Custom.Custom_ButtonRounded();
         jLabel2 = new javax.swing.JLabel();
         totalharga1 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        tombollanjut1 = new custom.Custom_ButtonRounded();
+        tombollanjut1 = new Custom.Custom_ButtonRounded();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -179,8 +179,8 @@ public class MisiHadiah extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
-    private custom.Custom_ButtonRounded tombollanjut;
-    private custom.Custom_ButtonRounded tombollanjut1;
+    private Custom.Custom_ButtonRounded tombollanjut;
+    private Custom.Custom_ButtonRounded tombollanjut1;
     private javax.swing.JLabel totalharga1;
     // End of variables declaration//GEN-END:variables
 }

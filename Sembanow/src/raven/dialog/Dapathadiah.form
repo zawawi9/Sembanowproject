@@ -90,7 +90,7 @@
             <Property name="text" type="java.lang.String" value="SELAMAT!"/>
           </Properties>
         </Component>
-        <Component class="custom.Custom_ButtonRounded" name="tomboliya">
+        <Component class="Custom.Custom_ButtonRounded" name="tomboliya">
           <Properties>
             <Property name="text" type="java.lang.String" value="OK"/>
           </Properties>

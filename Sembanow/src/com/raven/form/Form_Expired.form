@@ -84,7 +84,7 @@
         <Property name="text" type="java.lang.String" value="Expired Date"/>
       </Properties>
     </Component>
-    <Component class="custom.Custom_ButtonRounded" name="custom_ButtonRounded1">
+    <Component class="Custom.Custom_ButtonRounded" name="custom_ButtonRounded1">
       <Properties>
         <Property name="text" type="java.lang.String" value="Kembali"/>
         <Property name="fillClick" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">

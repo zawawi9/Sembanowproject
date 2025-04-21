@@ -29,7 +29,7 @@ public class Dapathadiah extends javax.swing.JDialog {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        tomboliya = new custom.Custom_ButtonRounded();
+        tomboliya = new Custom.Custom_ButtonRounded();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
 
@@ -143,6 +143,6 @@ public class Dapathadiah extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
-    private custom.Custom_ButtonRounded tomboliya;
+    private Custom.Custom_ButtonRounded tomboliya;
     // End of variables declaration//GEN-END:variables
 }

@@ -29,8 +29,8 @@ public class Delete extends javax.swing.JDialog {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        tombolbatal = new custom.Custom_ButtonRounded();
-        tombolhapus = new custom.Custom_ButtonRounded();
+        tombolbatal = new Custom.Custom_ButtonRounded();
+        tombolhapus = new Custom.Custom_ButtonRounded();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -124,7 +124,7 @@ public class Delete extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
-    private custom.Custom_ButtonRounded tombolbatal;
-    private custom.Custom_ButtonRounded tombolhapus;
+    private Custom.Custom_ButtonRounded tombolbatal;
+    private Custom.Custom_ButtonRounded tombolhapus;
     // End of variables declaration//GEN-END:variables
 }
