@@ -30,12 +30,9 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="310" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jLabel14" min="-2" pref="95" max="-2" attributes="0"/>
-                          <Component id="Expired_Produk" min="-2" pref="140" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="jLabel14" min="-2" pref="95" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="103" alignment="0" groupAlignment="0" max="-2" attributes="0">
+                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="tomboltambah" min="-2" pref="143" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
@@ -54,19 +51,27 @@
                               <Component id="Nama_supplier" alignment="0" min="-2" pref="292" max="-2" attributes="0"/>
                               <Component id="jLabel6" alignment="0" min="-2" pref="95" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="harga1" alignment="0" max="32767" attributes="0"/>
-                              <Component id="harga2" alignment="0" max="32767" attributes="0"/>
                               <Group type="102" attributes="0">
+                                  <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="jLabel10" alignment="0" min="-2" pref="95" max="-2" attributes="0"/>
-                                      <Component id="jLabel11" alignment="0" min="-2" pref="95" max="-2" attributes="0"/>
-                                      <Component id="jLabel12" alignment="0" min="-2" pref="95" max="-2" attributes="0"/>
+                                      <Component id="harga1" alignment="0" max="32767" attributes="0"/>
+                                      <Component id="harga2" alignment="0" max="32767" attributes="0"/>
+                                      <Group type="102" attributes="0">
+                                          <Group type="103" groupAlignment="0" attributes="0">
+                                              <Component id="jLabel10" alignment="0" min="-2" pref="95" max="-2" attributes="0"/>
+                                              <Component id="jLabel11" alignment="0" min="-2" pref="95" max="-2" attributes="0"/>
+                                              <Component id="jLabel12" alignment="0" min="-2" pref="95" max="-2" attributes="0"/>
+                                          </Group>
+                                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                      </Group>
+                                      <Component id="harga3" alignment="0" max="32767" attributes="0"/>
                                   </Group>
-                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                               </Group>
-                              <Component id="harga3" alignment="0" max="32767" attributes="0"/>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                                  <Component id="expireddate" max="32767" attributes="0"/>
+                              </Group>
                           </Group>
                       </Group>
                       <Group type="102" attributes="0">
@@ -82,7 +87,7 @@
                       </Group>
                   </Group>
               </Group>
-              <EmptySpace min="83" pref="531" max="32767" attributes="0"/>
+              <EmptySpace min="128" pref="535" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -118,8 +123,7 @@
                       <Component id="harga3" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="jLabel14" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="Expired_Produk" min="-2" pref="36" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="42" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
@@ -136,7 +140,10 @@
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="jLabel13" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="Quality" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="Quality" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="expireddate" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
               </Group>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
@@ -259,8 +266,6 @@
         <Property name="text" type="java.lang.String" value="Expired Date"/>
       </Properties>
     </Component>
-    <Component class="com.toedter.calendar.JDateChooser" name="Expired_Produk">
-    </Component>
     <Component class="com.raven.swing.CustomButton_Rounded" name="tomboltambah">
       <Properties>
         <Property name="text" type="java.lang.String" value="Tambahkan"/>
@@ -288,6 +293,14 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ID_ProdukActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="jtextfield.TextFieldSuggestion" name="expireddate">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="almil"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="expireddateActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>
