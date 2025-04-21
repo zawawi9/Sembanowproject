@@ -21,7 +21,7 @@ public class pilihan extends javax.swing.JPanel {
         
         // Pastikan tab "Pemasukan" dipilih secara default dan tampilkan Form_1
         tabbedPaneCustom1.setSelectedIndex(0);
-        tabbedPaneCustom1.setComponentAt(0, new Form_exp());
+        tabbedPaneCustom1.setComponentAt(0, new Form_2());
 
         // Tambahkan listener untuk tab
         tabbedPaneCustom1.addChangeListener(new ChangeListener() {

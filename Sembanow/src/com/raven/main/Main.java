@@ -5,6 +5,7 @@ import com.raven.event.EventMenuSelected;
 import com.raven.form.Form_1;
 import com.raven.form.Form_2;
 import com.raven.form.Form_Produk;
+import com.raven.form.Form_transaksi;
 import com.raven.form.MainForm;
 import com.raven.form.pilihan;
 import com.raven.form.pilihanpendataan;
@@ -105,11 +106,15 @@ public class Main extends javax.swing.JFrame {
             @Override
             public void selected(int index) {
                 if (index == 8) {
-                    main.show(new pilihan());
+                    main.show(new Form_2());
                 } else if (index == 9) {
                     main.show(new Form_Produk());
+                } else if (index == 10) {
+                    main.show(new Form_transaksi());
                 }else if (index == 11) {
                     main.show(new pilihanpendataan());
+                } else if (index == 12) {
+                    main.show(new pilihan());
                 }
             }
         });
