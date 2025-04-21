@@ -45,6 +45,11 @@ public class Form_Karyawan extends javax.swing.JPanel {
                 "ID", "Nama", "Nomor Telepon", "Alamat", "Username", "Password"
             }
         ));
+        table11.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                table11MouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(table11);
 
         kolompencarian.setText("Search ");
@@ -86,6 +91,10 @@ public class Form_Karyawan extends javax.swing.JPanel {
                 .addContainerGap(145, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void table11MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_table11MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_table11MouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
