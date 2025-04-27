@@ -131,7 +131,7 @@ public class Main extends javax.swing.JFrame {
                 } else if (index == 9 && "karyawan".equals(role)) {
                     main.show(new pilihan());
                 } else if (index == 10 && "karyawan".equals(role)) {
-                    main.show(new pilihanKeuangan());
+                    main.show(new Form_transaksi());
                 } else if (index == 18 && "admin".equals(role) || index == 14 && "karyawan".equals(role)) {
                     // Logout
                     data.clearSession();

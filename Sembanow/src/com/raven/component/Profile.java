@@ -15,13 +15,16 @@ public class Profile extends javax.swing.JPanel {
 
         pic.setForeground(new java.awt.Color(245, 245, 245));
         pic.setBorderSize(2);
-        pic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/sembakofixed.png"))); // NOI18N
+        pic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/sembakoprofile.png"))); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(pic, javax.swing.GroupLayout.DEFAULT_SIZE, 171, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(pic, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
