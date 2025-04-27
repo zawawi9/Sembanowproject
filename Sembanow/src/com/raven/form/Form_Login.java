@@ -27,6 +27,23 @@ public class Form_Login extends javax.swing.JFrame {
             System.err.println("Gagal memuat logo: " + e.getMessage());
             e.printStackTrace();
         }
+         // === Tambahin KeyListener ke txtUsername ===
+    txtUsername.addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyPressed(java.awt.event.KeyEvent evt) {
+            if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                txtPassword.requestFocus(); // Enter di Username --> Pindah ke Password
+            }
+        }
+    });
+
+    // === Tambahin KeyListener ke txtPassword ===
+    txtPassword.addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyPressed(java.awt.event.KeyEvent evt) {
+            if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                btnLogin.doClick(); // Enter di Password --> Klik tombol Login
+            }
+        }
+    });
     }
 
     @SuppressWarnings("unchecked")
@@ -187,6 +204,7 @@ public class Form_Login extends javax.swing.JFrame {
             }
         }
     }
+    
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {

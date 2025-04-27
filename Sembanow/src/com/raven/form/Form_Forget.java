@@ -25,6 +25,23 @@ public class Form_Forget extends javax.swing.JFrame {
             System.err.println("Gagal memuat logo: " + e.getMessage());
             e.printStackTrace();
         }
+         // === Tambahin KeyListener ke txtUsername ===
+    txtNik.addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyPressed(java.awt.event.KeyEvent evt) {
+            if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                txtNik.requestFocus(); // Enter di Username --> Pindah ke Password
+            }
+        }
+    });
+
+    // === Tambahin KeyListener ke txtPassword ===
+    txtNewPassword.addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyPressed(java.awt.event.KeyEvent evt) {
+            if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                btnLogin.doClick(); // Enter di Password --> Klik tombol Login
+            }
+        }
+    });
     }
 
     @SuppressWarnings("unchecked")

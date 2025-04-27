@@ -23,6 +23,45 @@ public class Form_Register extends javax.swing.JFrame {
             System.err.println("Gagal memuat logo: " + e.getMessage());
             e.printStackTrace();
         }
+         
+    txtUsername.addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyPressed(java.awt.event.KeyEvent evt) {
+            if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                txtUsername.requestFocus();
+            }
+        }
+    });
+
+    
+    txtPassword.addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyPressed(java.awt.event.KeyEvent evt) {
+            if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                txtPassword.requestFocus();
+            }
+        }
+    });
+    txtNik.addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyPressed(java.awt.event.KeyEvent evt) {
+            if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                txtNik.requestFocus();
+            }
+        }
+    });
+
+    txtRole.addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyPressed(java.awt.event.KeyEvent evt) {
+            if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                txtRole.requestFocus();
+            }
+        }
+    });
+    txtSalary.addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyPressed(java.awt.event.KeyEvent evt) {
+            if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                btnRegister.doClick();
+            }
+        }
+    });
     }
 
     @SuppressWarnings("unchecked")
