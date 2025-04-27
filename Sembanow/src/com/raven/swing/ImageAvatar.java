@@ -33,6 +33,8 @@ public class ImageAvatar extends JComponent {
         updateImage = false;
         repaint();
     }
+    
+
 
     private Icon icon;
     private int borderSize;

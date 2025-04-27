@@ -11,6 +11,10 @@ import java.time.LocalTime;
 import javax.swing.JOptionPane;
 import javax.swing.ImageIcon;
 import javax.swing.JTextField;
+import raven.dialog.IncorrectPassword;
+import raven.dialog.MasukkanLogin;
+import raven.dialog.MasukkanPass;
+import raven.dialog.MasukkanUser;
 
 public class Form_Login extends javax.swing.JFrame {
 
@@ -152,17 +156,22 @@ public class Form_Login extends javax.swing.JFrame {
 
         pack();
     }
+    
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {
         String username = txtUsername.getText().trim();
         String password = txtPassword.getText().trim();
 
         if (username.isEmpty() || username.equals("username")) {
-            JOptionPane.showMessageDialog(this, "Username tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+            MasukkanUser user = new MasukkanUser(this, rootPaneCheckingEnabled);
+            user.setVisible(true);
+            user.fadeIn();
             return;
         }
         if (password.isEmpty() || password.equals("password")) {
-            JOptionPane.showMessageDialog(this, "Password tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+            MasukkanPass pw = new MasukkanPass(this, rootPaneCheckingEnabled);
+            pw.setVisible(true);
+            pw.fadeIn();
             return;
         }
 
@@ -190,7 +199,10 @@ public class Form_Login extends javax.swing.JFrame {
                 new Main().setVisible(true);
                 this.dispose();
             } else {
-                JOptionPane.showMessageDialog(this, "Username atau Password salah!", "Error", JOptionPane.ERROR_MESSAGE);
+                IncorrectPassword salah = new IncorrectPassword(this, rootPaneCheckingEnabled);
+                salah.setVisible(true);
+                salah.shake();
+            return;
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Koneksi database gagal: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -204,6 +216,7 @@ public class Form_Login extends javax.swing.JFrame {
             }
         }
     }
+    
     
 
     public static void main(String args[]) {

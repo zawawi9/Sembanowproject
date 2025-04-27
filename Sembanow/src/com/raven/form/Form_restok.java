@@ -608,8 +608,8 @@ private void setBackgroundRecursively(Container container, Color color) {
         ttl = new jtextfield.TextFieldSuggestion();
         jLabel21 = new javax.swing.JLabel();
         spp = new jtextfield.TextFieldSuggestion();
-        jButton2 = new javax.swing.JButton();
-        btn = new javax.swing.JButton();
+        restock = new Custom.Custom_ButtonRounded();
+        Tambah = new Custom.Custom_ButtonRounded();
 
         setBackground(new java.awt.Color(250, 250, 250));
 
@@ -728,17 +728,17 @@ private void setBackgroundRecursively(Container container, Color color) {
             }
         });
 
-        jButton2.setText("Restock");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        restock.setText("Restock");
+        restock.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                restockActionPerformed(evt);
             }
         });
 
-        btn.setText("tambah");
-        btn.addActionListener(new java.awt.event.ActionListener() {
+        Tambah.setText("Tambah");
+        Tambah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnActionPerformed(evt);
+                TambahActionPerformed(evt);
             }
         });
 
@@ -763,9 +763,9 @@ private void setBackgroundRecursively(Container container, Color color) {
                             .addComponent(jLabel21, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(ttl, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel20, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(jLabel20, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(ttl, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -794,12 +794,11 @@ private void setBackgroundRecursively(Container container, Color color) {
                                     .addComponent(hhh, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(expired, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 516, Short.MAX_VALUE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 520, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btn, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING))))
-                .addContainerGap())
+                            .addComponent(Tambah, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(restock, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -821,12 +820,6 @@ private void setBackgroundRecursively(Container container, Color color) {
                             .addComponent(sts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(2, 2, 2)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(37, 37, 37)
-                        .addComponent(jButton2)
-                        .addGap(18, 18, 18)
-                        .addComponent(btn)
-                        .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
                         .addGap(26, 26, 26)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -869,7 +862,13 @@ private void setBackgroundRecursively(Container container, Color color) {
                                 .addComponent(jLabel14)
                                 .addGap(12, 12, 12)
                                 .addComponent(expired, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 72, Short.MAX_VALUE))))))
+                                .addGap(0, 72, Short.MAX_VALUE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(36, 36, 36)
+                        .addComponent(restock, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(Tambah, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -925,9 +924,9 @@ private void setBackgroundRecursively(Container container, Color color) {
         // TODO add your handling code here:
     }//GEN-LAST:event_sppActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-    try {
-        cn.setAutoCommit(false); // Start transaction
+    private void restockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_restockActionPerformed
+        try {
+            cn.setAutoCommit(false); // Start transaction
 
             String pengeluaranSql = "INSERT INTO pengeluaran (status, jumlah, keterangan, total) VALUES (?, ?, ?, ?)";
             try (PreparedStatement pstmt = cn.prepareStatement(pengeluaranSql)) {
@@ -1035,40 +1034,38 @@ private void setBackgroundRecursively(Container container, Color color) {
             jmlh.requestFocusInWindow();
 
         } catch (SQLException | NumberFormatException ex) {
-        try {
-            if (cn != null) cn.rollback(); // Rollback on error
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        JOptionPane.showMessageDialog(this, "Error saving data: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        ex.printStackTrace();
-    } finally {
-        try {
-            if (cn != null) {
-                cn.setAutoCommit(true);
+            try {
+                if (cn != null) cn.rollback(); // Rollback on error
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error saving data: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.setAutoCommit(true);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
-    }
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_restockActionPerformed
 
-    private void btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActionPerformed
-addproduk();
-
-    }//GEN-LAST:event_btnActionPerformed
+    private void TambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TambahActionPerformed
+    addproduk();
+    }//GEN-LAST:event_TambahActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private Custom.Custom_ButtonRounded Tambah;
     private jtextfield.TextFieldSuggestion barkot;
-    private javax.swing.JButton btn;
     private com.raven.component.Card card3;
     private jtextfield.TextFieldSuggestion expired;
     private jtextfield.TextFieldSuggestion h;
     private jtextfield.TextFieldSuggestion hb;
     private jtextfield.TextFieldSuggestion hh;
     private jtextfield.TextFieldSuggestion hhh;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -1086,6 +1083,7 @@ addproduk();
     private jtextfield.TextFieldSuggestion jmlh;
     private jtextfield.TextFieldSuggestion pro;
     private com.raven.swing.Table1 productTable;
+    private Custom.Custom_ButtonRounded restock;
     private jtextfield.TextFieldSuggestion spp;
     private jtextfield.TextFieldSuggestion stk;
     private jtextfield.TextFieldSuggestion stn;

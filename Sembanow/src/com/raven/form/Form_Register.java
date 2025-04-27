@@ -8,6 +8,12 @@ import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import javax.swing.ImageIcon;
 import javax.swing.JTextField;
+import raven.dialog.MasukkanPass;
+import raven.dialog.MasukkanUser;
+import raven.dialog.PilihNIK;
+import raven.dialog.PilihRole;
+import raven.dialog.PilihRole1;
+import raven.dialog.PilihSalary;
 
 public class Form_Register extends javax.swing.JFrame {
 
@@ -189,27 +195,39 @@ public class Form_Register extends javax.swing.JFrame {
         String salaryStr = txtSalary.getText().trim();
 
         if (username.isEmpty() || username.equals("username")) {
-            JOptionPane.showMessageDialog(this, "Username tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+            MasukkanUser user = new MasukkanUser(this, rootPaneCheckingEnabled);
+            user.setVisible(true);
+            user.fadeIn();
             return;
         }
         if (password.isEmpty() || password.equals("password")) {
-            JOptionPane.showMessageDialog(this, "Password tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+            MasukkanPass pw = new MasukkanPass(this, rootPaneCheckingEnabled);
+            pw.setVisible(true);
+            pw.fadeIn();
             return;
         }
         if (role.isEmpty() || role.equals("role")) {
-            JOptionPane.showMessageDialog(this, "Role tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+            PilihRole rl = new PilihRole(this, rootPaneCheckingEnabled);
+            rl.setVisible(true);
+            rl.fadeIn();
             return;
         }
         if (!role.equalsIgnoreCase("admin") && !role.equalsIgnoreCase("karyawan")) {
-            JOptionPane.showMessageDialog(this, "Role harus 'admin' atau 'karyawan'!", "Error", JOptionPane.ERROR_MESSAGE);
+            PilihRole1 pilihrl = new PilihRole1(this, rootPaneCheckingEnabled);
+            pilihrl.setVisible(true);
+            pilihrl.fadeIn();
             return;
         }
         if (nik.isEmpty() || nik.equals("NIK")) {
-            JOptionPane.showMessageDialog(this, "NIK tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+            PilihNIK nik1 = new PilihNIK(this, rootPaneCheckingEnabled);
+            nik1.setVisible(true);
+            nik1.fadeIn();
             return;
         }
         if (salaryStr.isEmpty() || salaryStr.equals("salary")) {
-            JOptionPane.showMessageDialog(this, "Salary tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+            PilihSalary slr = new PilihSalary(this, rootPaneCheckingEnabled);
+            slr.setVisible(true);
+            slr.fadeIn();
             return;
         }
 

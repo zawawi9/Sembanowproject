@@ -100,6 +100,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Lanjut"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tombollanjutActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel2">
           <Properties>
@@ -129,6 +132,9 @@
               <Color blue="38" green="38" red="fc" type="rgb"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tombollanjut1ActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

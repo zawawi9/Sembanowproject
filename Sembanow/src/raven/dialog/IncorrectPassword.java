@@ -15,8 +15,38 @@ public class IncorrectPassword extends javax.swing.JDialog {
      */
     public IncorrectPassword(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
+        setUndecorated(true);
         initComponents();
+        setLocationRelativeTo(parent);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        
+        shake();
+        tomboliya.addKeyListener(new java.awt.event.KeyAdapter() {
+        public void keyPressed(java.awt.event.KeyEvent evt) {
+            if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                tomboliya.doClick();// Enter di Username --> Pindah ke Password
+            }
+        }
+    });
     }
+    public void shake() {
+    final int originalX = getLocation().x;
+    final int originalY = getLocation().y;
+
+    new Thread(() -> {
+        try {
+            for (int i = 0; i < 10; i++) {
+                setLocation(originalX + 5, originalY);
+                Thread.sleep(5);
+                setLocation(originalX - 5, originalY);
+                Thread.sleep(5);
+            }
+            setLocation(originalX, originalY); // balikin ke posisi awal
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }).start();
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -39,6 +69,11 @@ public class IncorrectPassword extends javax.swing.JDialog {
         jLabel1.setText("Username atau password salah");
 
         tomboliya.setText("OK");
+        tomboliya.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tomboliyaActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -67,6 +102,10 @@ public class IncorrectPassword extends javax.swing.JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void tomboliyaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tomboliyaActionPerformed
+     dispose();
+    }//GEN-LAST:event_tomboliyaActionPerformed
 
     /**
      * @param args the command line arguments

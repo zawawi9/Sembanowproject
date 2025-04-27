@@ -15,8 +15,39 @@ public class MisiHadiah extends javax.swing.JDialog {
      */
     public MisiHadiah(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
+        setUndecorated(true);
         initComponents();
+        setLocationRelativeTo(parent);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        
+        fadeIn();
     }
+public void fadeIn() {
+    setOpacity(0f); // Mulai dari transparan
+    new Thread(() -> {
+        try {
+            for (float i = 0f; i <= 1f; i += 0.05f) {
+                Thread.sleep(5);
+                setOpacity(i);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }).start();
+}
+public void fadeOut() {
+    new Thread(() -> {
+        try {
+            for (float i = 1f; i >= 0f; i -= 0.05f) {
+                Thread.sleep(5);
+                setOpacity(i);
+            }
+            dispose(); // Tutup dialog setelah fade out selesai
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }).start();
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -43,6 +74,11 @@ public class MisiHadiah extends javax.swing.JDialog {
         jLabel1.setText("Dapatkan hadiah dengan minimum total belanja 500K");
 
         tombollanjut.setText("Lanjut");
+        tombollanjut.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tombollanjutActionPerformed(evt);
+            }
+        });
 
         jLabel2.setText("Transaksi anda saat ini sedang mencapai");
 
@@ -54,6 +90,11 @@ public class MisiHadiah extends javax.swing.JDialog {
         tombollanjut1.setFillClick(new java.awt.Color(130, 0, 0));
         tombollanjut1.setFillOriginal(new java.awt.Color(255, 0, 0));
         tombollanjut1.setFillOver(new java.awt.Color(252, 56, 56));
+        tombollanjut1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tombollanjut1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -100,6 +141,16 @@ public class MisiHadiah extends javax.swing.JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void tombollanjutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tombollanjutActionPerformed
+        dispose();
+        
+    }//GEN-LAST:event_tombollanjutActionPerformed
+
+    private void tombollanjut1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tombollanjut1ActionPerformed
+        dispose();
+        fadeOut();
+    }//GEN-LAST:event_tombollanjut1ActionPerformed
 
     /**
      * @param args the command line arguments

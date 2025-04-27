@@ -9,6 +9,8 @@ import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import javax.swing.ImageIcon;
 import javax.swing.JTextField;
+import raven.dialog.MasukkanPass;
+import raven.dialog.PilihNIK;
 
 public class Form_Forget extends javax.swing.JFrame {
 
@@ -124,11 +126,15 @@ public class Form_Forget extends javax.swing.JFrame {
         String newPassword = txtNewPassword.getText().trim();
 
         if (nik.isEmpty() || nik.equals("NIK")) {
-            JOptionPane.showMessageDialog(this, "NIK tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+            PilihNIK nik1 = new PilihNIK(this, rootPaneCheckingEnabled);
+            nik1.setVisible(true);
+            nik1.fadeIn();
             return;
         }
         if (newPassword.isEmpty() || newPassword.equals("new password")) {
-            JOptionPane.showMessageDialog(this, "Kata sandi baru tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+            MasukkanPass pw = new MasukkanPass(this, rootPaneCheckingEnabled);
+            pw.setVisible(true);
+            pw.fadeIn();
             return;
         }
 

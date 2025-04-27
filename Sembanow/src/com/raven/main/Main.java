@@ -10,6 +10,7 @@ import com.raven.form.Form_Login;
 import com.raven.form.Form_searchproduk;
 import com.raven.form.data;
 import com.raven.form.pilihanKeuangan;
+import com.raven.form.pilihanpendataan;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -117,12 +118,14 @@ public class Main extends javax.swing.JFrame {
                 String role = data.getRole();
                 if (index == 8) {
                     main.show(new Form_2());
-                } else if (index == 10 && "admin".equals(role)) {
-                    main.show(new Form_searchproduk());
+                }else if (index == 10 && "admin".equals(role)) {
+                    main.show(new pilihan());
+                } else if (index == 12 && "admin".equals(role)) {
+                    main.show(new pilihanpendataan());
                 } else if (index == 11 && "admin".equals(role)) {
                     main.show(new Form_transaksi());
                 } else if (index == 13 && "admin".equals(role)) {
-                    main.show(new pilihan());
+                    main.show(new pilihanKeuangan());
                 } else if (index == 9 && "admin".equals(role)) {
                     main.show(new Form_2());
                 } else if (index == 9 && "karyawan".equals(role)) {
