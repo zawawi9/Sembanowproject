@@ -6,11 +6,12 @@ import com.raven.swing.icon.GoogleMaterialDesignIcons;
 import com.raven.swing.icon.IconFontSwing;
 import config.koneksi;
 import java.awt.Color;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import javax.swing.Icon;
 import javax.swing.table.DefaultTableModel;
 
@@ -19,80 +20,165 @@ public class Form_2 extends javax.swing.JPanel {
     public Statement st;
     public ResultSet rs;
     Connection cn = koneksi.getKoneksi();
+    
+    // Format untuk pemisah ribuan
+    private final DecimalFormat df;
 
     public Form_2() {
-        initComponents();
-        initCardData();
-        initChartData();// Tambahkan inisialisasi data tabel
-        
-    }
-
-    private void initChartData() {
-        chart.clear();
-        chart.setTitle("Pemasukan");
-        chart.addLegend("Amount", Color.decode("#7b4397"), Color.decode("#dc2430"));
-        chart.addLegend("Cost", Color.decode("#e65c00"), Color.decode("#F9D423"));
-        chart.addLegend("Profit", Color.decode("#0099F7"), Color.decode("#F11712"));
-        chart.addData(new ModelChart("January", new double[]{500, 50, 100}));
-        chart.addData(new ModelChart("February", new double[]{600, 300, 150}));
-        chart.addData(new ModelChart("March", new double[]{200, 50, 900}));
-        chart.addData(new ModelChart("April", new double[]{480, 700, 100}));
-        chart.addData(new ModelChart("May", new double[]{350, 540, 500}));
-        chart.addData(new ModelChart("June", new double[]{450, 800, 100}));
-        chart.start();
-    
-    }
-
-    
-    private void initCardData() {
-        Icon icon1 = IconFontSwing.buildIcon(GoogleMaterialDesignIcons.PEOPLE, 60, new Color(255, 255, 255, 100), new Color(255, 255, 255, 15));
-        card1.setData(new ModelCard("New Student", 510000000, icon1));
-    }
-
-    public void showData() {
-    try {
-        // Format untuk pemisah ribuan dengan titik
+        // Inisialisasi format untuk pemisah ribuan
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
         symbols.setGroupingSeparator('.'); // Pemisah ribuan menggunakan titik
-        DecimalFormat df = new DecimalFormat("#,###", symbols);
+        df = new DecimalFormat("#,###", symbols);
 
-        st = cn.createStatement();
-        rs = st.executeQuery("SELECT nama, tipe_pelanggan, total, tanggal FROM pemasukan WHERE tanggal = CURDATE() ORDER BY tanggal DESC");
-
-        DefaultTableModel model = new DefaultTableModel();
-        model.addColumn("NO");
-        model.addColumn("Nama");
-        model.addColumn("Tipe Pelanggan");
-        model.addColumn("Total");
-        model.addColumn("Tanggal");
-
-        model.setRowCount(0); 
-        int no = 1;
-        while (rs.next()) {
-            int total = rs.getInt("total");
-
-            Object[] Data = {
-                no++,              // NO
-                rs.getString("nama"),          // Nama
-                rs.getString("tipe_pelanggan"), // Tipe Pelanggan
-                df.format(total),              // Format total dengan pemisah ribuan
-                rs.getString("tanggal")        // Tanggal
-            };
-            model.addRow(Data);
-        }
-        table.setModel(model);
-        table.fixTable(jScrollPane1);
-
-        // Pengaturan lebar kolom
-        int[] columnWidths = {50, 250, 130, 130, 130}; // Lebar kolom disesuaikan dengan kolom baru
-        for (int i = 0; i < columnWidths.length; i++) {
-            table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
-        }
-
-    } catch (Exception e) {
-        e.printStackTrace();
+        initComponents();
+        chart();
+        card();
+        card1();
+        table();
     }
-}
+
+    private void chart() {
+        chart.clear();
+        chart.setTitle("Pemasukan 7 Hari Terakhir");
+        chart.addLegend("Pemasukan Harian", Color.decode("#2c3ebd"), Color.decode("#49c3fb"));
+
+        try {
+            // Query untuk mengambil total harian dalam 7 hari terakhir
+            String sql = "SELECT DATE(tanggal) AS tanggal_hari, SUM(total_keseluruhan) AS total_harian " +
+                        "FROM dashboard " +
+                        "GROUP BY DATE(tanggal) " +
+                        "ORDER BY tanggal_hari ASC";
+            PreparedStatement stmt = cn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+
+            // Array untuk menyimpan total per hari (7 hari)
+            double[] totals = new double[7];
+            String[] days = new String[7];
+            SimpleDateFormat sdf = new SimpleDateFormat("EEEE"); // Format nama hari (Senin, Selasa, dst.)
+
+            // Inisialisasi array dengan 0
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DAY_OF_YEAR, -6); // Mulai dari 6 hari sebelum hari ini
+            for (int i = 0; i < 7; i++) {
+                totals[i] = 0;
+                days[i] = sdf.format(cal.getTime());
+                cal.add(Calendar.DAY_OF_YEAR, 1);
+            }
+
+            // Isi total berdasarkan data dari query
+            while (rs.next()) {
+                Date tanggal = rs.getDate("tanggal_hari");
+                double totalHarian = rs.getDouble("total_harian");
+
+                // Hitung selisih hari dari tanggal saat ini
+                long diff = (new Date().getTime() - tanggal.getTime()) / (1000 * 60 * 60 * 24);
+                int index = 6 - (int) diff; // Indeks dalam array (0 adalah 6 hari lalu, 6 adalah hari ini)
+                if (index >= 0 && index < 7) {
+                    totals[index] = totalHarian;
+                }
+            }
+
+            // Tambahkan data ke chart
+            for (int i = 0; i < 7; i++) {
+                chart.addData(new ModelChart(days[i], new double[]{totals[i]}));
+            }
+
+            chart.start();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            javax.swing.JOptionPane.showMessageDialog(null, "Error saat mengambil data chart: " + e.getMessage());
+        }
+    }
+
+    private void card() {
+        Icon icon = IconFontSwing.buildIcon(GoogleMaterialDesignIcons.PEOPLE, 60, new Color(255, 255, 255, 100), new Color(255, 255, 255, 15));
+        
+        try {
+            // Query untuk menghitung jumlah transaksi dalam 7 hari terakhir
+            String sql = "SELECT COUNT(*) AS jumlah_transaksi FROM dashboard";
+            PreparedStatement stmt = cn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+            
+            int jumlahTransaksi = 0;
+            if (rs.next()) {
+                jumlahTransaksi = rs.getInt("jumlah_transaksi");
+            }
+            
+            card1.setData(new ModelCard("Jumlah Transaksi", jumlahTransaksi, icon));
+        } catch (SQLException e) {
+            e.printStackTrace();
+            javax.swing.JOptionPane.showMessageDialog(null, "Error saat mengambil data card: " + e.getMessage());
+        }
+    }
+
+    private void card1() {
+        Icon icon = IconFontSwing.buildIcon(GoogleMaterialDesignIcons.ACCOUNT_BALANCE, 60, new Color(255, 255, 255, 100), new Color(255, 255, 255, 15));
+        
+        try {
+            // Query untuk menghitung akumulasi total_keseluruhan dalam 7 hari terakhir
+            String sql = "SELECT SUM(total_keseluruhan) AS total_akumulasi FROM dashboard";
+            PreparedStatement stmt = cn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+            
+            double totalAkumulasi = 0;
+            if (rs.next()) {
+                totalAkumulasi = rs.getDouble("total_akumulasi");
+            }
+            
+            card2.setData(new ModelCard("Total Pemasukan", totalAkumulasi, icon));
+        } catch (SQLException e) {
+            e.printStackTrace();
+            javax.swing.JOptionPane.showMessageDialog(null, "Error saat mengambil data card1: " + e.getMessage());
+        }
+    }
+
+    public void table() {
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("nama");
+        model.addColumn("jumlah");
+        model.addColumn("harga jual");
+        model.addColumn("harga beli");
+        model.addColumn("total");
+        model.addColumn("tanggal");
+        model.addColumn("Kasir");
+
+        try {
+            // Query untuk mengambil data dari view
+            String sql = "SELECT id_penjualan, nama_pelanggan, tanggal, total_keseluruhan, bayar, kembalian, nama_karyawan " +
+                        "FROM dashboard " +
+                        "ORDER BY tanggal DESC";
+            PreparedStatement stmt = cn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                    rs.getInt("id_penjualan"),
+                    rs.getString("nama_pelanggan"),
+                    new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal")),
+                    df.format(rs.getDouble("total_keseluruhan")),
+                    df.format(rs.getDouble("bayar")),
+                    df.format(rs.getDouble("kembalian")),
+                    rs.getString("nama_karyawan")
+                });
+            }
+
+            table1.setModel(model);
+            
+            // Pengaturan lebar kolom (opsional, sesuaikan sesuai kebutuhan)
+            int[] columnWidths = {100, 150, 150, 150, 150, 150, 150};
+            for (int i = 0; i < columnWidths.length; i++) {
+                table1.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
+            }
+            
+            // Sesuaikan tabel dengan scroll pane (jika ada method custom)
+            table1.fixTable(jScrollPane1);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            javax.swing.JOptionPane.showMessageDialog(null, "Error saat mengambil data tabel: " + e.getMessage());
+        }
+    }
+
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -100,14 +186,14 @@ public class Form_2 extends javax.swing.JPanel {
 
         card3 = new com.raven.component.Card();
         jScrollPane1 = new javax.swing.JScrollPane();
-        table = new com.raven.swing.Table1();
+        table1 = new com.raven.swing.Table1();
         chart = new chart.CurveLineChart();
         card1 = new com.raven.component.Card();
         card2 = new com.raven.component.Card();
 
         setBackground(new java.awt.Color(250, 250, 250));
 
-        table.setModel(new javax.swing.table.DefaultTableModel(
+        table1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -118,7 +204,7 @@ public class Form_2 extends javax.swing.JPanel {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane1.setViewportView(table);
+        jScrollPane1.setViewportView(table1);
 
         chart.setFillColor(true);
 
@@ -163,6 +249,6 @@ public class Form_2 extends javax.swing.JPanel {
     private com.raven.component.Card card3;
     private chart.CurveLineChart chart;
     private javax.swing.JScrollPane jScrollPane1;
-    private com.raven.swing.Table1 table;
+    private com.raven.swing.Table1 table1;
     // End of variables declaration//GEN-END:variables
 }

@@ -1,5 +1,6 @@
 package com.raven.component;
 
+import com.raven.form.data;
 import com.raven.event.EventMenuSelected;
 import com.raven.model.Model_Menu;
 import java.awt.Color;
@@ -11,6 +12,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.Path2D;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import javax.swing.JFrame;
 
 public class Menu extends javax.swing.JPanel {
@@ -30,20 +33,34 @@ public class Menu extends javax.swing.JPanel {
     }
 
     private void init() {
-        listMenu1.addItem(new Model_Menu("", "", Model_Menu.MenuType.EMPTY));
+        // Ambil data dari kelas data
+        String username = data.getUsername() != null ? data.getUsername() : "Pengguna";
+        String loginTimeStr = "07:00"; // Default jika loginTime null
+        if (data.getLoginTime() != null) {
+            LocalTime loginTime = data.getLoginTime();
+            loginTimeStr = loginTime.format(DateTimeFormatter.ofPattern("HH:mm"));
+        }
+        String role = data.getRole() != null ? data.getRole() : "hadir";
+
+        // Item menu
+        listMenu1.addItem(new Model_Menu("", "Pengguna", Model_Menu.MenuType.TITLE));
+        listMenu1.addItem(new Model_Menu("8", username, Model_Menu.MenuType.MENU)); // Ganti "Almil" dengan username
         listMenu1.addItem(new Model_Menu("", "Presensi Masuk", Model_Menu.MenuType.TITLE));
-        listMenu1.addItem(new Model_Menu("1", "07.00", Model_Menu.MenuType.MENU));
+        listMenu1.addItem(new Model_Menu("1", loginTimeStr, Model_Menu.MenuType.MENU)); // Ganti "07.00" dengan waktu login
         listMenu1.addItem(new Model_Menu("1", "Keterangan", Model_Menu.MenuType.TITLE));
-        listMenu1.addItem(new Model_Menu("2", "hadir", Model_Menu.MenuType.MENU));
+        listMenu1.addItem(new Model_Menu("2", role, Model_Menu.MenuType.MENU)); // Ganti "hadir" dengan role
         listMenu1.addItem(new Model_Menu("", "", Model_Menu.MenuType.EMPTY));
         listMenu1.addItem(new Model_Menu("", "=================", Model_Menu.MenuType.TITLE));
         listMenu1.addItem(new Model_Menu("", "", Model_Menu.MenuType.EMPTY));
-        listMenu1.addItem(new Model_Menu("3", "Dashboard", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("4", "Produk", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("5", "Transaksi", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("6", "Pendataan", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("7", "Keuangan", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("8", "Extra", Model_Menu.MenuType.MENU));
+
+        // Tambahkan item menu berdasarkan role
+        if ("admin".equals(role)) {
+            initAdminMenu();
+        } else if ("karyawan".equals(role)) {
+            initKaryawanMenu();
+        }
+
+        // Item penutup
         listMenu1.addItem(new Model_Menu("", "", Model_Menu.MenuType.EMPTY));
         listMenu1.addItem(new Model_Menu("", "=================", Model_Menu.MenuType.TITLE));
         listMenu1.addItem(new Model_Menu("", "", Model_Menu.MenuType.EMPTY));
@@ -51,6 +68,60 @@ public class Menu extends javax.swing.JPanel {
         listMenu1.addItem(new Model_Menu("", "", Model_Menu.MenuType.EMPTY));
     }
 
+    private void initAdminMenu() {
+        listMenu1.addItem(new Model_Menu("3", "Dashboard", Model_Menu.MenuType.MENU));
+        listMenu1.addItem(new Model_Menu("4", "Produk", Model_Menu.MenuType.MENU));
+        listMenu1.addItem(new Model_Menu("5", "Transaksi", Model_Menu.MenuType.MENU));
+        listMenu1.addItem(new Model_Menu("6", "Pendataan", Model_Menu.MenuType.MENU));
+        listMenu1.addItem(new Model_Menu("7", "Keuangan", Model_Menu.MenuType.MENU));
+        listMenu1.addItem(new Model_Menu("8", "Extra", Model_Menu.MenuType.MENU));
+    }
+
+    private void initKaryawanMenu() {
+        listMenu1.addItem(new Model_Menu("4", "Produk", Model_Menu.MenuType.MENU));
+        listMenu1.addItem(new Model_Menu("5", "Transaksi", Model_Menu.MenuType.MENU));
+    }
+
+    @Override
+    protected void paintChildren(Graphics grphcs) {
+        Graphics2D g2 = (Graphics2D) grphcs;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        GradientPaint g = new GradientPaint(
+            0, 0, Color.decode("#006464"),
+            0, getHeight(), Color.decode("#00A0A0")
+        );
+        int height = 140;
+        Path2D.Float f = new Path2D.Float();
+        f.moveTo(0, 0);
+        f.curveTo(0, 0, 0, 70, 100, 70);
+        f.curveTo(100, 70, getWidth(), 70, getWidth(), height);
+        f.lineTo(getWidth(), getHeight());
+        f.lineTo(0, getHeight());
+        g2.setColor(Color.decode("#00A0A0"));
+        g2.fillRect(0, 0, getWidth(), getHeight());
+        g2.setPaint(g);
+        g2.fill(f);
+        super.paintChildren(grphcs);
+    }
+
+    private int x;
+    private int y;
+
+    public void initMoving(JFrame fram) {
+        profile1.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent me) {
+                x = me.getX();
+                y = me.getY();
+            }
+        });
+        profile1.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent me) {
+                fram.setLocation(me.getXOnScreen() - x, me.getYOnScreen() - y);
+            }
+        });
+    }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -77,55 +148,7 @@ public class Menu extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-@Override
-protected void paintChildren(Graphics grphcs) {
-    Graphics2D g2 = (Graphics2D) grphcs;
-    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-    
-    // Gradien dari warna hijau utama (#006464) ke hijau gelap (#00A0A0)
-    GradientPaint g = new GradientPaint(
-        0, 0, Color.decode("#006464"), // Warna awal (cyan gelap: 0, 100, 100)
-        0, getHeight(), Color.decode("#00A0A0") // Warna akhir (cyan lebih terang: 0, 160, 160)
-    );
-    
-int height = 140;
-    Path2D.Float f = new Path2D.Float();
-    f.moveTo(0, 0);
-    f.curveTo(0, 0, 0, 70, 100, 70);
-    f.curveTo(100, 70, getWidth(), 70, getWidth(), height);
-    f.lineTo(getWidth(), getHeight());
-    f.lineTo(0, getHeight());
-    
-    // Ganti warna latar belakang dasar menjadi hijau gelap (#00A0A0)
-    g2.setColor(Color.decode("#00A0A0"));
-    g2.fillRect(0, 0, getWidth(), getHeight());
-    
-    // Terapkan gradien
-    g2.setPaint(g);
-    g2.fill(f);
-    
-    super.paintChildren(grphcs);
-}
 
-    private int x;
-    private int y;
-
-    public void initMoving(JFrame fram) {
-        profile1.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent me) {
-                x = me.getX();
-                y = me.getY();
-            }
-
-        });
-        profile1.addMouseMotionListener(new MouseMotionAdapter() {
-            @Override
-            public void mouseDragged(MouseEvent me) {
-                fram.setLocation(me.getXOnScreen() - x, me.getYOnScreen() - y);
-            }
-        });
-    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

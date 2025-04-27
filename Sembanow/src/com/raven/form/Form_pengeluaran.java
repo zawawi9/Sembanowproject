@@ -4,120 +4,278 @@ import chart.ModelChart;
 import com.raven.model.ModelCard;
 import com.raven.swing.icon.GoogleMaterialDesignIcons;
 import com.raven.swing.icon.IconFontSwing;
+import config.koneksi;
 import java.awt.Color;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import javax.swing.Icon;
+import javax.swing.table.DefaultTableModel;
 
 public class Form_pengeluaran extends javax.swing.JPanel {
 
+
+    public Statement st;
+    public ResultSet rs;
+    Connection cn = koneksi.getKoneksi();
+    private final DecimalFormat df;
+
     public Form_pengeluaran() {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setGroupingSeparator('.'); 
+        df = new DecimalFormat("#,###", symbols);
         initComponents();
-        initChartData();
-        initTableData(); // Tambahkan inisialisasi data tabel
-        this.addComponentListener(new java.awt.event.ComponentAdapter() {
-            @Override
-            public void componentResized(java.awt.event.ComponentEvent e) {
-                chart1.revalidate();
-                chart1.repaint();
-            }
-        });
+        chart();
+        table();
+       
     }
+    
+    private void chart() {
+    chart.clear();
+    chart.setTitle("pengeluaran Tahunan");
+    chart.addLegend("pengeluaran ", Color.decode("#e65c00"), Color.decode("#F9D423"));
 
-    private void initChartData() {
-        // Atur judul dan legenda chart
-        chart1.setTitle("Chart Pemasukan");
-        chart1.addLegend("Mingguan", Color.decode("#7b4397"), Color.decode("#dc2430"));
-        chart1.addLegend("3 Bulanan", Color.decode("#e65c00"), Color.decode("#F9D423"));
-        chart1.addLegend("Tahunan", Color.decode("#0099F7"), Color.decode("#F11712"));
+    try {
+        // Query untuk mengambil total pemasukan per bulan dalam tahun 2025
+        String sql = "SELECT MONTH(tanggal) AS bulan, SUM(total_keseluruhan) AS total_pemasukan " +
+                     "FROM dashboard " +
+                     "WHERE YEAR(tanggal) = YEAR(CURDATE()) " +
+                     "GROUP BY MONTH(tanggal) " +
+                     "ORDER BY bulan ASC";
+        PreparedStatement stmt = cn.prepareStatement(sql);
+        ResultSet rs = stmt.executeQuery();
 
-        // Data dummy
-        List<String> labelsMingguan = new ArrayList<>();
-        List<Double> totalsMingguan = new ArrayList<>();
-        List<String> labels3Bulanan = new ArrayList<>();
-        List<Double> totals3Bulanan = new ArrayList<>();
-        List<String> labelsTahunan = new ArrayList<>();
-        List<Double> totalsTahunan = new ArrayList<>();
+        // Array untuk menyimpan total per bulan (Januari-Desember)
+        double[] totals = new double[12];
+        String[] months = {"January", "February", "March", "April", "May", "June", 
+                          "July", "August", "September", "October", "November", "December"};
 
-        // Data Mingguan (contoh 5 hari)
-        labelsMingguan.add("Senin"); totalsMingguan.add(5000.0);
-        labelsMingguan.add("Selasa"); totalsMingguan.add(7000.0);
-        labelsMingguan.add("Rabu"); totalsMingguan.add(4500.0);
-        labelsMingguan.add("Kamis"); totalsMingguan.add(8000.0);
-        labelsMingguan.add("Jumat"); totalsMingguan.add(6000.0);
+        // Inisialisasi array dengan 0
+        for (int i = 0; i < 12; i++) {
+            totals[i] = 0;
+        }
 
-        // Data 3 Bulanan (contoh 3 minggu)
-        labels3Bulanan.add("Minggu 1"); totals3Bulanan.add(20000.0);
-        labels3Bulanan.add("Minggu 2"); totals3Bulanan.add(25000.0);
-        labels3Bulanan.add("Minggu 3"); totals3Bulanan.add(18000.0);
-
-        // Data Tahunan (contoh 4 bulan)
-        labelsTahunan.add("Januari"); totalsTahunan.add(100000.0);
-        labelsTahunan.add("Februari"); totalsTahunan.add(120000.0);
-        labelsTahunan.add("Maret"); totalsTahunan.add(90000.0);
-        labelsTahunan.add("April"); totalsTahunan.add(110000.0);
-
-        // Tentukan jumlah maksimum data untuk sinkronisasi
-        int maxSize = Math.max(labelsMingguan.size(), Math.max(labels3Bulanan.size(), labelsTahunan.size()));
-        
-        chart1.clear(); // Bersihkan data sebelumnya
+        // Isi total berdasarkan data dari query
+        while (rs.next()) {
+            int bulan = rs.getInt("bulan"); // Bulan dalam angka (1-12)
+            double totalPemasukan = rs.getDouble("total_pemasukan");
+            totals[bulan - 1] = totalPemasukan; // Indeks array dimulai dari 0, bulan dari 1
+        }
 
         // Tambahkan data ke chart
-        for (int i = 0; i < maxSize; i++) {
-            String labelMingguan = (i < labelsMingguan.size()) ? labelsMingguan.get(i) : "";
-            double totalMingguan = (i < totalsMingguan.size()) ? totalsMingguan.get(i) : 0.0;
-            String label3Bulanan = (i < labels3Bulanan.size()) ? labels3Bulanan.get(i) : "";
-            double total3Bulanan = (i < totals3Bulanan.size()) ? totals3Bulanan.get(i) : 0.0;
-            String labelTahunan = (i < labelsTahunan.size()) ? labelsTahunan.get(i) : "";
-            double totalTahunan = (i < totalsTahunan.size()) ? totalsTahunan.get(i) : 0.0;
-
-            chart1.addData(new ModelChart(
-                new String[]{labelMingguan, label3Bulanan, labelTahunan},
-                new double[]{totalMingguan, total3Bulanan, totalTahunan}
-            ));
+        for (int i = 0; i < 12; i++) {
+            chart.addData(new ModelChart(months[i], new double[]{totals[i]}));
         }
 
-        chart1.start(); // Render ulang chart
+        chart.start();
+    } catch (SQLException e) {
+        e.printStackTrace();
+        javax.swing.JOptionPane.showMessageDialog(null, "Error saat mengambil data chart: " + e.getMessage());
     }
+}
 
+    public void table() {
+        DefaultTableModel model = new DefaultTableModel();
+        model.setRowCount(0);
+        model.setColumnCount(0);
+        model.addColumn("Nama Pelanggan");
+        model.addColumn("Total");
+        model.addColumn("Tanggal");
 
-    private void initTableData() {
-        // Data dummy untuk tabel
-        String[] names = {"Budi", "Siti", "Andi", "Rina", "Tono", "Dewi", "Eko", "Fani", "Gita", "Hadi"};
-        String[] addresses = {"Jl. Merdeka", "Jl. Sudirman", "Jl. Thamrin", "Jl. Gatot Subroto", "Jl. Diponegoro"};
-        String[] houses = {"Tipe A", "Tipe B", "Tipe C", "Tipe D", "Tipe E"};
-        String[] descriptions = {"Lunas", "Belum Lunas", "Proses", "Menunggu", "Selesai"};
+        try {
+            // Query untuk mengambil data dari view, hanya nama_pelanggan, total_keseluruhan, dan tanggal
+            String sql =    "SELECT \n" +
+                            "    p.nama AS nama_pelanggan, \n" +
+                            "    pen.total_keseluruhan, \n" +
+                            "    pen.tanggal\n" +
+                            "FROM \n" +
+                            "    penjualan pen\n" +
+                            "JOIN \n" +
+                            "    pelanggan p ON pen.id_pelanggan = p.id_pelanggan\n" +
+                            "ORDER BY \n" +
+                            "    pen.tanggal DESC;";
+            PreparedStatement stmt = cn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
 
-        Random random = new Random();
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                    rs.getString("nama_pelanggan"),
+                    df.format(rs.getDouble("total_keseluruhan")),
+                    new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal"))
+                });
+            }
 
-        // Tambahkan 20 baris data acak
-        for (int i = 0; i < 20; i++) {
-            String idTransaksi = "TRX" + String.format("%03d", i + 1); // Contoh: TRX001, TRX002, ...
-            String nama = names[random.nextInt(names.length)];
-            String alamat = addresses[random.nextInt(addresses.length)];
-            String rumah = houses[random.nextInt(houses.length)];
-            String keterangan = descriptions[random.nextInt(descriptions.length)];
+            table1.setModel(model);
+            
+            // Pengaturan lebar kolom (opsional, sesuaikan sesuai kebutuhan)
+            int[] columnWidths = {150, 150, 150};
+            for (int i = 0; i < columnWidths.length; i++) {
+                table1.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
+            }
+            
+            // Sesuaikan tabel dengan scroll pane (jika ada method custom)
+            table1.fixTable(jScrollPane1);
 
-            table.addRow(new String[]{idTransaksi, nama, alamat, rumah, keterangan});
-            table.fixTable(jScrollPane1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            javax.swing.JOptionPane.showMessageDialog(null, "Error saat mengambil data tabel: " + e.getMessage());
         }
-    }
+}
+   public void cariBerdasarkanTanggal() {
+    DefaultTableModel model = new DefaultTableModel();
+    model.setRowCount(0);
+        model.setColumnCount(0);
+    model.addColumn("Nama Pelanggan");
+    model.addColumn("Total");
+    model.addColumn("Tanggal");
 
+    try {
+        // Ambil input dari jtxPencarian
+        String inputTanggal = pencarian.getText().trim();
+        if (inputTanggal.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(null, "Masukkan tanggal terlebih dahulu!");
+            return;
+        }
+
+        // Validasi format tanggal
+        String sql = "";
+        String[] dateParts = inputTanggal.split("/");
+        
+        // Validasi apakah setiap bagian adalah angka
+        if (dateParts.length == 3) {
+            // Format: yyyy/MM/dd (tanggal spesifik)
+            // Validasi bahwa setiap bagian adalah angka
+            if (!dateParts[0].matches("\\d{4}") || !dateParts[1].matches("\\d{2}") || !dateParts[2].matches("\\d{2}")) {
+                javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy/MM/dd (contoh: 2025/04/26).");
+                return;
+            }
+            
+            // Validasi nilai bulan dan tanggal
+            int bulan = Integer.parseInt(dateParts[1]);
+            int tanggal = Integer.parseInt(dateParts[2]);
+            if (bulan < 1 || bulan > 12) {
+                javax.swing.JOptionPane.showMessageDialog(null, "Bulan harus antara 01 dan 12!");
+                return;
+            }
+            if (tanggal < 1 || tanggal > 31) {
+                javax.swing.JOptionPane.showMessageDialog(null, "Tanggal harus antara 01 dan 31!");
+                return;
+            }
+
+            sql = "SELECT p.nama AS nama_pelanggan, pen.total_keseluruhan, pen.tanggal " +
+                  "FROM penjualan pen " +
+                  "JOIN pelanggan p ON pen.id_pelanggan = p.id_pelanggan " +
+                  "WHERE DATE(pen.tanggal) = ? " +
+                  "ORDER BY pen.tanggal DESC";
+            PreparedStatement stmt = cn.prepareStatement(sql);
+            stmt.setString(1, inputTanggal.replace("/", "-")); // Ubah format ke yyyy-MM-dd untuk SQL
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                    rs.getString("nama_pelanggan"),
+                    df.format(rs.getDouble("total_keseluruhan")),
+                    new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal"))
+                });
+            }
+        } else if (dateParts.length == 2) {
+            // Format: yyyy/MM (bulan spesifik)
+            if (!dateParts[0].matches("\\d{4}") || !dateParts[1].matches("\\d{2}")) {
+                javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy/MM (contoh: 2025/04).");
+                return;
+            }
+
+            int bulan = Integer.parseInt(dateParts[1]);
+            if (bulan < 1 || bulan > 12) {
+                javax.swing.JOptionPane.showMessageDialog(null, "Bulan harus antara 01 dan 12!");
+                return;
+            }
+
+            sql = "SELECT p.nama AS nama_pelanggan, pen.total_keseluruhan, pen.tanggal " +
+                  "FROM penjualan pen " +
+                  "JOIN pelanggan p ON pen.id_pelanggan = p.id_pelanggan " +
+                  "WHERE YEAR(pen.tanggal) = ? AND MONTH(pen.tanggal) = ? " +
+                  "ORDER BY pen.tanggal DESC";
+            PreparedStatement stmt = cn.prepareStatement(sql);
+            stmt.setInt(1, Integer.parseInt(dateParts[0])); // Tahun
+            stmt.setInt(2, bulan); // Bulan
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                    rs.getString("nama_pelanggan"),
+                    df.format(rs.getDouble("total_keseluruhan")),
+                    new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal"))
+                });
+            }
+        } else if (dateParts.length == 1) {
+            // Format: yyyy (tahun spesifik)
+            if (!dateParts[0].matches("\\d{4}")) {
+                javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy (contoh: 2025).");
+                return;
+            }
+
+            sql = "SELECT p.nama AS nama_pelanggan, pen.total_keseluruhan, pen.tanggal " +
+                  "FROM penjualan pen " +
+                  "JOIN pelanggan p ON pen.id_pelanggan = p.id_pelanggan " +
+                  "WHERE YEAR(pen.tanggal) = ? " +
+                  "ORDER BY pen.tanggal DESC";
+            PreparedStatement stmt = cn.prepareStatement(sql);
+            stmt.setInt(1, Integer.parseInt(dateParts[0])); // Tahun
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                    rs.getString("nama_pelanggan"),
+                    df.format(rs.getDouble("total_keseluruhan")),
+                    new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal"))
+                });
+            }
+        } else {
+            // Jika format tidak valid
+            javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy/MM/dd, yyyy/MM, atau yyyy.");
+            return;
+        }
+
+        // Set model ke tabel
+        table1.setModel(model);
+
+        // Pengaturan lebar kolom
+        int[] columnWidths = {150, 150, 150};
+        for (int i = 0; i < columnWidths.length; i++) {
+            table1.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
+        }
+
+        // Sesuaikan tabel dengan scroll pane
+        table1.fixTable(jScrollPane1);
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        javax.swing.JOptionPane.showMessageDialog(null, "Error saat mengambil data tabel: " + e.getMessage());
+    }
+}
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         card3 = new com.raven.component.Card();
         jScrollPane1 = new javax.swing.JScrollPane();
-        table = new com.raven.swing.Table1();
-        chart1 = new chart.CurveLineChart();
-        textFieldSuggestion1 = new jtextfield.TextFieldSuggestion();
+        table1 = new com.raven.swing.Table1();
+        chart = new chart.CurveLineChart();
+        pencarian = new jtextfield.TextFieldSuggestion();
         jLabel1 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(250, 250, 250));
 
-        table.setModel(new javax.swing.table.DefaultTableModel(
+        table1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -128,9 +286,13 @@ public class Form_pengeluaran extends javax.swing.JPanel {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane1.setViewportView(table);
+        jScrollPane1.setViewportView(table1);
 
-        textFieldSuggestion1.setText("textFieldSuggestion1");
+        pencarian.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pencarianActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText("Pencarian :");
 
@@ -150,18 +312,18 @@ public class Form_pengeluaran extends javax.swing.JPanel {
                                 .addGap(0, 0, Short.MAX_VALUE)
                                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(textFieldSuggestion1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(chart1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(pencarian, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(chart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(17, 17, 17))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(chart1, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(chart, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textFieldSuggestion1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(pencarian, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
@@ -169,13 +331,17 @@ public class Form_pengeluaran extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void pencarianActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pencarianActionPerformed
+        cariBerdasarkanTanggal();
+    }//GEN-LAST:event_pencarianActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.raven.component.Card card3;
-    private chart.CurveLineChart chart1;
+    private chart.CurveLineChart chart;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private com.raven.swing.Table1 table;
-    private jtextfield.TextFieldSuggestion textFieldSuggestion1;
+    private jtextfield.TextFieldSuggestion pencarian;
+    private com.raven.swing.Table1 table1;
     // End of variables declaration//GEN-END:variables
 }

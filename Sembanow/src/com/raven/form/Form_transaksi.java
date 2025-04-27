@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import java.time.LocalDateTime;
 
 public class Form_transaksi extends javax.swing.JPanel {
     
@@ -13,10 +14,14 @@ public class Form_transaksi extends javax.swing.JPanel {
     public ResultSet rs;
     Connection cn = koneksi.getKoneksi();
 
-        public Form_transaksi() {
+    public Form_transaksi() {
         initComponents();
         keyListener();
         setupTableModel();
+        // Isi jtxKasir dengan username saat inisialisasi
+        jtxkasir.setText(data.getUsername());
+        // Set default pelanggan (opsional, bisa dihapus jika tidak diperlukan)
+        jtxPelanggan.setText("Umum");
     }
     
     public void call() {
@@ -63,13 +68,13 @@ public class Form_transaksi extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
         }
     }
-        
+    
     // Method untuk menambahkan KeyListener ke jtxJumlah
     private void keyListener() {
         jtxId.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyPressed(java.awt.event.KeyEvent e) {
-                    String idProduk = jtxId.getText().trim();
+                String idProduk = jtxId.getText().trim();
                 if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
                     if (!idProduk.isEmpty()) {
                         try {
@@ -91,29 +96,43 @@ public class Form_transaksi extends javax.swing.JPanel {
                     } else {
                         JOptionPane.showMessageDialog(null, "Error: ID tidak boleh kosong");
                     }
-                }else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_DOWN) {
+                } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_DOWN) {
                     if (table.getRowCount() > 0) {
-                    table.requestFocus();
-                    }else {
+                        table.requestFocusInWindow(); // Pindahkan fokus ke tabel
+                        table.setRowSelectionInterval(0, 0);
+                    }
+                } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_F12) {
+                    if (table.getRowCount() > 0) {
+                        jtxBayar.requestFocus();
+                    } else {
                         JOptionPane.showMessageDialog(null, "Error: tabel kosong !!");
                     }
-                }else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_F12) {
-                    if (table.getRowCount() > 0) {
-                    jtxBayar.requestFocus();
-                    }else {
-                        JOptionPane.showMessageDialog(null, "Error: tabel kosong !!");
-                    }
+                }else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
+                    jtxId.requestFocusInWindow();
+                    clearTextFields();
                 }
             }
         });
+
         jtxJumlah.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyPressed(java.awt.event.KeyEvent e) {
                 if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
                     jtxSatuan.requestFocusInWindow();
+                } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_LEFT) {
+                    jtxId.requestFocusInWindow();
+                }else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
+                    jtxId.requestFocusInWindow();
+                    clearTextFields();
+                } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_DOWN) {
+                    if (table.getRowCount() > 0) {
+                        table.requestFocusInWindow(); // Pindahkan fokus ke tabel
+                        table.setRowSelectionInterval(0, 0);
+                    }
                 }
             }
         });
+
         jtxSatuan.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyPressed(java.awt.event.KeyEvent e) {
@@ -121,32 +140,52 @@ public class Form_transaksi extends javax.swing.JPanel {
                     call();
                     showData(); // Panggil showData saat Enter ditekan
                     jtxId.requestFocusInWindow();
+                } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_LEFT) {
+                    jtxJumlah.requestFocusInWindow();
+                }else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
+                    jtxId.requestFocusInWindow();
+                    clearTextFields();
+                } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_DOWN) {
+                    if (table.getRowCount() > 0) {
+                        table.requestFocusInWindow(); // Pindahkan fokus ke tabel
+                        table.setRowSelectionInterval(0, 0);
+                    }
                 }
             }
         });
+
         jtxBayar.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyPressed(java.awt.event.KeyEvent e) {
                 if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
                     calculateKembalian(); // Panggil calculateKembalian saat Enter ditekan
+                    jtxKembalian.requestFocusInWindow();
+                } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
+                    jtxId.requestFocusInWindow();
+                    clearTextFields();
                 }
             }
         });
-        table.addKeyListener(new java.awt.event.KeyAdapter() {
+
+        jtxKembalian.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyPressed(java.awt.event.KeyEvent e) {
                 if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                    jtxId.requestFocus();
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Pilih baris yang ingin dihapus!");
-                    }
+                    saveTransaction(); // Simpan transaksi saat Enter ditekan
+                }else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_UP) {
+                    jtxBayar.requestFocusInWindow();
+                }else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
+                    jtxId.requestFocusInWindow();
+                    clearTextFields();
                 }
+            }
         });
+
         table.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyPressed(java.awt.event.KeyEvent e) {
-                if (e.getKeyCode() == java.awt.event.KeyEvent.VK_F5) {
                     int selectedRow = table.getSelectedRow();
+                if (e.getKeyCode() == java.awt.event.KeyEvent.VK_F5) {
                     if (selectedRow >= 0) {
                         // Hapus baris dari model
                         DefaultTableModel model = (DefaultTableModel) table.getModel();
@@ -157,49 +196,42 @@ public class Form_transaksi extends javax.swing.JPanel {
                     } else {
                         JOptionPane.showMessageDialog(null, "Pilih baris yang ingin dihapus!");
                     }
-                }
+                } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
+                    jtxId.requestFocusInWindow();
+                    clearTextFields();
+                } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                    if (selectedRow >= 0) {
+                        DefaultTableModel model = (DefaultTableModel) table.getModel();
+                        String id = model.getValueAt(selectedRow, 0).toString(); // ID Produk
+                        String nama = model.getValueAt(selectedRow, 1).toString(); // Nama
+                        String jumlah = model.getValueAt(selectedRow, 2).toString(); // Jumlah
+                        String satuan = model.getValueAt(selectedRow, 3).toString(); // Satuan
+                        String tipeHarga = model.getValueAt(selectedRow, 4).toString(); // Tipe Harga
+                        String hargaSatuan = model.getValueAt(selectedRow, 5).toString().replace(".", ""); // Harga Satuan
+
+                        // Isi data ke JTextField
+                        jtxId.setText(id);
+                        jtxNama.setText(nama);
+                        jtxJumlah.setText(jumlah);
+                        jtxSatuan.setText(satuan);
+                        jtxDiscount.setText(tipeHarga);
+                        jtxHarga.setText(hargaSatuan);
+                        jtxId.requestFocusInWindow();
+                        table.clearSelection();
+                    }
+                } 
             }
         });
-        table.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            @Override
-            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-                // Pastikan perubahan seleksi sudah selesai dan ada baris yang dipilih
-                if (!e.getValueIsAdjusting() && table.getSelectedRow() != -1) {
-                    // Dapatkan baris yang dipilih
-                    int selectedRow = table.getSelectedRow();
-
-                    // Ambil data dari baris yang dipilih
-                    DefaultTableModel model = (DefaultTableModel) table.getModel();
-                    String idProduk = model.getValueAt(selectedRow, 1).toString(); // ID Produk
-                    String nama = model.getValueAt(selectedRow, 2).toString(); // Nama
-                    String satuan = model.getValueAt(selectedRow, 3).toString(); // Satuan
-                    String jumlah = model.getValueAt(selectedRow, 4).toString(); // Jumlah
-                    String tipeHarga = model.getValueAt(selectedRow, 5).toString(); // Tipe Harga
-                    String hargaSatuan = model.getValueAt(selectedRow, 6).toString().replace(".", ""); // Harga Satuan (hapus pemisah titik)
-
-                    // Isi data ke JTextField
-                    jtxId.setText(idProduk);
-                    jtxNama.setText(nama);
-                    jtxJumlah.setText(satuan);
-                    jtxSatuan.setText(jumlah);
-                    jtxDiscount.setText(tipeHarga);
-                    jtxHarga.setText(hargaSatuan);
-                }
-            }
-        });
-        
-    
     }
     
-
     private void setupTableModel() {
         DefaultTableModel model = new DefaultTableModel();
         model.addColumn("ID Produk");
         model.addColumn("Nama");
-        model.addColumn("Satuan");
         model.addColumn("Jumlah");
-        model.addColumn("Tipe Harga");
-        model.addColumn("Harga Satuan");
+        model.addColumn("Satuan");
+        model.addColumn("Discount");
+        model.addColumn("Harga");
         model.addColumn("Total");
 
         table.setModel(model);
@@ -213,6 +245,7 @@ public class Form_transaksi extends javax.swing.JPanel {
         // Sesuaikan tabel dengan scroll pane (diasumsikan fixTable adalah method custom)
         table.fixTable(jScrollPane1);
     }
+
     public void showData() {
         try {
             // Format untuk pemisah ribuan dengan titik
@@ -242,13 +275,11 @@ public class Form_transaksi extends javax.swing.JPanel {
 
             // Setup model tabel jika belum ada
             DefaultTableModel model = (DefaultTableModel) table.getModel();
-            int rowNumber = 1;
-            Object[] data = {
-                rowNumber++,      // NO
+            Object[] data = {     // NO
                 idProduk,         // ID Produk
                 nama,             // Nama
-                satuan,           // Satuan
                 jumlah,           // Jumlah
+                satuan,           // Satuan
                 tipeHarga,        // Tipe Harga
                 df.format(hargaSatuanValue), // Harga Satuan (diformat)
                 df.format(totalValue)        // Total (diformat)
@@ -267,7 +298,7 @@ public class Form_transaksi extends javax.swing.JPanel {
         }
     }
     
-        // Method untuk menghitung total dari kolom Total di tabel dan memperbarui Ltotal
+    // Method untuk menghitung total dari kolom Total di tabel dan memperbarui Ltotal
     private void updateTotalLabel() {
         try {
             // Format untuk pemisah ribuan dengan titik
@@ -294,18 +325,6 @@ public class Form_transaksi extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(null, "Error saat menghitung total: " + e.getMessage());
         }
     }
-
-    // Method untuk membersihkan JTextField (opsional)
-    private void clearTextFields() {
-        jtxId.setText("");
-        jtxNama.setText("");
-        jtxSatuan.setText("");
-        jtxJumlah.setText("");
-        jtxDiscount.setText("");
-        jtxHarga.setText("");
-        jtxTotal.setText("");
-    }
-   
 
     // Method untuk menghitung kembalian
     private void calculateKembalian() {
@@ -353,9 +372,171 @@ public class Form_transaksi extends javax.swing.JPanel {
             jtxKembalian.setText("");
         }
     }
-
-
     
+    // Method untuk mencari id_pelanggan berdasarkan nama pelanggan
+    private int getIdPelanggan(String namaPelanggan) {
+        try {
+            String sql = "SELECT id_pelanggan FROM pelanggan WHERE nama = ?";
+            PreparedStatement stmt = cn.prepareStatement(sql);
+            stmt.setString(1, namaPelanggan);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("id_pelanggan");
+            } else {
+                // Jika pelanggan tidak ditemukan, masukkan sebagai pelanggan baru
+                sql = "INSERT INTO pelanggan (nama) VALUES (?)";
+                PreparedStatement insertStmt = cn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                insertStmt.setString(1, namaPelanggan);
+                insertStmt.executeUpdate();
+                ResultSet generatedKeys = insertStmt.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error mencari/menambah pelanggan: " + e.getMessage());
+        }
+        return -1; // Return -1 jika gagal
+    }
+
+    // Method untuk mencari id_karyawan berdasarkan username
+    private int getIdKaryawan(String username) {
+        try {
+            String sql = "SELECT id_karyawan FROM karyawan WHERE username = ?";
+            PreparedStatement stmt = cn.prepareStatement(sql);
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("id_karyawan");
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error mencari karyawan: " + e.getMessage());
+        }
+        return -1; // Return -1 jika gagal
+    }
+
+    // Method untuk menyimpan data transaksi ke database
+    private void saveTransaction() {
+        try {
+            // Validasi tabel tidak kosong
+            DefaultTableModel model = (DefaultTableModel) table.getModel();
+            if (model.getRowCount() == 0) {
+                JOptionPane.showMessageDialog(null, "Tabel transaksi kosong!");
+                return;
+            }
+
+            // Ambil data dari form
+            String namaPelanggan = jtxPelanggan.getText();
+            String usernameKasir = jtxkasir.getText();
+            String totalStr = Ltotal.getText().replace("TOTAL: Rp ", "").replace(".", "");
+            String bayarStr = jtxBayar.getText().replace(".", "");
+            String kembalianStr = jtxKembalian.getText().replace(".", "");
+
+            // Validasi input
+            if (namaPelanggan.isEmpty() || usernameKasir.isEmpty() || totalStr.isEmpty() || 
+                bayarStr.isEmpty() || kembalianStr.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Semua field transaksi harus diisi!");
+                return;
+            }
+
+            double totalValue = Double.parseDouble(totalStr);
+            double bayarValue = Double.parseDouble(bayarStr);
+            double kembalianValue = Double.parseDouble(kembalianStr);
+
+            // Mulai transaksi database
+            cn.setAutoCommit(false);
+
+            // Cari id_pelanggan dan id_karyawan
+            int idPelanggan = getIdPelanggan(namaPelanggan);
+            int idKaryawan = getIdKaryawan(usernameKasir);
+            if (idPelanggan == -1 || idKaryawan == -1) {
+                cn.rollback();
+                JOptionPane.showMessageDialog(null, "Gagal mendapatkan ID pelanggan atau karyawan!");
+                return;
+            }
+
+            // Simpan ke tabel penjualan
+            String sqlPenjualan = "INSERT INTO penjualan (id_pelanggan, tanggal, total_keseluruhan, bayar, kembalian, id_karyawan) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement stmtPenjualan = cn.prepareStatement(sqlPenjualan, Statement.RETURN_GENERATED_KEYS);
+            stmtPenjualan.setInt(1, idPelanggan);
+            stmtPenjualan.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+            stmtPenjualan.setDouble(3, totalValue);
+            stmtPenjualan.setDouble(4, bayarValue);
+            stmtPenjualan.setDouble(5, kembalianValue);
+            stmtPenjualan.setInt(6, idKaryawan);
+            stmtPenjualan.executeUpdate();
+
+            // Ambil id_penjualan yang baru dihasilkan
+            ResultSet generatedKeys = stmtPenjualan.getGeneratedKeys();
+            int idPenjualan = -1;
+            if (generatedKeys.next()) {
+                idPenjualan = generatedKeys.getInt(1);
+            } else {
+                cn.rollback();
+                JOptionPane.showMessageDialog(null, "Gagal mendapatkan ID penjualan!");
+                return;
+            }
+
+            // Simpan detail barang ke tabel transaksi
+            String sqlTransaksi = "INSERT INTO transaksi (id_penjualan, id_produk, jumlah_produk, satuan, harga_satuan, total, tipe_harga) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            PreparedStatement stmtTransaksi = cn.prepareStatement(sqlTransaksi);
+            for (int i = 0; i < model.getRowCount(); i++) {
+                int idProduk = Integer.parseInt(model.getValueAt(i, 0).toString());
+                int jumlahProduk = Integer.parseInt(model.getValueAt(i, 2).toString());
+                String satuan = model.getValueAt(i, 3).toString();
+                double hargaSatuan = Double.parseDouble(model.getValueAt(i, 5).toString().replace(".", ""));
+                double total = Double.parseDouble(model.getValueAt(i, 6).toString().replace(".", ""));
+                String tipeHarga = model.getValueAt(i, 4).toString();
+
+                stmtTransaksi.setInt(1, idPenjualan);
+                stmtTransaksi.setInt(2, idProduk);
+                stmtTransaksi.setInt(3, jumlahProduk);
+                stmtTransaksi.setString(4, satuan);
+                stmtTransaksi.setDouble(5, hargaSatuan);
+                stmtTransaksi.setDouble(6, total);
+                stmtTransaksi.setString(7, tipeHarga);
+                stmtTransaksi.addBatch();
+            }
+            stmtTransaksi.executeBatch();
+
+            // Commit transaksi
+            cn.commit();
+            JOptionPane.showMessageDialog(null, "Transaksi berhasil disimpan!");
+
+            // Bersihkan form setelah transaksi selesai
+            model.setRowCount(0); // Kosongkan tabel
+            clearTextFields();
+            jtxBayar.setText("");
+            jtxKembalian.setText("");
+            Ltotal.setText("TOTAL: Rp 0");
+            jtxId.requestFocusInWindow();
+
+        } catch (SQLException e) {
+            try {
+                cn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            JOptionPane.showMessageDialog(null, "Error menyimpan transaksi: " + e.getMessage());
+        } finally {
+            try {
+                cn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    // Method untuk membersihkan JTextField (opsional)
+    private void clearTextFields() {
+        jtxId.setText("");
+        jtxNama.setText("");
+        jtxSatuan.setText("");
+        jtxJumlah.setText("");
+        jtxDiscount.setText("");
+        jtxHarga.setText("");
+        jtxTotal.setText("");
+    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -386,6 +567,8 @@ public class Form_transaksi extends javax.swing.JPanel {
         jtxKembalian = new jtextfield.TextFieldSuggestion();
         jtxPelanggan = new jtextfield.TextFieldSuggestion();
         jLabel10 = new javax.swing.JLabel();
+        jtxkasir = new jtextfield.TextFieldSuggestion();
+        kasir = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(250, 250, 250));
 
@@ -479,7 +662,6 @@ public class Form_transaksi extends javax.swing.JPanel {
             }
         });
 
-        jtxPelanggan.setText("Umum");
         jtxPelanggan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jtxPelangganActionPerformed(evt);
@@ -487,6 +669,15 @@ public class Form_transaksi extends javax.swing.JPanel {
         });
 
         jLabel10.setText("Pelanggan");
+
+        jtxkasir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jtxkasirActionPerformed(evt);
+            }
+        });
+
+        kasir.setFont(new java.awt.Font("Segoe UI", 3, 18)); // NOI18N
+        kasir.setText("Kasir :");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -527,7 +718,7 @@ public class Form_transaksi extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jtxPelanggan, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(96, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -537,12 +728,15 @@ public class Form_transaksi extends javax.swing.JPanel {
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addGap(0, 0, Short.MAX_VALUE)
-                                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
                                         .addComponent(Ltotal, javax.swing.GroupLayout.PREFERRED_SIZE, 459, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(kasir, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jtxkasir, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addGap(18, 18, 18)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(jtxBayar, javax.swing.GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE)
@@ -575,8 +769,8 @@ public class Form_transaksi extends javax.swing.JPanel {
                     .addComponent(jtxTotal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jtxNama, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jtxPelanggan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 369, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jtxBayar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -584,9 +778,13 @@ public class Form_transaksi extends javax.swing.JPanel {
                         .addComponent(Ltotal, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jtxKembalian, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jtxKembalian, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jtxkasir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(kasir, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -631,6 +829,10 @@ public class Form_transaksi extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_jtxPelangganActionPerformed
 
+    private void jtxkasirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jtxkasirActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jtxkasirActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Ltotal;
@@ -657,6 +859,8 @@ public class Form_transaksi extends javax.swing.JPanel {
     private jtextfield.TextFieldSuggestion jtxPelanggan;
     private jtextfield.TextFieldSuggestion jtxSatuan;
     private jtextfield.TextFieldSuggestion jtxTotal;
+    private jtextfield.TextFieldSuggestion jtxkasir;
+    private javax.swing.JLabel kasir;
     private com.raven.swing.Table1 table;
     // End of variables declaration//GEN-END:variables
 }

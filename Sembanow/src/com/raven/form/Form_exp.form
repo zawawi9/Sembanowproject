@@ -35,17 +35,9 @@
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="jScrollPane1" pref="781" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="textFieldSuggestion6" alignment="0" pref="188" max="32767" attributes="0"/>
-                          <Component id="jLabel4" min="-2" pref="50" max="-2" attributes="0"/>
-                          <Component id="textFieldSuggestion7" alignment="0" max="32767" attributes="0"/>
-                          <Component id="jLabel7" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                          <Component id="textFieldSuggestion8" alignment="0" max="32767" attributes="0"/>
-                          <Component id="textFieldSuggestion9" alignment="0" max="32767" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="search" alignment="0" min="-2" pref="188" max="-2" attributes="0"/>
                           <Component id="jLabel6" alignment="0" min="-2" pref="60" max="-2" attributes="0"/>
-                          <Component id="jLabel10" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                          <Component id="textFieldSuggestion10" alignment="0" max="32767" attributes="0"/>
-                          <Component id="jLabel8" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -63,23 +55,7 @@
                   <Group type="102" attributes="0">
                       <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="textFieldSuggestion6" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="textFieldSuggestion7" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="textFieldSuggestion8" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="textFieldSuggestion9" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="textFieldSuggestion10" min="-2" max="-2" attributes="0"/>
+                      <Component id="search" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
                   <Component id="jScrollPane1" pref="485" max="32767" attributes="0"/>
@@ -143,17 +119,12 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JLabel" name="jLabel4">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Stok pcs"/>
-      </Properties>
-    </Component>
-    <Component class="jtextfield.TextFieldSuggestion" name="textFieldSuggestion6">
+    <Component class="jtextfield.TextFieldSuggestion" name="search">
       <Properties>
         <Property name="text" type="java.lang.String" value="almil"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="textFieldSuggestion6ActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="searchActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel6">
@@ -168,53 +139,6 @@
         </Property>
         <Property name="text" type="java.lang.String" value="-&gt; Produk"/>
       </Properties>
-    </Component>
-    <Component class="jtextfield.TextFieldSuggestion" name="textFieldSuggestion7">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="almil"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="textFieldSuggestion7ActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel7">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Stok Dos"/>
-      </Properties>
-    </Component>
-    <Component class="jtextfield.TextFieldSuggestion" name="textFieldSuggestion8">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="almil"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="textFieldSuggestion8ActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel8">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Pcs per Dos"/>
-      </Properties>
-    </Component>
-    <Component class="jtextfield.TextFieldSuggestion" name="textFieldSuggestion9">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="almil"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="textFieldSuggestion9ActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel10">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="EXP"/>
-      </Properties>
-    </Component>
-    <Component class="jtextfield.TextFieldSuggestion" name="textFieldSuggestion10">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="almil"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="textFieldSuggestion10ActionPerformed"/>
-      </Events>
     </Component>
   </SubComponents>
 </Form>

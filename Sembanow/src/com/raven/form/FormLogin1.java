@@ -1,10 +1,14 @@
 package com.raven.form;
 
 import raven.dialog.pesankeluarapp;
-import BarMenu.MenuAdmin;
-import BarMenu.MenuKasir;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import com.raven.main.Main;
+import config.koneksi;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import raven.dialog.loginberhasill;
@@ -18,11 +22,14 @@ import javax.swing.event.*;
  *
  * @author Toshiba
  */
-public class formlogin extends javax.swing.JFrame {
+public class FormLogin1 extends javax.swing.JFrame {
+    public Statement st;
+    public ResultSet rs;
+    Connection cn = koneksi.getKoneksi();
 
     int xx, xy;
 
-    public formlogin() {
+    public FormLogin1() {
         initComponents();
         SwingUtilities.invokeLater(() -> usernametxt.requestFocusInWindow());
         usernametxt.getDocument().addDocumentListener(new DocumentListener() {
@@ -298,8 +305,8 @@ public class formlogin extends javax.swing.JFrame {
     }//GEN-LAST:event_BLupapwActionPerformed
 
     private void BLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BLoginActionPerformed
-        String username = usernametxt.getText();
-        String password = pwtxt.getText();
+        String username = usernametxt.getText().trim();
+        String password = pwtxt.getText().trim();
 
         if (username.equals("Username") || username.isEmpty() || password.equals("Password") || password.isEmpty()) {
             password_username_kosong Pwusrkosong = new password_username_kosong(this, true);
@@ -307,32 +314,44 @@ public class formlogin extends javax.swing.JFrame {
             return;
         }
 
-        try (java.sql.Connection conn = koneksi.getKoneksi()) {
+        try {
             String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
-            java.sql.PreparedStatement stmt = conn.prepareStatement(sql);
+            PreparedStatement stmt = cn.prepareStatement(sql);
             stmt.setString(1, username);
             stmt.setString(2, password);
 
-            java.sql.ResultSet rs = stmt.executeQuery();
+            rs = stmt.executeQuery();
 
             if (rs.next()) {
-                String role = rs.getString("role"); //Ambil role dari hasil query
-                int idUser = rs.getInt("id_user");  //Ambil id user dari hasil query
-                if ("admin".equalsIgnoreCase(role)) {
-                    GlobaVariables.idUser = idUser;
-                    // Arahkan ke menu Admin
-                    loginberhasill Loginberhasil = new loginberhasill(this, true);
-                    Loginberhasil.setVisible(true);
-                    new MenuAdmin().setVisible(true);
-                    this.dispose(); // Tutup form login
-                } else if ("kasir".equalsIgnoreCase(role)) {
-                    GlobaVariables.idUser = idUser;
-                    // Arahkan ke menu Kasir
-                    loginberhasill Loginberhasil = new loginberhasill(this, true);
-                    Loginberhasil.setVisible(true);
-                    new MenuKasir().setVisible(true);
-                    this.dispose(); // Tutup form login
-                }
+                String role = rs.getString("status");
+                int idKaryawan = rs.getInt("id_karyawan");
+
+                // Simpan waktu login
+                LocalTime loginTime = LocalTime.now();
+
+                // Simpan data ke tabel absensi
+                String sqlAbsensi = "INSERT INTO absensi (id_karyawan, tanggal, check_in) VALUES (?, ?, ?)";
+                PreparedStatement stmtAbsensi = cn.prepareStatement(sqlAbsensi);
+                stmtAbsensi.setInt(1, idKaryawan);
+                stmtAbsensi.setDate(2, java.sql.Date.valueOf(LocalDate.now()));
+                stmtAbsensi.setTime(3, java.sql.Time.valueOf(loginTime));
+                stmtAbsensi.executeUpdate();
+                stmtAbsensi.close();
+
+                // Simpan data ke UserSession
+                UserSession.setUsername(username);
+                UserSession.setLoginTime(loginTime);
+                UserSession.setRole(role);
+
+                // Tampilkan dialog login berhasil
+                loginberhasill Loginberhasil = new loginberhasill(this, true);
+                Loginberhasil.setVisible(true);
+
+                // Buka form Main dengan role yang sesuai
+                Main mainForm = new Main(role);
+                mainForm.setVisible(true);
+
+                this.dispose();
             } else {
                 IncorrectPassword Pwsalah = new IncorrectPassword(this, true);
                 Pwsalah.setVisible(true);
@@ -342,50 +361,61 @@ public class formlogin extends javax.swing.JFrame {
             stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
-            javax.swing.JOptionPane.showMessageDialog(this, "Terjadi kesalahan: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Terjadi kesalahan: " + e.getMessage());
         }
-
     }//GEN-LAST:event_BLoginActionPerformed
 
     private void prosesLoginOtomatis() {
-        String uid = usernametxt.getText().trim(); // UID dari RFID akan diketik otomatis di field ini
+        String username = usernametxt.getText().trim();
+        String password = pwtxt.getText().trim();
 
-        if (uid.isEmpty() || uid.equals("Username")) {
+        if (username.equals("Username") || username.isEmpty() || password.equals("Password") || password.isEmpty()) {
+            password_username_kosong Pwusrkosong = new password_username_kosong(this, true);
+            Pwusrkosong.setVisible(true);
             return;
         }
 
-        try (java.sql.Connection conn = koneksi.getKoneksi()) {
-            String sql = "SELECT username, password, role, id_user FROM users WHERE uidrfid = ?";
-            java.sql.PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, uid);
-            java.sql.ResultSet rs = stmt.executeQuery();
+        try {
+            String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+            PreparedStatement stmt = cn.prepareStatement(sql);
+            stmt.setString(1, username);
+            stmt.setString(2, password);
+
+            rs = stmt.executeQuery();
 
             if (rs.next()) {
-                String username = rs.getString("username");
-                String password = rs.getString("password");
-                String role = rs.getString("role");
-                int idUser = rs.getInt("id_user");
+                String role = rs.getString("status");
+                int idKaryawan = rs.getInt("id_karyawan");
 
-                if (!username.isEmpty() && !password.isEmpty()) {
-                    usernametxt.setText(username);
-                    pwtxt.setText(password);
-                    pwtxt.setEchoChar('*');
+                // Simpan waktu login
+                LocalTime loginTime = LocalTime.now();
 
-                    GlobaVariables.idUser = idUser;
+                // Simpan data ke tabel absensi
+                String sqlAbsensi = "INSERT INTO absensi (id_karyawan, tanggal, check_in) VALUES (?, ?, ?)";
+                PreparedStatement stmtAbsensi = cn.prepareStatement(sqlAbsensi);
+                stmtAbsensi.setInt(1, idKaryawan);
+                stmtAbsensi.setDate(2, java.sql.Date.valueOf(LocalDate.now()));
+                stmtAbsensi.setTime(3, java.sql.Time.valueOf(loginTime));
+                stmtAbsensi.executeUpdate();
+                stmtAbsensi.close();
 
-                    loginberhasill Loginberhasil = new loginberhasill(this, true);
-                    Loginberhasil.setVisible(true);
+                // Simpan data ke UserSession
+                UserSession.setUsername(username);
+                UserSession.setLoginTime(loginTime);
+                UserSession.setRole(role);
 
-                    if ("admin".equalsIgnoreCase(role)) {
-                        new MenuAdmin().setVisible(true);
-                    } else if ("kasir".equalsIgnoreCase(role)) {
-                        new MenuKasir().setVisible(true);
-                    }
+                // Tampilkan dialog login berhasil
+                loginberhasill Loginberhasil = new loginberhasill(this, true);
+                Loginberhasil.setVisible(true);
 
-                    this.dispose();
-                }
+                // Buka form Main dengan role yang sesuai
+                Main mainForm = new Main(role);
+                mainForm.setVisible(true);
+
+                this.dispose();
             } else {
-                System.out.println("UID tidak dikenali, tidak menjalankan login otomatis.");
+                IncorrectPassword Pwsalah = new IncorrectPassword(this, true);
+                Pwsalah.setVisible(true);
             }
 
             rs.close();
@@ -457,21 +487,27 @@ public class formlogin extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(formlogin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FormLogin1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(formlogin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FormLogin1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(formlogin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FormLogin1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(formlogin.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FormLogin1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new formlogin().setVisible(true);
+                new FormLogin1().setVisible(true);
             }
         });
     }

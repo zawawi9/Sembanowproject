@@ -66,8 +66,8 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jtxPelanggan" alignment="0" min="-2" pref="122" max="-2" attributes="0"/>
-                          <Component id="jLabel10" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                          <Component id="jtxPelanggan" min="-2" pref="122" max="-2" attributes="0"/>
+                          <Component id="jLabel10" min="-2" pref="107" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace pref="96" max="32767" attributes="0"/>
                   </Group>
@@ -79,14 +79,17 @@
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="1" attributes="0">
-                                  <Group type="102" alignment="1" attributes="0">
-                                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                                      <Component id="jLabel7" min="-2" pref="118" max="-2" attributes="0"/>
-                                  </Group>
-                                  <Group type="102" alignment="1" attributes="0">
+                                  <Group type="102" attributes="0">
                                       <Component id="Ltotal" min="-2" pref="459" max="-2" attributes="0"/>
                                       <EmptySpace max="32767" attributes="0"/>
                                       <Component id="jLabel11" min="-2" pref="118" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="102" attributes="0">
+                                      <Component id="kasir" min="-2" pref="60" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="jtxkasir" min="-2" pref="122" max="-2" attributes="0"/>
+                                      <EmptySpace max="32767" attributes="0"/>
+                                      <Component id="jLabel7" min="-2" pref="118" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
@@ -130,8 +133,8 @@
                   <Component id="jtxNama" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jtxPelanggan" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="jScrollPane1" pref="339" max="32767" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Component id="jScrollPane1" min="-2" pref="369" max="-2" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jtxBayar" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -141,9 +144,15 @@
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel7" alignment="3" min="-2" pref="41" max="-2" attributes="0"/>
-                  <Component id="jtxKembalian" alignment="3" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="jLabel7" alignment="3" min="-2" pref="41" max="-2" attributes="0"/>
+                      <Component id="jtxKembalian" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                      <Component id="jtxkasir" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="kasir" alignment="3" min="-2" pref="41" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -286,9 +295,6 @@
       </Events>
     </Component>
     <Component class="jtextfield.TextFieldSuggestion" name="jtxPelanggan">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Umum"/>
-      </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jtxPelangganActionPerformed"/>
       </Events>
@@ -296,6 +302,19 @@
     <Component class="javax.swing.JLabel" name="jLabel10">
       <Properties>
         <Property name="text" type="java.lang.String" value="Pelanggan"/>
+      </Properties>
+    </Component>
+    <Component class="jtextfield.TextFieldSuggestion" name="jtxkasir">
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jtxkasirActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="kasir">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+          <Font name="Segoe UI" size="18" style="3"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Kasir :"/>
       </Properties>
     </Component>
   </SubComponents>

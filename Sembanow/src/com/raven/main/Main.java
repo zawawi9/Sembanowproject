@@ -2,18 +2,19 @@ package com.raven.main;
 
 import com.raven.component.MenuLayout;
 import com.raven.event.EventMenuSelected;
-import com.raven.form.Form_1;
 import com.raven.form.Form_2;
-import com.raven.form.Form_Expired;
-import com.raven.form.Form_Produk;
 import com.raven.form.Form_transaksi;
 import com.raven.form.MainForm;
 import com.raven.form.pilihan;
-import com.raven.form.pilihanpendataan;
+import com.raven.form.Form_Login;
+import com.raven.form.Form_searchproduk;
+import com.raven.form.data;
+import com.raven.form.pilihanKeuangan;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
@@ -28,7 +29,7 @@ public class Main extends javax.swing.JFrame {
     private final MainForm main;
     private final MenuLayout menu;
     private final Animator animator;
-    private final int menuWidth = 215; // Lebar menu samping
+    private final int menuWidth = 215;
 
     public Main() {
         initComponents();
@@ -39,11 +40,18 @@ public class Main extends javax.swing.JFrame {
         main.initMoving(Main.this);
         mainPanel.setLayer(menu, JLayeredPane.POPUP_LAYER);
         mainPanel.setLayout(layout);
-        // Awalnya, menu disembunyikan, jadi MainForm mengisi seluruh layar
         mainPanel.add(main, "pos 0 0 100% 100%");
         mainPanel.add(menu, "pos -215 0 215px 100%", 0);
-        menu.setShow(false); // Set menu disembunyikan saat aplikasi dimulai
-        menu.setVisible(false); // Pastikan menu tidak terlihat
+        menu.setShow(false);
+        menu.setVisible(false);
+        
+        try {
+            ImageIcon icon = new ImageIcon(getClass().getResource("/com/raven/icon/emojis.com grocery-cart.png"));
+            setIconImage(icon.getImage()); // Atur logo kustom untuk jendela dan taskbar
+        } catch (Exception e) {
+            System.err.println("Gagal memuat logo: " + e.getMessage());
+            e.printStackTrace();
+        }
 
         TimingTarget target = new TimingTargetAdapter() {
             @Override
@@ -76,8 +84,8 @@ public class Main extends javax.swing.JFrame {
             }
         };
         animator = new Animator(200, target);
-        animator.setResolution(0); // Tingkatkan resolusi animasi untuk lebih mulus
-        animator.setDeceleration(0.5f); // Atur decelerasi untuk efek lebih alami
+        animator.setResolution(0);
+        animator.setDeceleration(0.5f);
         menu.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent me) {
@@ -106,20 +114,29 @@ public class Main extends javax.swing.JFrame {
         menu.getMenu().addEventMenuSelected(new EventMenuSelected() {
             @Override
             public void selected(int index) {
+                String role = data.getRole();
                 if (index == 8) {
                     main.show(new Form_2());
-                } else if (index == 9) {
-                    main.show(new Form_Produk());
-                } else if (index == 10) {
+                } else if (index == 10 && "admin".equals(role)) {
+                    main.show(new Form_searchproduk());
+                } else if (index == 11 && "admin".equals(role)) {
                     main.show(new Form_transaksi());
-                }else if (index == 11) {
-                    main.show(new pilihanpendataan());
-                } else if (index == 12) {
+                } else if (index == 13 && "admin".equals(role)) {
                     main.show(new pilihan());
+                } else if (index == 9 && "admin".equals(role)) {
+                    main.show(new Form_2());
+                } else if (index == 9 && "karyawan".equals(role)) {
+                    main.show(new pilihan());
+                } else if (index == 10 && "karyawan".equals(role)) {
+                    main.show(new pilihanKeuangan());
+                } else if (index == 18 && "admin".equals(role) || index == 14 && "karyawan".equals(role)) {
+                    // Logout
+                    data.clearSession();
+                    dispose();
+                    new Form_Login().setVisible(true);
                 }
             }
         });
-        // Atur jendela ke mode full layar
         setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
 
@@ -165,11 +182,6 @@ public class Main extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -177,22 +189,13 @@ public class Main extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new Main().setVisible(true);
+                new Form_Login().setVisible(true); // Mulai dari Form_Login
             }
         });
     }

@@ -24,8 +24,6 @@ import org.jdesktop.animation.timing.Animator;
 import org.jdesktop.animation.timing.TimingTarget;
 import org.jdesktop.animation.timing.TimingTargetAdapter;
 import org.jdesktop.animation.timing.interpolation.PropertySetter;
-import raven.chart.ModelChart;
-import raven.chart.ModelLegend;
 
 public class CurveLineChart extends JComponent {
 
