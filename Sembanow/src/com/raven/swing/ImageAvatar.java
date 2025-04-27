@@ -35,6 +35,8 @@ public class ImageAvatar extends JComponent {
     }
     
 
+    
+
 
     private Icon icon;
     private int borderSize;

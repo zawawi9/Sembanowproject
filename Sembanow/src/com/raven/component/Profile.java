@@ -13,9 +13,11 @@ public class Profile extends javax.swing.JPanel {
 
         pic = new com.raven.swing.ImageAvatar();
 
+        setOpaque(false);
+
         pic.setForeground(new java.awt.Color(245, 245, 245));
         pic.setBorderSize(2);
-        pic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/sembakoprofile.png"))); // NOI18N
+        pic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/sembakohd.png"))); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
