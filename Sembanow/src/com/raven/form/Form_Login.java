@@ -21,7 +21,7 @@ public class Form_Login extends javax.swing.JFrame {
         setSize(861, 513); // Atur ukuran 861x513
 
         try {
-            ImageIcon icon = new ImageIcon(getClass().getResource("/com/raven/icon/emojis.com grocery-cart.png"));
+            ImageIcon icon = new ImageIcon(getClass().getResource("/com/raven/icon/sembakofixed.png"));
             setIconImage(icon.getImage());
         } catch (Exception e) {
             System.err.println("Gagal memuat logo: " + e.getMessage());
@@ -47,7 +47,7 @@ public class Form_Login extends javax.swing.JFrame {
         lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 24));
         lblTitle.setForeground(new java.awt.Color(255, 255, 255));
         lblTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblTitle.setText("Login System");
+        lblTitle.setText("Selamat datang di Sembanow");
 
         lblUsername.setFont(new java.awt.Font("Segoe UI", 0, 14));
         lblUsername.setForeground(new java.awt.Color(255, 255, 255));
