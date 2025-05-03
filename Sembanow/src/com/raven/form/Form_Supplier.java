@@ -4,6 +4,14 @@
  */
 package com.raven.form;
 
+import config.koneksi;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 /**
  *
  * @author Fitrah
@@ -15,6 +23,34 @@ public class Form_Supplier extends javax.swing.JPanel {
      */
     public Form_Supplier() {
         initComponents();
+        showData();
+    }
+    public void showData(){
+        DefaultTableModel model = (DefaultTableModel) table11.getModel();
+        model.setRowCount(0);
+            Connection conn = null;
+            Statement stmt = null;
+            ResultSet rs = null;
+        try {
+            String url = "jdbc:mysql://localhost:/sembakogrok";
+            String dbUser = "root";
+            String dbPass = "";
+            conn = DriverManager.getConnection(url, dbUser, dbPass);
+            
+            String SQL = "SELECT * FROM supplier";
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(SQL);
+            while(rs.next()){
+                Object[]row = {rs.getInt("id_supplier"),
+                        rs.getString("nama"),
+                rs.getString("no_hp"),
+                rs.getString("alamat")};
+                model.addRow(row);
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Gagal menampilkan data: " + e.getMessage());
+        }
     }
 
     /**
