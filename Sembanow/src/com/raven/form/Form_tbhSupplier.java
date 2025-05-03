@@ -15,8 +15,55 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
      */
     public Form_tbhSupplier(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
+        setUndecorated(true);
         initComponents();
+        setLocationRelativeTo(parent);
+        fadeIn();
+        
+        IDSupplier.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt){
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                Nama_Supplier.requestFocus();
+            }
+            }
+        });
+        Nama_Supplier.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt){
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                Telepon_Supplier.requestFocus();
+            }
+            }
+        });
+        Telepon_Supplier.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt){
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                Alamat_Supplier.requestFocus();
+            }
+            }
+        });
+        Alamat_Supplier.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt){
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                Alamat_Supplier.requestFocus();
+            }
+            }
+        });
+        
     }
+    public void fadeIn() {
+    setOpacity(0f); // Mulai dari transparan
+    new Thread(() -> {
+        try {
+            for (float i = 0f; i <= 1f; i += 0.05f) {
+                Thread.sleep(10);
+                setOpacity(i);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }).start();
+}
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -42,28 +89,55 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(250, 250, 250));
+        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        IDSupplier.setText("ID");
+        IDSupplier.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                IDSupplierActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText("ID");
 
-        Nama_Supplier.setText("Nama");
+        Nama_Supplier.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Nama_SupplierActionPerformed(evt);
+            }
+        });
 
         jLabel2.setText("Nama");
 
         jLabel3.setText("Nomor Telepon");
 
-        Telepon_Supplier.setText("Number phone");
+        Telepon_Supplier.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Telepon_SupplierActionPerformed(evt);
+            }
+        });
 
         jLabel4.setText("Alamat");
 
-        Alamat_Supplier.setText("Address");
+        Alamat_Supplier.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Alamat_SupplierActionPerformed(evt);
+            }
+        });
 
         tomboltambah.setText("Tambahkan");
+        tomboltambah.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tomboltambahActionPerformed(evt);
+            }
+        });
 
         tombolbatal.setText("Batalkan");
         tombolbatal.setFillClick(new java.awt.Color(153, 0, 0));
         tombolbatal.setFillOriginal(new java.awt.Color(255, 0, 0));
+        tombolbatal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tombolbatalActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -76,20 +150,21 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
                     .addComponent(jLabel4)
                     .addComponent(jLabel3)
                     .addComponent(jLabel2)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(tomboltambah, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(Telepon_Supplier, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(IDSupplier, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(Nama_Supplier, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(Alamat_Supplier, javax.swing.GroupLayout.PREFERRED_SIZE, 393, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(Alamat_Supplier, javax.swing.GroupLayout.PREFERRED_SIZE, 393, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(37, 37, 37)
+                        .addComponent(tomboltambah, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(23, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(43, 43, 43)
+                .addContainerGap()
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(IDSupplier, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -109,7 +184,7 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(tombolbatal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(tomboltambah, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(31, Short.MAX_VALUE))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -125,6 +200,32 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void IDSupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IDSupplierActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_IDSupplierActionPerformed
+
+    private void Nama_SupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Nama_SupplierActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_Nama_SupplierActionPerformed
+
+    private void Telepon_SupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Telepon_SupplierActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_Telepon_SupplierActionPerformed
+
+    private void Alamat_SupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Alamat_SupplierActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_Alamat_SupplierActionPerformed
+
+    private void tombolbatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tombolbatalActionPerformed
+        dispose();
+    }//GEN-LAST:event_tombolbatalActionPerformed
+
+    private void tomboltambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tomboltambahActionPerformed
+        if (rootPaneCheckingEnabled) {
+            
+        }
+    }//GEN-LAST:event_tomboltambahActionPerformed
 
     /**
      * @param args the command line arguments

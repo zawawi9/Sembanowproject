@@ -80,7 +80,7 @@
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace min="-2" pref="165" max="-2" attributes="0"/>
-                          <Component id="tomboledit" min="-2" pref="143" max="-2" attributes="0"/>
+                          <Component id="tomboltambah" min="-2" pref="143" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="tombolbatal" min="-2" pref="143" max="-2" attributes="0"/>
                       </Group>
@@ -128,7 +128,7 @@
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
                       <Component id="tombolbatal" alignment="0" max="32767" attributes="0"/>
-                      <Component id="tomboledit" alignment="0" min="-2" pref="40" max="-2" attributes="0"/>
+                      <Component id="tomboltambah" alignment="0" min="-2" pref="40" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace pref="21" max="32767" attributes="0"/>
               </Group>
@@ -176,12 +176,12 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="Alamat_KaryawanActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.raven.swing.CustomButton_Rounded" name="tomboledit">
+        <Component class="com.raven.swing.CustomButton_Rounded" name="tomboltambah">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Edit"/>
+            <Property name="text" type="java.lang.String" value="Tambahkan"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tomboleditActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tomboltambahActionPerformed"/>
           </Events>
         </Component>
         <Component class="com.raven.swing.CustomButton_Rounded" name="tombolbatal">

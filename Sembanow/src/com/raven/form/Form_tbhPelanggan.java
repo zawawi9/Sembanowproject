@@ -8,12 +8,12 @@ package com.raven.form;
  *
  * @author Fitrah
  */
-public class Form_editPelanggan extends javax.swing.JDialog {
+public class Form_tbhPelanggan extends javax.swing.JDialog {
 
     /**
      * Creates new form Form_tbhSupplier
      */
-    public Form_editPelanggan(java.awt.Frame parent, boolean modal) {
+    public Form_tbhPelanggan(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         setUndecorated(true);
         initComponents();
@@ -83,7 +83,7 @@ public class Form_editPelanggan extends javax.swing.JDialog {
         Telepon_Pelanggan = new jtextfield.TextFieldSuggestion();
         jLabel4 = new javax.swing.JLabel();
         Alamat_Pelanggan = new jtextfield.TextFieldSuggestion();
-        tomboledit = new com.raven.swing.CustomButton_Rounded();
+        tomboltambah = new com.raven.swing.CustomButton_Rounded();
         tombolbatal = new com.raven.swing.CustomButton_Rounded();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -123,10 +123,10 @@ public class Form_editPelanggan extends javax.swing.JDialog {
             }
         });
 
-        tomboledit.setText("Edit");
-        tomboledit.addActionListener(new java.awt.event.ActionListener() {
+        tomboltambah.setText("Tambahkan");
+        tomboltambah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tomboleditActionPerformed(evt);
+                tomboltambahActionPerformed(evt);
             }
         });
 
@@ -156,7 +156,7 @@ public class Form_editPelanggan extends javax.swing.JDialog {
                     .addComponent(Alamat_Pelanggan, javax.swing.GroupLayout.PREFERRED_SIZE, 393, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(37, 37, 37)
-                        .addComponent(tomboledit, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(tomboltambah, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(23, Short.MAX_VALUE))
@@ -183,7 +183,7 @@ public class Form_editPelanggan extends javax.swing.JDialog {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(tombolbatal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(tomboledit, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(tomboltambah, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(21, Short.MAX_VALUE))
         );
 
@@ -221,11 +221,11 @@ public class Form_editPelanggan extends javax.swing.JDialog {
         dispose();
     }//GEN-LAST:event_tombolbatalActionPerformed
 
-    private void tomboleditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tomboleditActionPerformed
+    private void tomboltambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tomboltambahActionPerformed
         if (rootPaneCheckingEnabled) {
             
         }
-    }//GEN-LAST:event_tomboleditActionPerformed
+    }//GEN-LAST:event_tomboltambahActionPerformed
 
     /**
      * @param args the command line arguments
@@ -244,23 +244,21 @@ public class Form_editPelanggan extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Form_editPelanggan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Form_tbhPelanggan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Form_editPelanggan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Form_tbhPelanggan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Form_editPelanggan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Form_tbhPelanggan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Form_editPelanggan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Form_tbhPelanggan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                Form_editPelanggan dialog = new Form_editPelanggan(new javax.swing.JFrame(), true);
+                Form_tbhPelanggan dialog = new Form_tbhPelanggan(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -283,6 +281,6 @@ public class Form_editPelanggan extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private com.raven.swing.CustomButton_Rounded tombolbatal;
-    private com.raven.swing.CustomButton_Rounded tomboledit;
+    private com.raven.swing.CustomButton_Rounded tomboltambah;
     // End of variables declaration//GEN-END:variables
 }

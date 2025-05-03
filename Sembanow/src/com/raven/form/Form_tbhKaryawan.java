@@ -8,12 +8,12 @@ package com.raven.form;
  *
  * @author Fitrah
  */
-public class Form_editKaryawan extends javax.swing.JDialog {
+public class Form_tbhKaryawan extends javax.swing.JDialog {
 
     /**
      * Creates new form Form_tbhSupplier
      */
-    public Form_editKaryawan(java.awt.Frame parent, boolean modal) {
+    public Form_tbhKaryawan(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         setUndecorated(true);
         initComponents();
@@ -97,7 +97,7 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         Telepon_Karyawan = new jtextfield.TextFieldSuggestion();
         jLabel4 = new javax.swing.JLabel();
         Alamat_Karyawan = new jtextfield.TextFieldSuggestion();
-        tomboledit = new com.raven.swing.CustomButton_Rounded();
+        tomboltambah = new com.raven.swing.CustomButton_Rounded();
         tombolbatal = new com.raven.swing.CustomButton_Rounded();
         jLabel5 = new javax.swing.JLabel();
         IDKaryawan = new jtextfield.TextFieldSuggestion();
@@ -143,10 +143,10 @@ public class Form_editKaryawan extends javax.swing.JDialog {
             }
         });
 
-        tomboledit.setText("Edit");
-        tomboledit.addActionListener(new java.awt.event.ActionListener() {
+        tomboltambah.setText("Tambahkan");
+        tomboltambah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tomboleditActionPerformed(evt);
+                tomboltambahActionPerformed(evt);
             }
         });
 
@@ -213,7 +213,7 @@ public class Form_editKaryawan extends javax.swing.JDialog {
                                     .addComponent(PWKaryawan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(165, 165, 165)
-                        .addComponent(tomboledit, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(tomboltambah, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(20, Short.MAX_VALUE))
@@ -254,7 +254,7 @@ public class Form_editKaryawan extends javax.swing.JDialog {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(tombolbatal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(tomboledit, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(tomboltambah, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(21, Short.MAX_VALUE))
         );
 
@@ -292,11 +292,11 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         dispose();
     }//GEN-LAST:event_tombolbatalActionPerformed
 
-    private void tomboleditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tomboleditActionPerformed
+    private void tomboltambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tomboltambahActionPerformed
         if (rootPaneCheckingEnabled) {
             
         }
-    }//GEN-LAST:event_tomboleditActionPerformed
+    }//GEN-LAST:event_tomboltambahActionPerformed
 
     private void IDKaryawanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IDKaryawanActionPerformed
         // TODO add your handling code here:
@@ -327,18 +327,14 @@ public class Form_editKaryawan extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Form_editKaryawan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Form_tbhKaryawan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Form_editKaryawan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Form_tbhKaryawan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Form_editKaryawan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Form_tbhKaryawan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Form_editKaryawan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Form_tbhKaryawan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
@@ -347,7 +343,7 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                Form_editKaryawan dialog = new Form_editKaryawan(new javax.swing.JFrame(), true);
+                Form_tbhKaryawan dialog = new Form_tbhKaryawan(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -376,6 +372,6 @@ public class Form_editKaryawan extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private com.raven.swing.CustomButton_Rounded tombolbatal;
-    private com.raven.swing.CustomButton_Rounded tomboledit;
+    private com.raven.swing.CustomButton_Rounded tomboltambah;
     // End of variables declaration//GEN-END:variables
 }

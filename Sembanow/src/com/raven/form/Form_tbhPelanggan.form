@@ -55,13 +55,13 @@
                       <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
-                      <Component id="Telepon_Supplier" alignment="0" max="32767" attributes="0"/>
-                      <Component id="IDSupplier" alignment="0" max="32767" attributes="0"/>
-                      <Component id="Nama_Supplier" alignment="0" max="32767" attributes="0"/>
-                      <Component id="Alamat_Supplier" alignment="0" min="-2" pref="393" max="-2" attributes="0"/>
+                      <Component id="Telepon_Pelanggan" alignment="0" max="32767" attributes="0"/>
+                      <Component id="IDPelanggan" alignment="0" max="32767" attributes="0"/>
+                      <Component id="Nama_Pelanggan" alignment="0" max="32767" attributes="0"/>
+                      <Component id="Alamat_Pelanggan" alignment="0" min="-2" pref="393" max="-2" attributes="0"/>
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
-                          <Component id="tomboledit" min="-2" pref="143" max="-2" attributes="0"/>
+                          <Component id="tomboltambah" min="-2" pref="143" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="tombolbatal" min="-2" pref="143" max="-2" attributes="0"/>
                       </Group>
@@ -76,23 +76,23 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Component id="IDSupplier" min="-2" max="-2" attributes="0"/>
+                  <Component id="IDPelanggan" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Component id="Nama_Supplier" min="-2" max="-2" attributes="0"/>
+                  <Component id="Nama_Pelanggan" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Component id="Telepon_Supplier" min="-2" pref="38" max="-2" attributes="0"/>
+                  <Component id="Telepon_Pelanggan" min="-2" pref="38" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Component id="Alamat_Supplier" min="-2" max="-2" attributes="0"/>
+                  <Component id="Alamat_Pelanggan" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
                       <Component id="tombolbatal" alignment="0" max="32767" attributes="0"/>
-                      <Component id="tomboledit" alignment="0" min="-2" pref="40" max="-2" attributes="0"/>
+                      <Component id="tomboltambah" alignment="0" min="-2" pref="40" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace pref="21" max="32767" attributes="0"/>
               </Group>
@@ -100,9 +100,9 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="jtextfield.TextFieldSuggestion" name="IDSupplier">
+        <Component class="jtextfield.TextFieldSuggestion" name="IDPelanggan">
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="IDSupplierActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="IDPelangganActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel1">
@@ -110,9 +110,9 @@
             <Property name="text" type="java.lang.String" value="ID"/>
           </Properties>
         </Component>
-        <Component class="jtextfield.TextFieldSuggestion" name="Nama_Supplier">
+        <Component class="jtextfield.TextFieldSuggestion" name="Nama_Pelanggan">
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="Nama_SupplierActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="Nama_PelangganActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel2">
@@ -125,9 +125,9 @@
             <Property name="text" type="java.lang.String" value="Nomor Telepon"/>
           </Properties>
         </Component>
-        <Component class="jtextfield.TextFieldSuggestion" name="Telepon_Supplier">
+        <Component class="jtextfield.TextFieldSuggestion" name="Telepon_Pelanggan">
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="Telepon_SupplierActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="Telepon_PelangganActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel4">
@@ -135,17 +135,17 @@
             <Property name="text" type="java.lang.String" value="Alamat"/>
           </Properties>
         </Component>
-        <Component class="jtextfield.TextFieldSuggestion" name="Alamat_Supplier">
+        <Component class="jtextfield.TextFieldSuggestion" name="Alamat_Pelanggan">
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="Alamat_SupplierActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="Alamat_PelangganActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.raven.swing.CustomButton_Rounded" name="tomboledit">
+        <Component class="com.raven.swing.CustomButton_Rounded" name="tomboltambah">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Edit"/>
+            <Property name="text" type="java.lang.String" value="Tambahkan"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tomboleditActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tomboltambahActionPerformed"/>
           </Events>
         </Component>
         <Component class="com.raven.swing.CustomButton_Rounded" name="tombolbatal">

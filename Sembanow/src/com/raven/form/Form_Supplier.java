@@ -5,12 +5,18 @@
 package com.raven.form;
 
 import config.koneksi;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 /**
  *
@@ -24,6 +30,7 @@ public class Form_Supplier extends javax.swing.JPanel {
     public Form_Supplier() {
         initComponents();
         showData();
+        TambahSupplier();
     }
     public void showData(){
         DefaultTableModel model = (DefaultTableModel) table11.getModel();
@@ -52,6 +59,18 @@ public class Form_Supplier extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Gagal menampilkan data: " + e.getMessage());
         }
     }
+    public void TambahSupplier(){
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("F4"),"tambahsupplier");
+        getActionMap().put("tambahsupplier", new AbstractAction(){
+            public void actionPerformed(ActionEvent e){
+                Window window = SwingUtilities.getWindowAncestor(Form_Supplier.this);
+        Form_tbhSupplier tambah = new Form_tbhSupplier((java.awt.Frame) window, true);
+        tambah.setVisible(true);
+        showData();
+            }
+        });
+    }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
