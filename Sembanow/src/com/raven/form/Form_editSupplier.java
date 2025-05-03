@@ -3,21 +3,43 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
  */
 package com.raven.form;
-
-/**
- *
- * @author Fitrah
- */
+import config.koneksi;
+import com.raven.form.Form_Supplier;
+import java.awt.Color;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import javax.swing.SwingUtilities;
+import raven.dialog.LengkapiData;
+import raven.dialog.SesuaiFormat;
 public class Form_editSupplier extends javax.swing.JDialog {
+    private Runnable ondataEdited;
+    private String ID;
+    PreparedStatement pstmt;
+           ResultSet rs;
+           Connection conn;
+    
+    public boolean isConfirmed(){
+        return confirmed;
+    }
+    public void setID(String ID){
+        this.ID=ID;
+    }
+    public void ondataedit(){
+        this.ondataEdited=ondataEdited;
+    }
 
-    /**
-     * Creates new form Form_tbhSupplier
-     */
+        private boolean confirmed = false;
     public Form_editSupplier(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         setUndecorated(true);
         initComponents();
-        setLocationRelativeTo(parent);
+        setLocationRelativeTo(null);
         fadeIn();
         
         IDSupplier.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -63,6 +85,65 @@ public class Form_editSupplier extends javax.swing.JDialog {
         }
     }).start();
 }
+    public void ambilData(String ID, String Nama, String Telepon, String Alamat){
+        IDSupplier.setText(ID);
+        Nama_Supplier.setText(Nama);
+        Telepon_Supplier.setText(Telepon);
+        Alamat_Supplier.setText(Alamat);
+        
+    }
+    public String[]getData(){
+        String ID = IDSupplier.getText();
+        String Nama = Nama_Supplier.getText();
+        String Telepon = Telepon_Supplier.getText();
+        String Alamat = Alamat_Supplier.getText();
+        
+        if(ID.isEmpty() || Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty()){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+            LengkapiData lengkap = new LengkapiData(parent, true);
+            lengkap.setVisible(true);
+            return null;
+        }
+        if(!Nama.matches("[a-zA-Z\\s]+")){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+            SesuaiFormat frmt = new SesuaiFormat(parent, true);
+            frmt.setVisible(true);
+            return null;
+        }
+        if(!Telepon.matches("\\d+")){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+            SesuaiFormat frmt = new SesuaiFormat(parent, true);
+            frmt.setVisible(true);
+            return null;
+        }
+        return new String[]{ID, Nama, Telepon, Alamat};
+    }
+    public void Refresh(){
+        try {
+           String url = "jdbc:mysql://localhost:/sembakogrok";
+            String dbUser = "root";
+            String dbPass = "";
+            conn = DriverManager.getConnection(url, dbUser, dbPass);
+           String sql = "SELECT * FROM supplier";
+           pstmt=conn.prepareStatement(sql);
+           pstmt.setString(0, ID);
+           rs=pstmt.executeQuery();
+           if(rs.next()){
+               String ID = rs.getString("id_supplier");
+               String Nama = rs.getString("nama");
+               String Telepon = rs.getString("no_hp");
+               String Alamat = rs.getString("alamat");
+               
+               IDSupplier.setText(ID);
+               Nama_Supplier.setText(Nama);
+               Telepon_Supplier.setText(Telepon);
+               Alamat_Supplier.setText(Alamat);
+           }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+ 
+    }
     
 
     /**
@@ -222,8 +303,53 @@ public class Form_editSupplier extends javax.swing.JDialog {
     }//GEN-LAST:event_tombolbatalActionPerformed
 
     private void tomboleditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tomboleditActionPerformed
-        if (rootPaneCheckingEnabled) {
-            
+        String[]data=getData();
+        if(data==null){
+            return;
+        }
+        String ID = data[0];
+        String Nama = data[1];
+        String Telepon = data[2];
+        String Alamat = data[3];  
+        
+        if(conn==null){
+            String url = "jdbc:mysql://localhost:/sembakogrok";
+            String dbUser = "root";
+            String dbPass = "";
+            try{
+            conn = DriverManager.getConnection(url, dbUser, dbPass);
+            }catch(SQLException e){
+                e.printStackTrace();
+                return;
+            }
+        }
+        String sql = "UPDATE supplier SET nama = ?, alamat = ?, no_hp = ? WHERE id_supplier = ?";
+       
+        try {
+            conn.setAutoCommit(false);
+            int rowUpdate = 0;
+            try(PreparedStatement ps = conn.prepareStatement(sql)){
+                ps.setString(1, Nama);
+                ps.setString(2, Alamat);
+                ps.setString(3, Telepon);
+                ps.setString(4, ID);
+                
+                rowUpdate = ps.executeUpdate();
+            }
+            if(rowUpdate>0){
+                conn.commit();
+                System.out.println("Berhasil diperbarui : "+rowUpdate);
+                Refresh();
+            }else{
+                conn.rollback();
+                System.out.println("Gagal updata : "+rowUpdate);
+            }
+            if(ondataEdited!=null){
+                ondataEdited.run();
+            }
+           dispose();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }//GEN-LAST:event_tomboleditActionPerformed
 

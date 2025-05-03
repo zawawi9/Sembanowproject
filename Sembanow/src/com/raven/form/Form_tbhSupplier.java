@@ -3,16 +3,21 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
  */
 package com.raven.form;
-
-/**
- *
- * @author Fitrah
- */
+import config.koneksi;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import raven.dialog.LengkapiData;
+import raven.dialog.SesuaiFormat;
 public class Form_tbhSupplier extends javax.swing.JDialog {
+    private boolean confirmed = false;
 
-    /**
-     * Creates new form Form_tbhSupplier
-     */
+    private Runnable onDataAdded;
     public Form_tbhSupplier(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         setUndecorated(true);
@@ -63,6 +68,64 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
         }
     }).start();
 }
+    private void Tambahkan(){
+        String ID = IDSupplier.getText();
+        String Nama = Nama_Supplier.getText();
+        String Telepon = Telepon_Supplier.getText();
+        String Alamat = Alamat_Supplier.getText();
+        
+        if(ID.isEmpty() || Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty()){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+            LengkapiData lengkap = new LengkapiData(parent, true);
+            lengkap.setVisible(true);
+            return;
+        }
+        if(!Nama.matches("[a-zA-Z\\s]+")){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+            SesuaiFormat frmt = new SesuaiFormat(parent, true);
+            frmt.setVisible(true);
+            return;
+        }
+        if(!Telepon.matches("\\d+")){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+            SesuaiFormat frmt = new SesuaiFormat(parent, true);
+            frmt.setVisible(true);
+            return;
+        }
+        try {
+            Connection conn;
+            PreparedStatement pstmt;
+            String url = "jdbc:mysql://localhost:/sembakogrok";
+            String dbUser = "root";
+            String dbPass = "";
+            conn = DriverManager.getConnection(url, dbUser, dbPass);
+            
+            String sql = "INSERT INTO supplier (id_supplier, nama, alamat, no_hp) VALUES (?,?,?,?)";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, ID);
+            pstmt.setString(2, Nama);
+            pstmt.setString(3, Alamat);
+            pstmt.setString(4, Telepon);
+            
+            int success = pstmt.executeUpdate();
+            if(success>0){
+                clearFields();
+                dispose();
+            }else{
+                JOptionPane.showMessageDialog(null, "Datanya gabisa ditambahin ini T_T");
+            }
+            
+        } catch (Exception e) {
+            
+                e.printStackTrace();
+        }
+    }
+    private void clearFields(){
+        IDSupplier.setText("");
+        Nama_Supplier.setText("");
+        Alamat_Supplier.setText("");
+        Telepon_Supplier.setText("");
+    }
     
 
     /**
@@ -222,9 +285,7 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
     }//GEN-LAST:event_tombolbatalActionPerformed
 
     private void tomboltambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tomboltambahActionPerformed
-        if (rootPaneCheckingEnabled) {
-            
-        }
+        Tambahkan();
     }//GEN-LAST:event_tomboltambahActionPerformed
 
     /**

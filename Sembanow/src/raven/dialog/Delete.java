@@ -10,14 +10,37 @@ package raven.dialog;
  */
 public class Delete extends javax.swing.JDialog {
 
-    /**
-     * Creates new form Delete
-     */
+    private boolean confirmed = false;
+    public boolean isConfirmed(){
+        return confirmed;
+    }
+    
     public Delete(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
+        setUndecorated(true);
         initComponents();
+        setLocationRelativeTo(parent);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        fadeIn();
+        
     }
+    public void fadeIn(){
+    setOpacity(0f); // Mulai dari transparan
+    new Thread(() -> {
+        try {
+            for (float i = 0f; i <= 1f; i += 0.05f) {
+                Thread.sleep(10);
+                setOpacity(i);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }).start();
+    }
+    
+    
 
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -40,11 +63,21 @@ public class Delete extends javax.swing.JDialog {
         jLabel1.setText("Anda yakin ingin menghapusnya?");
 
         tombolbatal.setText("Tidak");
+        tombolbatal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tombolbatalActionPerformed(evt);
+            }
+        });
 
         tombolhapus.setText("Ya");
         tombolhapus.setFillClick(new java.awt.Color(153, 0, 0));
         tombolhapus.setFillOriginal(new java.awt.Color(255, 0, 0));
         tombolhapus.setFillOver(new java.awt.Color(245, 42, 42));
+        tombolhapus.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tombolhapusActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -78,6 +111,15 @@ public class Delete extends javax.swing.JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void tombolhapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tombolhapusActionPerformed
+        confirmed = true;
+        dispose();
+    }//GEN-LAST:event_tombolhapusActionPerformed
+
+    private void tombolbatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tombolbatalActionPerformed
+        dispose();
+    }//GEN-LAST:event_tombolbatalActionPerformed
 
     /**
      * @param args the command line arguments

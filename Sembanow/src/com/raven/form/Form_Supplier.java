@@ -5,10 +5,12 @@
 package com.raven.form;
 
 import config.koneksi;
+import java.awt.Frame;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -18,6 +20,13 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import raven.dialog.Delete;
+import raven.dialog.LengkapiData;
+import raven.dialog.Pilihdahulu;
+import raven.dialog.Pilihsalahsatu;
 /**
  *
  * @author Fitrah
@@ -31,6 +40,8 @@ public class Form_Supplier extends javax.swing.JPanel {
         initComponents();
         showData();
         TambahSupplier();
+        EditSupplier();
+        HapusData();
     }
     public void showData(){
         DefaultTableModel model = (DefaultTableModel) table11.getModel();
@@ -70,7 +81,85 @@ public class Form_Supplier extends javax.swing.JPanel {
             }
         });
     }
+    public void EditSupplier(){
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("F6"),"editSupplier");
+        getActionMap().put("editSupplier", new AbstractAction(){
+            public void actionPerformed(ActionEvent e){
+        int[]selectedRows=table11.getSelectedRows();
+                
+        if(selectedRows.length==1){
+            int rows = selectedRows[0];
+            DefaultTableModel Model = (DefaultTableModel) table11.getModel();
+            String ID = Model.getValueAt(rows, 0).toString();
+            String Nama = Model.getValueAt(rows, 1).toString();
+            String Telepon = Model.getValueAt(rows, 2).toString();
+            String Alamat = Model.getValueAt(rows, 3).toString();
+            
+            Window window = SwingUtilities.getWindowAncestor(Form_Supplier.this);
+            Form_editSupplier editsup = new Form_editSupplier((Frame)window, true);
+            editsup.setID(ID);
+            editsup.ambilData(ID, Nama, Telepon, Alamat);
+            editsup.setVisible(true);
+            String[]updateData=editsup.getData();
+            if(updateData != null){
+                Model.setValueAt(updateData[0], rows, 0);//ID
+                Model.setValueAt(updateData[1], rows, 1);//Nama
+                Model.setValueAt(updateData[2], rows, 2);//Telepon
+                Model.setValueAt(updateData[3], rows, 3);//Alamat
+                
+            }
+        
+        }else if(selectedRows.length>1){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_Supplier.this);
+            Pilihsalahsatu salah = new Pilihsalahsatu(parent, true);
+            salah.setVisible(true);
+            return;
+        }else{
+            
+        }
+        showData();
+            }
+        });
+    }
     
+    public void HapusData(){
+         getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("DELETE"),"hapusSupplier");
+        getActionMap().put("hapusSupplier", new AbstractAction(){
+            public void actionPerformed(ActionEvent e){
+        int[]selectedRows=table11.getSelectedRows();
+        if(selectedRows.length>0){
+            List<String>DeleteID=new ArrayList<>();
+            for(int row : selectedRows){
+                Object value = table11.getValueAt(row, 0);
+                if(value!=null){
+                    DeleteID.add(value.toString());
+                }
+            }
+            Window window = SwingUtilities.getWindowAncestor(Form_Supplier.this);
+            Delete hapus = new Delete((Frame)window, true);
+            hapus.setVisible(true);
+            if(hapus.isConfirmed()){
+                String sql = "DELETE FROM supplier WHERE id_supplier IN "
+                        + "("+String.join(",", Collections.nCopies(DeleteID.size(),"?"))+")";
+                try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:/sembakogrok", "root", "");
+                     PreparedStatement pstmt = conn.prepareStatement(sql)){
+                    for(int i = 0; i < DeleteID.size();i++){
+                        pstmt.setString(i+1, DeleteID.get(i));
+                    }
+                    int rowsAffected = pstmt.executeUpdate();
+                    if(rowsAffected>0){
+                        showData();
+                    }else{
+                        System.out.println("Tidak ada data yang terhapus");
+                    }
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+                }
+        });
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -100,6 +189,11 @@ public class Form_Supplier extends javax.swing.JPanel {
                 "ID", "Nama", "Nomor Telepon", "Alamat"
             }
         ));
+        table11.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                table11MouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(table11);
 
         kolompencarian.setText("Search ");
@@ -141,6 +235,10 @@ public class Form_Supplier extends javax.swing.JPanel {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void table11MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_table11MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_table11MouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
