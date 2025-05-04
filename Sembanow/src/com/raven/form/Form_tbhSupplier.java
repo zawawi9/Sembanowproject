@@ -109,6 +109,7 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
             
             int success = pstmt.executeUpdate();
             if(success>0){
+                System.out.println("Data ditambahkan");
                 clearFields();
                 dispose();
             }else{

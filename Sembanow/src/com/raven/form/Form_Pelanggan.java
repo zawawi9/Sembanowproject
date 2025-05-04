@@ -4,6 +4,8 @@
  */
 package com.raven.form;
 
+import java.awt.Color;
+
 /**
  *
  * @author Fitrah
@@ -15,6 +17,8 @@ public class Form_Pelanggan extends javax.swing.JPanel {
      */
     public Form_Pelanggan() {
         initComponents();
+        kolompencarian.setText("Cari");
+        kolompencarian.setForeground(Color.gray);
     }
 
     /**
@@ -47,7 +51,19 @@ public class Form_Pelanggan extends javax.swing.JPanel {
         ));
         jScrollPane1.setViewportView(table11);
 
-        kolompencarian.setText("Search ");
+        kolompencarian.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                kolompencarianFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                kolompencarianFocusLost(evt);
+            }
+        });
+        kolompencarian.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                kolompencarianActionPerformed(evt);
+            }
+        });
 
         jComboBox_Custom1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Terbaru", "Nama Paling Awal", "Nama Paling Akhir" }));
 
@@ -61,10 +77,10 @@ public class Form_Pelanggan extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 718, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
-                .addComponent(kolompencarian, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jComboBox_Custom1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(kolompencarian, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox_Custom1, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(52, 52, 52))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1)
@@ -78,14 +94,34 @@ public class Form_Pelanggan extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(kolompencarian, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jComboBox_Custom1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 449, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1))
+                        .addComponent(kolompencarian, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jComboBox_Custom1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 485, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void kolompencarianActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_kolompencarianActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_kolompencarianActionPerformed
+
+    private void kolompencarianFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_kolompencarianFocusGained
+        if (kolompencarian.getText().equals("Cari")) {
+            kolompencarian.setText("");
+            kolompencarian.setForeground(Color.gray);
+            
+        }
+    }//GEN-LAST:event_kolompencarianFocusGained
+
+    private void kolompencarianFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_kolompencarianFocusLost
+        if (kolompencarian.getText().equals("")) {
+            kolompencarian.setText("Cari");
+            kolompencarian.setForeground(Color.gray);
+            
+        }
+    }//GEN-LAST:event_kolompencarianFocusLost
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -4,7 +4,9 @@
  */
 package com.raven.form;
 
+import Sortdata.UrutanDataSupplier;
 import config.koneksi;
+import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -42,6 +44,8 @@ public class Form_Supplier extends javax.swing.JPanel {
         TambahSupplier();
         EditSupplier();
         HapusData();
+        kolompencarian.setText("Cari");
+        kolompencarian.setForeground(Color.gray);
     }
     public void showData(){
         DefaultTableModel model = (DefaultTableModel) table11.getModel();
@@ -148,6 +152,7 @@ public class Form_Supplier extends javax.swing.JPanel {
                     }
                     int rowsAffected = pstmt.executeUpdate();
                     if(rowsAffected>0){
+                        System.out.println("Data terhapus");
                         showData();
                     }else{
                         System.out.println("Tidak ada data yang terhapus");
@@ -159,6 +164,80 @@ public class Form_Supplier extends javax.swing.JPanel {
         }
                 }
         });
+    }
+    public void UpdateTabel(List<UrutanDataSupplier>SortSupplier){
+        DefaultTableModel model = (DefaultTableModel)table11.getModel();
+        model.setRowCount(0);
+        for(UrutanDataSupplier dataSupplier : SortSupplier){
+            model.addRow(new Object[]{dataSupplier.getID(), dataSupplier.getNama(), dataSupplier.getTelepon(), dataSupplier.getAlamat()});
+        }
+    }
+    public void UrutanData(String choose){
+        String sql = "SELECT id_supplier, nama, alamat, no_hp FROM supplier";
+        switch (choose) {
+            case "Terbaru":
+                sql += " ORDER BY id_supplier";
+                System.out.println("Data diurut terbaru");
+                break;
+                case "Nama Paling Awal":
+                sql += " ORDER BY nama ASC";
+                System.out.println("Data diurut nama paling awal");
+                break;
+                case "Nama Paling Akhir":
+                sql += " ORDER BY nama DESC";
+                System.out.println("Data diurut nama paling akhir");
+                break;
+            default:
+                
+        }
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:/sembakogrok", "root", "");
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()){
+            List<UrutanDataSupplier>SortSupplier = new ArrayList<>();
+            while (rs.next()) {                
+                UrutanDataSupplier urutanSupplier = new UrutanDataSupplier();
+                urutanSupplier.setID(rs.getString("id_supplier"));
+                urutanSupplier.setNama(rs.getString("nama"));
+                urutanSupplier.setTelepon(rs.getString("no_hp"));
+                urutanSupplier.setAlamat(rs.getString("alamat"));
+                SortSupplier.add(urutanSupplier);
+            }
+            UpdateTabel(SortSupplier);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+    }
+    private void Pencarian(String Keyword){
+        DefaultTableModel model = (DefaultTableModel)table11.getModel();
+        model.setRowCount(0);
+        String sql = "SELECT * FROM supplier WHERE id_supplier LIKE ? OR"
+                + " nama LIKE ? OR alamat LIKE ? OR no_hp LIKE ?";
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:/sembakogrok", "root", "");
+                PreparedStatement pstmt = conn.prepareStatement(sql);){
+            pstmt.setString(1, "%"+Keyword+"%");
+            pstmt.setString(2, "%"+Keyword+"%");
+            pstmt.setString(3, "%"+Keyword+"%");
+            pstmt.setString(4, "%"+Keyword+"%");
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {                
+                String ID = rs.getString("id_supplier");
+                String Nama = rs.getString("nama");
+                String Telepon = rs.getString("no_hp");
+                String Alamat = rs.getString("alamat");
+                
+                model.addRow(new Object[]{ID, Nama, Telepon, Alamat});
+            }
+            int total = table11.getRowCount();
+            if (model.getRowCount()==0) {
+                System.out.println("Total pencarian ditemukan : "+total);
+            } else {
+                System.out.println("Total pencarian ditemukan : "+total);
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -196,9 +275,26 @@ public class Form_Supplier extends javax.swing.JPanel {
         });
         jScrollPane1.setViewportView(table11);
 
-        kolompencarian.setText("Search ");
+        kolompencarian.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                kolompencarianFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                kolompencarianFocusLost(evt);
+            }
+        });
+        kolompencarian.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                kolompencarianActionPerformed(evt);
+            }
+        });
 
         jComboBox_Custom1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Terbaru", "Nama Paling Awal", "Nama Paling Akhir" }));
+        jComboBox_Custom1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox_Custom1ActionPerformed(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 3, 18)); // NOI18N
         jLabel1.setText("Supplier");
@@ -210,10 +306,10 @@ public class Form_Supplier extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 718, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
-                .addComponent(kolompencarian, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jComboBox_Custom1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(kolompencarian, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox_Custom1, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(52, 52, 52))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1)
@@ -227,11 +323,11 @@ public class Form_Supplier extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(kolompencarian, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jComboBox_Custom1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 449, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1))
+                        .addComponent(kolompencarian, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jComboBox_Custom1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 485, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -239,6 +335,31 @@ public class Form_Supplier extends javax.swing.JPanel {
     private void table11MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_table11MouseClicked
         // TODO add your handling code here:
     }//GEN-LAST:event_table11MouseClicked
+
+    private void jComboBox_Custom1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox_Custom1ActionPerformed
+        String selectedOption = (String)jComboBox_Custom1.getSelectedItem();
+        UrutanData(selectedOption);
+    }//GEN-LAST:event_jComboBox_Custom1ActionPerformed
+
+    private void kolompencarianActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_kolompencarianActionPerformed
+        Pencarian(kolompencarian.getText());
+    }//GEN-LAST:event_kolompencarianActionPerformed
+
+    private void kolompencarianFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_kolompencarianFocusGained
+        if (kolompencarian.getText().equals("Cari")) {
+            kolompencarian.setText("");
+            kolompencarian.setForeground(Color.gray);
+            
+        }
+    }//GEN-LAST:event_kolompencarianFocusGained
+
+    private void kolompencarianFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_kolompencarianFocusLost
+        if (kolompencarian.getText().isEmpty()) {
+            kolompencarian.setText("Cari");
+            kolompencarian.setForeground(Color.gray);
+            
+        }
+    }//GEN-LAST:event_kolompencarianFocusLost
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
