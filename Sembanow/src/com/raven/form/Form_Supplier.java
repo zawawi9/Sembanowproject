@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import raven.dialog.Delete;
 import raven.dialog.LengkapiData;
+import raven.dialog.Loading;
 import raven.dialog.Pilihdahulu;
 import raven.dialog.Pilihsalahsatu;
 /**
@@ -46,6 +47,16 @@ public class Form_Supplier extends javax.swing.JPanel {
         HapusData();
         kolompencarian.setText("Cari");
         kolompencarian.setForeground(Color.gray);
+        
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("1"),"refresh");
+        getActionMap().put("refresh", new AbstractAction(){
+            public void actionPerformed(ActionEvent e){
+                Window window = SwingUtilities.getWindowAncestor(Form_Supplier.this);
+                Loading muat = new Loading((java.awt.Frame) window, true);
+        muat.setVisible(true);
+        showData();
+            }
+        });
     }
     public void showData(){
         DefaultTableModel model = (DefaultTableModel) table11.getModel();

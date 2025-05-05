@@ -13,6 +13,7 @@ import java.sql.Statement;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import raven.dialog.LengkapiData;
+import raven.dialog.Loading;
 import raven.dialog.SesuaiFormat;
 public class Form_tbhSupplier extends javax.swing.JDialog {
     private boolean confirmed = false;
@@ -119,6 +120,9 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
                 System.out.println("Data ditambahkan");
                 clearFields();
                 dispose();
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+                Loading muat = new Loading(parent, true);
+            muat.setVisible(true);
             }else{
                 JOptionPane.showMessageDialog(null, "Datanya gabisa ditambahin ini T_T");
             }

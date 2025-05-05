@@ -4,6 +4,8 @@
  */
 package raven.dialog;
 
+import javax.swing.SwingUtilities;
+
 /**
  *
  * @author Fitrah
@@ -22,6 +24,14 @@ public class Delete extends javax.swing.JDialog {
         setLocationRelativeTo(parent);
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         fadeIn();
+        
+        tombolhapus.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt){
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                    tombolhapus.doClick();
+            }
+            }
+        });
         
     }
     public void fadeIn(){
@@ -58,6 +68,7 @@ public class Delete extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
         jLabel1.setText("Anda yakin ingin menghapusnya?");
@@ -93,7 +104,7 @@ public class Delete extends javax.swing.JDialog {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(73, 73, 73)
                         .addComponent(jLabel1)))
-                .addContainerGap(76, Short.MAX_VALUE))
+                .addContainerGap(74, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -104,7 +115,7 @@ public class Delete extends javax.swing.JDialog {
                 .addComponent(tombolhapus, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(23, Short.MAX_VALUE))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
@@ -115,6 +126,10 @@ public class Delete extends javax.swing.JDialog {
     private void tombolhapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tombolhapusActionPerformed
         confirmed = true;
         dispose();
+        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+                Loading muat = new Loading(parent, true);
+            muat.setVisible(true);
+            
     }//GEN-LAST:event_tombolhapusActionPerformed
 
     private void tombolbatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tombolbatalActionPerformed
