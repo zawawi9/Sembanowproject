@@ -75,7 +75,7 @@ public class Form_Supplier extends javax.swing.JPanel {
         }
     }
     public void TambahSupplier(){
-        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("F4"),"tambahsupplier");
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("T"),"tambahsupplier");
         getActionMap().put("tambahsupplier", new AbstractAction(){
             public void actionPerformed(ActionEvent e){
                 Window window = SwingUtilities.getWindowAncestor(Form_Supplier.this);
@@ -86,7 +86,7 @@ public class Form_Supplier extends javax.swing.JPanel {
         });
     }
     public void EditSupplier(){
-        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("F6"),"editSupplier");
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("R"),"editSupplier");
         getActionMap().put("editSupplier", new AbstractAction(){
             public void actionPerformed(ActionEvent e){
         int[]selectedRows=table11.getSelectedRows();
