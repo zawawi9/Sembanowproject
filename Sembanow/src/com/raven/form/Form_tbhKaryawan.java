@@ -4,6 +4,16 @@
  */
 package com.raven.form;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import raven.dialog.JabatanOnly;
+import raven.dialog.LengkapiData;
+import raven.dialog.Loading;
+import raven.dialog.SesuaiFormat;
+
 /**
  *
  * @author Fitrah
@@ -62,6 +72,13 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
             }
             }
         });
+        PWKaryawan.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt){
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                jabatan.requestFocus();
+            }
+            }
+        });
         
     }
     public void fadeIn() {
@@ -77,6 +94,86 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
         }
     }).start();
 }
+    private void Tambahkan(){
+        String NIK = NIKKaryawan.getText();
+        String ID = IDKaryawan.getText();
+        String Nama = Nama_Karyawan.getText();
+        String Telepon = Telepon_Karyawan.getText();
+        String Alamat = Alamat_Karyawan.getText();
+        String Username = UNKaryawan.getText();
+        String Password = PWKaryawan.getText();
+        String Jabatan = jabatan.getText();
+        
+        if(ID.isEmpty() || Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty() || Username.isEmpty() || Password.isEmpty() || Jabatan.isEmpty()){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+            LengkapiData lengkap = new LengkapiData(parent, true);
+            lengkap.setVisible(true);
+            return;
+        }
+        if(!Nama.matches("[a-zA-Z\\s]+")){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+            SesuaiFormat frmt = new SesuaiFormat(parent, true);
+            frmt.setVisible(true);
+            return;
+        }
+        if(!Telepon.matches("\\d+")){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+            SesuaiFormat frmt = new SesuaiFormat(parent, true);
+            frmt.setVisible(true);
+            return;
+        }
+        if(!(Jabatan.equalsIgnoreCase("admin") || Jabatan.equalsIgnoreCase("karyawan"))){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+            JabatanOnly jabat = new JabatanOnly(parent, true);
+            jabat.setVisible(true);
+            return;
+        }
+        try {
+            Connection conn;
+            PreparedStatement pstmt;
+            String url = "jdbc:mysql://localhost:/sembakogrok";
+            String dbUser = "root";
+            String dbPass = "";
+            conn = DriverManager.getConnection(url, dbUser, dbPass);
+            
+            String sql = "INSERT INTO karyawan (id_karyawan, nama, no_hp, alamat, username, password, nik, status, gaji) VALUES (?,?,?,?,?,?,?,?,1000000)";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, ID);
+            pstmt.setString(2, Nama);
+            pstmt.setString(3, Telepon);
+            pstmt.setString(4, Alamat);
+            pstmt.setString(5, Username);
+            pstmt.setString(6, Password);
+            pstmt.setString(7, NIK);
+            pstmt.setString(8, Jabatan);
+            
+            int success = pstmt.executeUpdate();
+            if(success>0){
+                System.out.println("Data ditambahkan");
+                clearFields();
+                dispose();
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+                Loading muat = new Loading(parent, true);
+            muat.setVisible(true);
+            }else{
+                JOptionPane.showMessageDialog(null, "Datanya gabisa ditambahin ini T_T");
+            }
+            
+        } catch (Exception e) {
+            
+                e.printStackTrace();
+        }
+    }
+    private void clearFields(){
+        NIKKaryawan.setText("");
+        IDKaryawan.setText("");
+        Nama_Karyawan.setText("");
+        Telepon_Karyawan.setText("");
+        Alamat_Karyawan.setText("");
+        UNKaryawan.setText("");
+        PWKaryawan.setText("");
+        jabatan.setText("");
+    }
     
 
     /**
@@ -108,6 +205,8 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
         jPanel2 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         Close = new Custom.Custom_ButtonRounded();
+        jLabel9 = new javax.swing.JLabel();
+        jabatan = new jtextfield.TextFieldSuggestion();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -229,6 +328,14 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
                 .addContainerGap(12, Short.MAX_VALUE))
         );
 
+        jLabel9.setText("Jabatan");
+
+        jabatan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jabatanActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -236,28 +343,28 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(16, 16, 16)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel4)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(tomboltambah, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jLabel1)
-                                .addComponent(jLabel3)
-                                .addComponent(jLabel2)
-                                .addComponent(Nama_Karyawan, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
-                                .addComponent(Alamat_Karyawan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(NIKKaryawan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(Telepon_Karyawan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jLabel5)
-                                .addComponent(jLabel7)
-                                .addComponent(jLabel6)
-                                .addComponent(UNKaryawan, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
-                                .addComponent(IDKaryawan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(PWKaryawan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(tomboltambah, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel2)
+                            .addComponent(Nama_Karyawan, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
+                            .addComponent(Alamat_Karyawan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(NIKKaryawan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(Telepon_Karyawan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jLabel4))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel7)
+                    .addComponent(jLabel6)
+                    .addComponent(UNKaryawan, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
+                    .addComponent(IDKaryawan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(PWKaryawan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9)
+                    .addComponent(jabatan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(20, Short.MAX_VALUE))
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
@@ -292,9 +399,15 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(PWKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
-                .addComponent(jLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(Alamat_Karyawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(Alamat_Karyawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel9)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jabatan, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -337,9 +450,7 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
     }//GEN-LAST:event_tombolbatalActionPerformed
 
     private void tomboltambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tomboltambahActionPerformed
-        if (rootPaneCheckingEnabled) {
-            
-        }
+        Tambahkan();
     }//GEN-LAST:event_tomboltambahActionPerformed
 
     private void IDKaryawanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IDKaryawanActionPerformed
@@ -357,6 +468,10 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
     private void CloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CloseActionPerformed
         dispose();
     }//GEN-LAST:event_CloseActionPerformed
+
+    private void jabatanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jabatanActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jabatanActionPerformed
 
     /**
      * @param args the command line arguments
@@ -420,8 +535,10 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private jtextfield.TextFieldSuggestion jabatan;
     private com.raven.swing.CustomButton_Rounded tombolbatal;
     private com.raven.swing.CustomButton_Rounded tomboltambah;
     // End of variables declaration//GEN-END:variables

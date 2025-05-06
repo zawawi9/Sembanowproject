@@ -6,11 +6,13 @@ import com.raven.form.Form_2;
 import com.raven.form.Form_transaksi;
 import com.raven.form.MainForm;
 import com.raven.form.pilihan;
-import com.raven.form.Form_Login;
+import com.raven.form.FormLogin;
 import com.raven.form.Form_searchproduk;
 import com.raven.form.data;
 import com.raven.form.pilihanKeuangan;
 import com.raven.form.pilihanpendataan;
+import java.awt.Frame;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -18,11 +20,13 @@ import java.awt.event.MouseEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import net.miginfocom.swing.MigLayout;
 import org.jdesktop.animation.timing.Animator;
 import org.jdesktop.animation.timing.TimingTarget;
 import org.jdesktop.animation.timing.TimingTargetAdapter;
+import raven.dialog.LogoutSure;
 
 public class Main extends javax.swing.JFrame {
 
@@ -134,10 +138,18 @@ public class Main extends javax.swing.JFrame {
                     main.show(new Form_transaksi());
                 } else if (index == 18 && "admin".equals(role) || index == 14 && "karyawan".equals(role)) {
                     // Logout
+                    Window window = SwingUtilities.getWindowAncestor(Main.this);
+            LogoutSure sure = new LogoutSure((Frame)window, true);
+            sure.setVisible(true);
+            if(sure.isConfirmed()){
                     data.clearSession();
                     dispose();
-                    new Form_Login().setVisible(true);
-                }
+                    new FormLogin().setVisible(true);
+            }else{
+                sure.dispose();
+            }
+                    }
+                
             }
         });
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -198,7 +210,7 @@ public class Main extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new Form_Login().setVisible(true); // Mulai dari Form_Login
+                new FormLogin().setVisible(true); // Mulai dari Form_Login
             }
         });
     }

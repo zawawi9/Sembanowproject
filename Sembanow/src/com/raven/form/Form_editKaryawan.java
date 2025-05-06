@@ -4,15 +4,38 @@
  */
 package com.raven.form;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.SwingUtilities;
+import raven.dialog.LengkapiData;
+import raven.dialog.Loading;
+import raven.dialog.SesuaiFormat;
+
 /**
  *
  * @author Fitrah
  */
 public class Form_editKaryawan extends javax.swing.JDialog {
+    private Runnable ondataEdited;
+    private String ID;
+    PreparedStatement pstmt;
+           ResultSet rs;
+           Connection conn;
+    
+    public boolean isConfirmed(){
+        return confirmed;
+    }
+    public void setID(String ID){
+        this.ID=ID;
+    }
+    public void ondataedit(){
+        this.ondataEdited=ondataEdited;
+    }
 
-    /**
-     * Creates new form Form_tbhSupplier
-     */
+        private boolean confirmed = false;
     public Form_editKaryawan(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         setUndecorated(true);
@@ -77,6 +100,83 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         }
     }).start();
 }
+    public void ambilData(String NIK, String ID, String Nama, String Telepon, String Alamat, String Username, String Password){
+        NIKKaryawan.setText(NIK);
+        IDKaryawan.setText(ID);
+        Nama_Karyawan.setText(Nama);
+        Telepon_Karyawan.setText(Telepon);
+        Alamat_Karyawan.setText(Alamat);
+        UNKaryawan.setText(Username);
+        PWKaryawan.setText(Password);
+        
+    }
+    public String[]getData(){
+        String NIK = NIKKaryawan.getText();
+        String ID = IDKaryawan.getText();
+        String Nama = Nama_Karyawan.getText();
+        String Telepon = Telepon_Karyawan.getText();
+        String Alamat = Alamat_Karyawan.getText();
+        String Username = UNKaryawan.getText();
+        String Password = PWKaryawan.getText();
+        
+        if(NIK.isEmpty() || ID.isEmpty() || Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty() || Username.isEmpty() || Password.isEmpty()){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+            LengkapiData lengkap = new LengkapiData(parent, true);
+            lengkap.setVisible(true);
+            return null;
+        }
+        if(!NIK.matches("\\d+")){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+            SesuaiFormat frmt = new SesuaiFormat(parent, true);
+            frmt.setVisible(true);
+            return null;
+        }
+        if(!Nama.matches("[a-zA-Z\\s]+")){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+            SesuaiFormat frmt = new SesuaiFormat(parent, true);
+            frmt.setVisible(true);
+            return null;
+        }
+        if(!Telepon.matches("\\d+")){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+            SesuaiFormat frmt = new SesuaiFormat(parent, true);
+            frmt.setVisible(true);
+            return null;
+        }
+        return new String[]{NIK, ID, Nama, Telepon, Alamat, Username, Password};
+    }
+    public void Refresh(){
+        try {
+           String url = "jdbc:mysql://localhost:/sembakogrok";
+            String dbUser = "root";
+            String dbPass = "";
+            conn = DriverManager.getConnection(url, dbUser, dbPass);
+           String sql = "SELECT * FROM karyawan";
+           pstmt=conn.prepareStatement(sql);
+           pstmt.setString(0, ID);
+           rs=pstmt.executeQuery();
+           if(rs.next()){
+               String NIK = rs.getString("nik");
+               String ID = rs.getString("id_karyawan");
+               String Nama = rs.getString("nama");
+               String Telepon = rs.getString("no_hp");
+               String Alamat = rs.getString("alamat");
+               String Username = rs.getString("username");
+               String Password = rs.getString("password");
+               
+               NIKKaryawan.setText(NIK);
+               IDKaryawan.setText(ID);
+               Nama_Karyawan.setText(Nama);
+               Telepon_Karyawan.setText(Telepon);
+               Alamat_Karyawan.setText(Alamat);
+               UNKaryawan.setText(Username);
+               PWKaryawan.setText(Password);
+           }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+ 
+    }
     
 
     /**
@@ -160,6 +260,7 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         tombolbatal.setText("Batalkan");
         tombolbatal.setFillClick(new java.awt.Color(153, 0, 0));
         tombolbatal.setFillOriginal(new java.awt.Color(255, 0, 0));
+        tombolbatal.setFillOver(new java.awt.Color(255, 102, 102));
         tombolbatal.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 tombolbatalActionPerformed(evt);
@@ -337,8 +438,62 @@ public class Form_editKaryawan extends javax.swing.JDialog {
     }//GEN-LAST:event_tombolbatalActionPerformed
 
     private void tomboleditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tomboleditActionPerformed
-        if (rootPaneCheckingEnabled) {
-            
+        String[]data=getData();
+        if(data==null){
+            return;
+        }
+        String NIK = data[0];
+        String ID = data[1];
+        String Nama = data[2];
+        String Telepon = data[3];
+        String Alamat = data[4];  
+        String Username = data[5];  
+        String Password = data[6];  
+        
+        if(conn==null){
+            String url = "jdbc:mysql://localhost:/sembakogrok";
+            String dbUser = "root";
+            String dbPass = "";
+            try{
+            conn = DriverManager.getConnection(url, dbUser, dbPass);
+            }catch(SQLException e){
+                e.printStackTrace();
+                return;
+            }
+        }
+        String sql = "UPDATE karyawan SET nik = ?, nama = ?, no_hp = ?, alamat = ?, username = ?, password = ? WHERE id_karyawan = ?";
+       
+        try {
+            conn.setAutoCommit(false);
+            int rowUpdate = 0;
+            try(PreparedStatement ps = conn.prepareStatement(sql)){
+                ps.setString(1, NIK);
+                ps.setString(2, Nama);
+                ps.setString(3, Telepon);
+                ps.setString(4, Alamat);
+                ps.setString(5, Username);
+                ps.setString(6, Password);
+                ps.setString(7, ID);
+                
+                rowUpdate = ps.executeUpdate();
+            }
+            if(rowUpdate>0){
+                conn.commit();
+                System.out.println("Berhasil diperbarui : "+rowUpdate);
+                Refresh();
+            }else{
+                conn.rollback();
+                System.out.println("Gagal updata : "+rowUpdate);
+            }
+            if(ondataEdited!=null){
+                ondataEdited.run();
+            }
+           dispose();
+           java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+                Loading muat = new Loading(parent, true);
+            muat.setVisible(true);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }//GEN-LAST:event_tomboleditActionPerformed
 

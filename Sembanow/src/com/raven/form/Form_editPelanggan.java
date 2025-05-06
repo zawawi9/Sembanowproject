@@ -4,15 +4,37 @@
  */
 package com.raven.form;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.SwingUtilities;
+import raven.dialog.LengkapiData;
+import raven.dialog.Loading;
+import raven.dialog.SesuaiFormat;
+
 /**
  *
  * @author Fitrah
  */
 public class Form_editPelanggan extends javax.swing.JDialog {
-
-    /**
-     * Creates new form Form_tbhSupplier
-     */
+private Runnable ondataEdited;
+    private String ID;
+    PreparedStatement pstmt;
+           ResultSet rs;
+           Connection conn;
+    
+    public boolean isConfirmed(){
+        return confirmed;
+    }
+    public void setID(String ID){
+        this.ID=ID;
+    }
+    public void ondataedit(){
+        this.ondataEdited=ondataEdited;
+    }
+    private boolean confirmed = false;
     public Form_editPelanggan(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         setUndecorated(true);
@@ -28,13 +50,6 @@ public class Form_editPelanggan extends javax.swing.JDialog {
             }
         });
         Nama_Pelanggan.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt){
-                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                Telepon_Pelanggan.requestFocus();
-            }
-            }
-        });
-        Telepon_Pelanggan.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
                 Alamat_Pelanggan.requestFocus();
@@ -63,6 +78,55 @@ public class Form_editPelanggan extends javax.swing.JDialog {
         }
     }).start();
 }
+    public void ambilData(String ID, String Nama, String Alamat){
+        IDPelanggan.setText(ID);
+        Nama_Pelanggan.setText(Nama);
+        Alamat_Pelanggan.setText(Alamat);
+        
+    }
+    public String[]getData(){
+        String ID = IDPelanggan.getText();
+        String Nama = Nama_Pelanggan.getText();
+        String Alamat = Alamat_Pelanggan.getText();
+        
+        if(ID.isEmpty() || Nama.isEmpty() || Alamat.isEmpty()){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+            LengkapiData lengkap = new LengkapiData(parent, true);
+            lengkap.setVisible(true);
+            return null;
+        }
+        if(!Nama.matches("[a-zA-Z\\s]+")){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+            SesuaiFormat frmt = new SesuaiFormat(parent, true);
+            frmt.setVisible(true);
+            return null;
+        }
+        return new String[]{ID, Nama, Alamat};
+    }
+    public void Refresh(){
+        try {
+           String url = "jdbc:mysql://localhost:/sembakogrok";
+            String dbUser = "root";
+            String dbPass = "";
+            conn = DriverManager.getConnection(url, dbUser, dbPass);
+           String sql = "SELECT * FROM pelanggan";
+           pstmt=conn.prepareStatement(sql);
+           pstmt.setString(0, ID);
+           rs=pstmt.executeQuery();
+           if(rs.next()){
+               String ID = rs.getString("id_pelanggan");
+               String Nama = rs.getString("nama");
+               String Alamat = rs.getString("alamat");
+               
+               IDPelanggan.setText(ID);
+               Nama_Pelanggan.setText(Nama);
+               Alamat_Pelanggan.setText(Alamat);
+           }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+ 
+    }
     
 
     /**
@@ -79,8 +143,6 @@ public class Form_editPelanggan extends javax.swing.JDialog {
         jLabel1 = new javax.swing.JLabel();
         Nama_Pelanggan = new jtextfield.TextFieldSuggestion();
         jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        Telepon_Pelanggan = new jtextfield.TextFieldSuggestion();
         jLabel4 = new javax.swing.JLabel();
         Alamat_Pelanggan = new jtextfield.TextFieldSuggestion();
         tomboledit = new com.raven.swing.CustomButton_Rounded();
@@ -109,14 +171,6 @@ public class Form_editPelanggan extends javax.swing.JDialog {
         });
 
         jLabel2.setText("Nama");
-
-        jLabel3.setText("Nomor Telepon");
-
-        Telepon_Pelanggan.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Telepon_PelangganActionPerformed(evt);
-            }
-        });
 
         jLabel4.setText("Alamat");
 
@@ -194,7 +248,6 @@ public class Form_editPelanggan extends javax.swing.JDialog {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1)
                     .addComponent(jLabel4)
-                    .addComponent(jLabel3)
                     .addComponent(jLabel2)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(14, 14, 14)
@@ -203,7 +256,6 @@ public class Form_editPelanggan extends javax.swing.JDialog {
                         .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addComponent(Alamat_Pelanggan, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
-                        .addComponent(Telepon_Pelanggan, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(Nama_Pelanggan, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(IDPelanggan, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap(29, Short.MAX_VALUE))
@@ -222,10 +274,6 @@ public class Form_editPelanggan extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(Nama_Pelanggan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(Telepon_Pelanggan, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(Alamat_Pelanggan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -233,7 +281,7 @@ public class Form_editPelanggan extends javax.swing.JDialog {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(tomboledit, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -258,10 +306,6 @@ public class Form_editPelanggan extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_Nama_PelangganActionPerformed
 
-    private void Telepon_PelangganActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Telepon_PelangganActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_Telepon_PelangganActionPerformed
-
     private void Alamat_PelangganActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Alamat_PelangganActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_Alamat_PelangganActionPerformed
@@ -271,8 +315,54 @@ public class Form_editPelanggan extends javax.swing.JDialog {
     }//GEN-LAST:event_tombolbatalActionPerformed
 
     private void tomboleditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tomboleditActionPerformed
-        if (rootPaneCheckingEnabled) {
-            
+        String[]data=getData();
+        if(data==null){
+            return;
+        }
+        String ID = data[0];
+        String Nama = data[1];
+        String Alamat = data[2];
+        
+        if(conn==null){
+            String url = "jdbc:mysql://localhost:/sembakogrok";
+            String dbUser = "root";
+            String dbPass = "";
+            try{
+            conn = DriverManager.getConnection(url, dbUser, dbPass);
+            }catch(SQLException e){
+                e.printStackTrace();
+                return;
+            }
+        }
+        String sql = "UPDATE pelanggan SET nama = ?, alamat = ? WHERE id_pelanggan = ?";
+       
+        try {
+            conn.setAutoCommit(false);
+            int rowUpdate = 0;
+            try(PreparedStatement ps = conn.prepareStatement(sql)){
+                ps.setString(1, Nama);
+                ps.setString(2, Alamat);
+                ps.setString(3, ID);
+                
+                rowUpdate = ps.executeUpdate();
+            }
+            if(rowUpdate>0){
+                conn.commit();
+                System.out.println("Berhasil diperbarui : "+rowUpdate);
+                Refresh();
+            }else{
+                conn.rollback();
+                System.out.println("Gagal updata : "+rowUpdate);
+            }
+            if(ondataEdited!=null){
+                ondataEdited.run();
+            }
+           dispose();
+           java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+                Loading muat = new Loading(parent, true);
+            muat.setVisible(true);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }//GEN-LAST:event_tomboleditActionPerformed
 
@@ -330,10 +420,8 @@ public class Form_editPelanggan extends javax.swing.JDialog {
     private Custom.Custom_ButtonRounded Close;
     private jtextfield.TextFieldSuggestion IDPelanggan;
     private jtextfield.TextFieldSuggestion Nama_Pelanggan;
-    private jtextfield.TextFieldSuggestion Telepon_Pelanggan;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;

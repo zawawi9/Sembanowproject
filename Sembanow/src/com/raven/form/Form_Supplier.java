@@ -59,6 +59,7 @@ public class Form_Supplier extends javax.swing.JPanel {
         });
     }
     public void showData(){
+        
         DefaultTableModel model = (DefaultTableModel) table11.getModel();
         model.setRowCount(0);
             Connection conn = null;
@@ -74,7 +75,7 @@ public class Form_Supplier extends javax.swing.JPanel {
             stmt = conn.createStatement();
             rs = stmt.executeQuery(SQL);
             while(rs.next()){
-                Object[]row = {rs.getInt("id_supplier"),
+                Object[]row = {rs.getString("id_supplier"),
                         rs.getString("nama"),
                 rs.getString("no_hp"),
                 rs.getString("alamat")};
@@ -201,6 +202,7 @@ public class Form_Supplier extends javax.swing.JPanel {
             default:
                 
         }
+        
         try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:/sembakogrok", "root", "");
                 PreparedStatement pstmt = conn.prepareStatement(sql);
                 ResultSet rs = pstmt.executeQuery()){
@@ -213,6 +215,9 @@ public class Form_Supplier extends javax.swing.JPanel {
                 urutanSupplier.setAlamat(rs.getString("alamat"));
                 SortSupplier.add(urutanSupplier);
             }
+            Window window = SwingUtilities.getWindowAncestor(Form_Supplier.this);
+                Loading muat = new Loading((java.awt.Frame) window, true);
+        muat.setVisible(true);
             UpdateTabel(SortSupplier);
         } catch (Exception e) {
             e.printStackTrace();
