@@ -114,10 +114,11 @@ public class Form_Karyawan extends javax.swing.JPanel {
             String Password = Model.getValueAt(rows, 5).toString();
             
             String NIK = NIKKaryawan(ID);
+            String Gaji = GajiKaryawan(ID);
             Window window = SwingUtilities.getWindowAncestor(Form_Karyawan.this);
             Form_editKaryawan editKaryawan = new Form_editKaryawan((Frame)window, true);
             editKaryawan.setID(ID);
-            editKaryawan.ambilData(NIK, ID, Nama, Telepon, Alamat, Username, Password);
+            editKaryawan.ambilData(NIK, ID, Nama, Telepon, Alamat, Username, Password, Gaji);
             editKaryawan.setVisible(true);
             String[]updateData=editKaryawan.getData();
             if(updateData != null){
@@ -165,6 +166,30 @@ public class Form_Karyawan extends javax.swing.JPanel {
             e.printStackTrace();
         }
         return NIK;
+    }
+    private String GajiKaryawan(String ID){
+        String Gaji = "";
+        try {
+            Connection conn;
+            PreparedStatement pstmt;
+            String url = "jdbc:mysql://localhost:/sembakogrok";
+            String dbUser = "root";
+            String dbPass = "";
+            conn = DriverManager.getConnection(url, dbUser, dbPass);
+            
+            String sql = "SELECT gaji FROM karyawan WHERE id_karyawan = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, ID);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                Gaji = rs.getString("gaji");
+            }
+            rs.close();
+            pstmt.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Gaji;
     }
     public void HapusData(){
          getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("DELETE"),"hapuskaryawan");

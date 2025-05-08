@@ -105,10 +105,11 @@ public class Form_Pelanggan extends javax.swing.JPanel {
             String Nama = Model.getValueAt(rows, 1).toString();
             String Alamat = Model.getValueAt(rows, 2).toString();
             
+            String Tipe = TipeCostumer(ID);
             Window window = SwingUtilities.getWindowAncestor(Form_Pelanggan.this);
             Form_editPelanggan editPelanggan = new Form_editPelanggan((Frame)window, true);
             editPelanggan.setID(ID);
-            editPelanggan.ambilData(ID, Nama, Alamat);
+            editPelanggan.ambilData(ID, Nama, Alamat, Tipe);
             editPelanggan.setVisible(true);
             String[]updateData=editPelanggan.getData();
             if(updateData != null){
@@ -130,6 +131,30 @@ public class Form_Pelanggan extends javax.swing.JPanel {
         showData();
             }
         });
+    }
+    private String TipeCostumer(String ID){
+        String Tipe = "";
+        try {
+            Connection conn;
+            PreparedStatement pstmt;
+            String url = "jdbc:mysql://localhost:/sembakogrok";
+            String dbUser = "root";
+            String dbPass = "";
+            conn = DriverManager.getConnection(url, dbUser, dbPass);
+            
+            String sql = "SELECT tipe_harga FROM pelanggan WHERE id_pelanggan = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, ID);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                Tipe = rs.getString("tipe_harga");
+            }
+            rs.close();
+            pstmt.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Tipe;
     }
     public void HapusData(){
          getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(javax.swing.KeyStroke.getKeyStroke("DELETE"),"hapusPelanggan");

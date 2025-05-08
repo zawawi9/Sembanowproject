@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.SwingUtilities;
+import raven.dialog.DataAda;
 import raven.dialog.LengkapiData;
 import raven.dialog.Loading;
 import raven.dialog.SesuaiFormat;
@@ -59,7 +60,7 @@ private Runnable ondataEdited;
         Alamat_Pelanggan.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                Alamat_Pelanggan.requestFocus();
+                TipePelanggan.requestFocus();
             }
             }
         });
@@ -78,18 +79,23 @@ private Runnable ondataEdited;
         }
     }).start();
 }
-    public void ambilData(String ID, String Nama, String Alamat){
+    private String idLama;
+    public void ambilData(String ID, String Nama, String Alamat, String Tipe){
         IDPelanggan.setText(ID);
         Nama_Pelanggan.setText(Nama);
         Alamat_Pelanggan.setText(Alamat);
+        TipePelanggan.setText(Tipe);
+        
+        idLama = ID;
         
     }
     public String[]getData(){
         String ID = IDPelanggan.getText();
         String Nama = Nama_Pelanggan.getText();
         String Alamat = Alamat_Pelanggan.getText();
+        String Tipe = TipePelanggan.getText();
         
-        if(ID.isEmpty() || Nama.isEmpty() || Alamat.isEmpty()){
+        if(ID.isEmpty() || Nama.isEmpty() || Alamat.isEmpty() || Tipe.isEmpty()){
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
             LengkapiData lengkap = new LengkapiData(parent, true);
             lengkap.setVisible(true);
@@ -101,7 +107,7 @@ private Runnable ondataEdited;
             frmt.setVisible(true);
             return null;
         }
-        return new String[]{ID, Nama, Alamat};
+        return new String[]{ID, Nama, Alamat, Tipe};
     }
     public void Refresh(){
         try {
@@ -117,15 +123,39 @@ private Runnable ondataEdited;
                String ID = rs.getString("id_pelanggan");
                String Nama = rs.getString("nama");
                String Alamat = rs.getString("alamat");
+               String Tipe = rs.getString("tipe_harga");
                
                IDPelanggan.setText(ID);
                Nama_Pelanggan.setText(Nama);
                Alamat_Pelanggan.setText(Alamat);
+               TipePelanggan.setText(Tipe);
            }
         } catch (Exception e) {
             e.printStackTrace();
         }
  
+    }
+    private boolean isDuplicate(String NewID, String Tipe, String IDLama){
+        String sql = "SELECT COUNT(*) FROM pelanggan WHERE (id_pelanggan = ? OR tipe_harga = ?) AND id_pelanggan != ?";
+        try {
+           String url = "jdbc:mysql://localhost:/sembakogrok";
+            String dbUser = "root";
+            String dbPass = "";
+            conn = DriverManager.getConnection(url, dbUser, dbPass);
+           pstmt=conn.prepareStatement(sql);
+           pstmt.setString(1, NewID);
+           pstmt.setString(2, Tipe);
+           pstmt.setString(3, IDLama);
+           rs=pstmt.executeQuery();
+           if(rs.next()){
+               int count = rs.getInt(1);
+               return count > 0;
+           }
+           
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
     
 
@@ -150,6 +180,8 @@ private Runnable ondataEdited;
         jPanel2 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         Close = new Custom.Custom_ButtonRounded();
+        jLabel6 = new javax.swing.JLabel();
+        TipePelanggan = new jtextfield.TextFieldSuggestion();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -225,7 +257,7 @@ private Runnable ondataEdited;
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 143, Short.MAX_VALUE)
                 .addComponent(Close, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -239,27 +271,39 @@ private Runnable ondataEdited;
                 .addContainerGap(12, Short.MAX_VALUE))
         );
 
+        jLabel6.setText("Tipe Pelanggan");
+
+        TipePelanggan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TipePelangganActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(16, 16, 16)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel4)
-                    .addComponent(jLabel2)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(14, 14, 14)
+                        .addGap(16, 16, 16)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel2)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(Alamat_Pelanggan, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
+                                .addComponent(Nama_Pelanggan, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(IDPelanggan, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(TipePelanggan, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(31, 31, 31)
                         .addComponent(tomboledit, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(Alamat_Pelanggan, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
-                        .addComponent(Nama_Pelanggan, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(IDPelanggan, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap(29, Short.MAX_VALUE))
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -278,10 +322,14 @@ private Runnable ondataEdited;
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(Alamat_Pelanggan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(TipePelanggan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(tomboledit, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -319,9 +367,11 @@ private Runnable ondataEdited;
         if(data==null){
             return;
         }
-        String ID = data[0];
         String Nama = data[1];
         String Alamat = data[2];
+        String Tipe = data[3];
+        String IDLama = idLama;
+        String NewID = IDPelanggan.getText();
         
         if(conn==null){
             String url = "jdbc:mysql://localhost:/sembakogrok";
@@ -334,15 +384,23 @@ private Runnable ondataEdited;
                 return;
             }
         }
-        String sql = "UPDATE pelanggan SET nama = ?, alamat = ? WHERE id_pelanggan = ?";
+        if (isDuplicate(NewID, Tipe, IDLama)) {
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+                DataAda ada = new DataAda(parent, true);
+            ada.setVisible(true);
+            return;
+        }
+        String sql = "UPDATE pelanggan SET id_pelanggan = ?, nama = ?, alamat = ?, tipe_harga = ? WHERE id_pelanggan = ?";
        
         try {
             conn.setAutoCommit(false);
             int rowUpdate = 0;
             try(PreparedStatement ps = conn.prepareStatement(sql)){
-                ps.setString(1, Nama);
-                ps.setString(2, Alamat);
-                ps.setString(3, ID);
+                ps.setString(1, NewID);
+                ps.setString(2, Nama);
+                ps.setString(3, Alamat);
+                ps.setString(4, Tipe);
+                ps.setString(5, IDLama);
                 
                 rowUpdate = ps.executeUpdate();
             }
@@ -369,6 +427,10 @@ private Runnable ondataEdited;
     private void CloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CloseActionPerformed
         dispose();
     }//GEN-LAST:event_CloseActionPerformed
+
+    private void TipePelangganActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TipePelangganActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_TipePelangganActionPerformed
 
     /**
      * @param args the command line arguments
@@ -420,10 +482,12 @@ private Runnable ondataEdited;
     private Custom.Custom_ButtonRounded Close;
     private jtextfield.TextFieldSuggestion IDPelanggan;
     private jtextfield.TextFieldSuggestion Nama_Pelanggan;
+    private jtextfield.TextFieldSuggestion TipePelanggan;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private com.raven.swing.CustomButton_Rounded tombolbatal;
