@@ -7,8 +7,10 @@ package com.raven.form;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import raven.dialog.DataAda;
 import raven.dialog.JabatanOnly;
 import raven.dialog.LengkapiData;
 import raven.dialog.Loading;
@@ -99,6 +101,18 @@ public class Form_tbhPelanggan extends javax.swing.JDialog {
             String dbUser = "root";
             String dbPass = "";
             conn = DriverManager.getConnection(url, dbUser, dbPass);
+            
+            String checkSql = "SELECT COUNT(*) FROM pelanggan WHERE id_pelanggan = ? OR nama = ?";
+            PreparedStatement check = conn.prepareStatement(checkSql);
+            check.setString(1, ID);
+            check.setString(2, Nama);
+            ResultSet rs = check.executeQuery();
+            if (rs.next() && rs.getInt(1)>0) {
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+                DataAda ada = new DataAda(parent, true);
+            ada.setVisible(true);
+            return;
+            }
             
             String sql = "INSERT INTO pelanggan (id_pelanggan, nama, alamat, tipe_harga) VALUES (?,?,?,?)";
             pstmt = conn.prepareStatement(sql);

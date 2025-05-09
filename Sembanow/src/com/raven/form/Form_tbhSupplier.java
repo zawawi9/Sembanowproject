@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import raven.dialog.DataAda;
 import raven.dialog.LengkapiData;
 import raven.dialog.Loading;
 import raven.dialog.SesuaiFormat;
@@ -107,6 +108,20 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
             String dbUser = "root";
             String dbPass = "";
             conn = DriverManager.getConnection(url, dbUser, dbPass);
+            
+            String checkSql = "SELECT COUNT(*) FROM supplier WHERE id_supplier = ? OR nama = ? OR no_hp = ? OR alamat = ?";
+            PreparedStatement check = conn.prepareStatement(checkSql);
+            check.setString(1, ID);
+            check.setString(2, Nama);
+            check.setString(3, Telepon);
+            check.setString(4, Alamat);
+            ResultSet rs = check.executeQuery();
+            if (rs.next() && rs.getInt(1)>0) {
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+                DataAda ada = new DataAda(parent, true);
+            ada.setVisible(true);
+            return;
+            }
             
             String sql = "INSERT INTO supplier (id_supplier, nama, alamat, no_hp) VALUES (?,?,?,?)";
             pstmt = conn.prepareStatement(sql);
