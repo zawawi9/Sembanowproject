@@ -10,14 +10,14 @@ import javax.swing.SwingUtilities;
  *
  * @author Fitrah
  */
-public class Delete extends javax.swing.JDialog {
+public class Logout extends javax.swing.JDialog {
 
     private boolean confirmed = false;
     public boolean isConfirmed(){
         return confirmed;
     }
     
-    public Delete(java.awt.Frame parent, boolean modal) {
+    public Logout(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         setUndecorated(true);
         initComponents();
@@ -25,10 +25,10 @@ public class Delete extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         fadeIn();
         
-        tombolhapus.addKeyListener(new java.awt.event.KeyAdapter() {
+        tomboliya.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                    tombolhapus.doClick();
+                    tomboliya.doClick();
             }
             }
         });
@@ -63,7 +63,7 @@ public class Delete extends javax.swing.JDialog {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         tombolbatal = new Custom.Custom_ButtonRounded();
-        tombolhapus = new Custom.Custom_ButtonRounded();
+        tomboliya = new Custom.Custom_ButtonRounded();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -71,7 +71,7 @@ public class Delete extends javax.swing.JDialog {
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
-        jLabel1.setText("Anda yakin ingin menghapusnya?");
+        jLabel1.setText("Apakah anda ingin keluar?");
 
         tombolbatal.setText("Tidak");
         tombolbatal.addActionListener(new java.awt.event.ActionListener() {
@@ -80,13 +80,13 @@ public class Delete extends javax.swing.JDialog {
             }
         });
 
-        tombolhapus.setText("Ya");
-        tombolhapus.setFillClick(new java.awt.Color(153, 0, 0));
-        tombolhapus.setFillOriginal(new java.awt.Color(255, 0, 0));
-        tombolhapus.setFillOver(new java.awt.Color(245, 42, 42));
-        tombolhapus.addActionListener(new java.awt.event.ActionListener() {
+        tomboliya.setText("Ya");
+        tomboliya.setFillClick(new java.awt.Color(153, 0, 0));
+        tomboliya.setFillOriginal(new java.awt.Color(255, 0, 0));
+        tomboliya.setFillOver(new java.awt.Color(245, 42, 42));
+        tomboliya.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tombolhapusActionPerformed(evt);
+                tomboliyaActionPerformed(evt);
             }
         });
 
@@ -97,14 +97,14 @@ public class Delete extends javax.swing.JDialog {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(92, 92, 92)
+                        .addComponent(jLabel1))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(110, 110, 110)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(tombolhapus, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(73, 73, 73)
-                        .addComponent(jLabel1)))
-                .addContainerGap(74, Short.MAX_VALUE))
+                            .addComponent(tomboliya, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(100, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -112,7 +112,7 @@ public class Delete extends javax.swing.JDialog {
                 .addGap(20, 20, 20)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(tombolhapus, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(tomboliya, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(21, Short.MAX_VALUE))
@@ -123,14 +123,11 @@ public class Delete extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void tombolhapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tombolhapusActionPerformed
+    private void tomboliyaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tomboliyaActionPerformed
         confirmed = true;
         dispose();
-        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
-                Loading muat = new Loading(parent, true);
-            muat.setVisible(true);
             
-    }//GEN-LAST:event_tombolhapusActionPerformed
+    }//GEN-LAST:event_tomboliyaActionPerformed
 
     private void tombolbatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tombolbatalActionPerformed
         dispose();
@@ -139,7 +136,7 @@ public class Delete extends javax.swing.JDialog {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -153,20 +150,23 @@ public class Delete extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Delete.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Logout.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Delete.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Logout.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Delete.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Logout.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Delete.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Logout.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                Delete dialog = new Delete(new javax.swing.JFrame(), true);
+                Logout dialog = new Logout(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -182,6 +182,6 @@ public class Delete extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private Custom.Custom_ButtonRounded tombolbatal;
-    private Custom.Custom_ButtonRounded tombolhapus;
+    private Custom.Custom_ButtonRounded tomboliya;
     // End of variables declaration//GEN-END:variables
 }

@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import raven.dialog.Delete;
 import raven.dialog.LengkapiData;
+import raven.dialog.Loading;
 import raven.dialog.Pilihdahulu;
 import raven.dialog.Pilihsalahsatu;
 /**
@@ -46,8 +47,19 @@ public class Form_Supplier extends javax.swing.JPanel {
         HapusData();
         kolompencarian.setText("Cari");
         kolompencarian.setForeground(Color.gray);
+        
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("1"),"refresh");
+        getActionMap().put("refresh", new AbstractAction(){
+            public void actionPerformed(ActionEvent e){
+                Window window = SwingUtilities.getWindowAncestor(Form_Supplier.this);
+                Loading muat = new Loading((java.awt.Frame) window, true);
+        muat.setVisible(true);
+        showData();
+            }
+        });
     }
     public void showData(){
+        
         DefaultTableModel model = (DefaultTableModel) table11.getModel();
         model.setRowCount(0);
             Connection conn = null;
@@ -63,7 +75,7 @@ public class Form_Supplier extends javax.swing.JPanel {
             stmt = conn.createStatement();
             rs = stmt.executeQuery(SQL);
             while(rs.next()){
-                Object[]row = {rs.getInt("id_supplier"),
+                Object[]row = {rs.getString("id_supplier"),
                         rs.getString("nama"),
                 rs.getString("no_hp"),
                 rs.getString("alamat")};
@@ -75,7 +87,7 @@ public class Form_Supplier extends javax.swing.JPanel {
         }
     }
     public void TambahSupplier(){
-        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("F4"),"tambahsupplier");
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("T"),"tambahsupplier");
         getActionMap().put("tambahsupplier", new AbstractAction(){
             public void actionPerformed(ActionEvent e){
                 Window window = SwingUtilities.getWindowAncestor(Form_Supplier.this);
@@ -86,7 +98,7 @@ public class Form_Supplier extends javax.swing.JPanel {
         });
     }
     public void EditSupplier(){
-        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("F6"),"editSupplier");
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("R"),"editSupplier");
         getActionMap().put("editSupplier", new AbstractAction(){
             public void actionPerformed(ActionEvent e){
         int[]selectedRows=table11.getSelectedRows();
@@ -190,6 +202,7 @@ public class Form_Supplier extends javax.swing.JPanel {
             default:
                 
         }
+        
         try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:/sembakogrok", "root", "");
                 PreparedStatement pstmt = conn.prepareStatement(sql);
                 ResultSet rs = pstmt.executeQuery()){
@@ -202,6 +215,9 @@ public class Form_Supplier extends javax.swing.JPanel {
                 urutanSupplier.setAlamat(rs.getString("alamat"));
                 SortSupplier.add(urutanSupplier);
             }
+            Window window = SwingUtilities.getWindowAncestor(Form_Supplier.this);
+                Loading muat = new Loading((java.awt.Frame) window, true);
+        muat.setVisible(true);
             UpdateTabel(SortSupplier);
         } catch (Exception e) {
             e.printStackTrace();
