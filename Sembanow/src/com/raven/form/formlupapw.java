@@ -3,6 +3,7 @@ package com.raven.form;
 
 
 
+import config.koneksi;
 import javax.swing.JOptionPane;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -191,11 +192,11 @@ public class formlupapw extends javax.swing.JDialog {
     }
 
     // Proses ubah password
-    Connection conn = config.getKoneksi(); // Pastikan Anda punya class koneksi
+    Connection conn = koneksi.getKoneksi(); // Pastikan Anda punya class koneksi
     if (conn != null) {
         try {
             // Query untuk memverifikasi username dan NIK
-            String queryCek = "SELECT * FROM users WHERE username = ? AND NIK = ?";
+            String queryCek = "SELECT * FROM karyawan WHERE username = ? AND NIK = ?";
             PreparedStatement stmtCek = conn.prepareStatement(queryCek);
             stmtCek.setString(1, username);
             stmtCek.setString(2, nik);
@@ -203,7 +204,7 @@ public class formlupapw extends javax.swing.JDialog {
 
             if (rs.next()) {
                 // Jika username dan NIK valid, update password
-                String queryUpdate = "UPDATE users SET password = ? WHERE username = ? AND NIK = ?";
+                String queryUpdate = "UPDATE karyawan SET password = ? WHERE username = ? AND NIK = ?";
                 PreparedStatement stmtUpdate = conn.prepareStatement(queryUpdate);
                 stmtUpdate.setString(1, passwordBaru);
                 stmtUpdate.setString(2, username);
