@@ -189,6 +189,7 @@ public class FormLogin extends javax.swing.JFrame {
         btnLogin = new Custom.Custom_ButtonRounded1();
         jLabel1 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
@@ -321,7 +322,7 @@ public class FormLogin extends javax.swing.JFrame {
             }
         });
         jPanel2.add(btnLogin);
-        btnLogin.setBounds(60, 330, 220, 30);
+        btnLogin.setBounds(60, 350, 220, 30);
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
@@ -334,6 +335,16 @@ public class FormLogin extends javax.swing.JFrame {
         jLabel3.setText("LOGIN");
         jPanel2.add(jLabel3);
         jLabel3.setBounds(60, 50, 111, 48);
+
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel4.setText("Lupa kata sandi?");
+        jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel4MouseClicked(evt);
+            }
+        });
+        jPanel2.add(jLabel4);
+        jLabel4.setBounds(190, 300, 90, 16);
 
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 330, 460));
 
@@ -434,6 +445,11 @@ public class FormLogin extends javax.swing.JFrame {
         txtPassword.setEchoChar('*');
     }//GEN-LAST:event_hidepwMouseClicked
 
+    private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
+        Form_forgetPassword forgot = new Form_forgetPassword(this, true);
+        forgot.setVisible(true);
+    }//GEN-LAST:event_jLabel4MouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -478,6 +494,7 @@ public class FormLogin extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel2;
