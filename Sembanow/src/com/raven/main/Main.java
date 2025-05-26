@@ -11,6 +11,8 @@ import com.raven.form.data;
 import com.raven.form.pilihanKeuangan;
 import com.raven.form.pilihanpendataan;
 import config.koneksi;
+import java.awt.Frame;
+import java.awt.Window;
 import java.sql.PreparedStatement;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,6 +32,7 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.animation.timing.Animator;
 import org.jdesktop.animation.timing.TimingTarget;
 import org.jdesktop.animation.timing.TimingTargetAdapter;
+import raven.dialog.LogoutSure;
 
 
 public class Main extends javax.swing.JFrame {
@@ -192,9 +195,15 @@ public class Main extends javax.swing.JFrame {
         }
 
         // Clear session and proceed with logout
-        data.clearSession();
-        dispose();
-        new FormLogin().setVisible(true);
+         Window window = SwingUtilities.getWindowAncestor(Main.this);
+            LogoutSure sure = new LogoutSure((Frame)window, true);
+            sure.setVisible(true);
+            if(sure.isConfirmed()){
+                    data.clearSession();
+                    dispose();
+                    new FormLogin().setVisible(true);
+            }
+        
 
     } catch (Exception e) {
         e.printStackTrace();
