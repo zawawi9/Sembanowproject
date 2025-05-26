@@ -6,9 +6,15 @@ import javax.swing.JFrame;
 
 public class MainForm extends javax.swing.JPanel {
 
+    String role = data.getRole();
+    
     public MainForm() {
         initComponents();
-        show(new Form_2());
+        if ("admin".equals(role)) {
+            show(new Form_2());
+        } else {
+            show(new Form_transaksi());
+        }
     }
 
     @SuppressWarnings("unchecked")

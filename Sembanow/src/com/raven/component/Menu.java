@@ -12,7 +12,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.Path2D;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import javax.swing.JFrame;
 
@@ -37,7 +37,7 @@ public class Menu extends javax.swing.JPanel {
         String username = data.getUsername() != null ? data.getUsername() : "Pengguna";
         String loginTimeStr = "07:00"; // Default jika loginTime null
         if (data.getLoginTime() != null) {
-            LocalTime loginTime = data.getLoginTime();
+            LocalDateTime loginTime = data.getLoginTime();
             loginTimeStr = loginTime.format(DateTimeFormatter.ofPattern("HH:mm"));
         }
         String role = data.getRole() != null ? data.getRole() : "hadir";
@@ -72,9 +72,9 @@ public class Menu extends javax.swing.JPanel {
         listMenu1.addItem(new Model_Menu("3", "Dashboard", Model_Menu.MenuType.MENU));
         listMenu1.addItem(new Model_Menu("4", "Produk", Model_Menu.MenuType.MENU));
         listMenu1.addItem(new Model_Menu("5", "Transaksi", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("6", "Pendataan", Model_Menu.MenuType.MENU));
+        listMenu1.addItem(new Model_Menu("8", "Pendataan", Model_Menu.MenuType.MENU));
         listMenu1.addItem(new Model_Menu("7", "Keuangan", Model_Menu.MenuType.MENU));
-        listMenu1.addItem(new Model_Menu("8", "Extra", Model_Menu.MenuType.MENU));
+        listMenu1.addItem(new Model_Menu("9", "Extra", Model_Menu.MenuType.MENU));
     }
 
     private void initKaryawanMenu() {

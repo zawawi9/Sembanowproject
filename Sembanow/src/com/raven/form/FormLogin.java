@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package com.raven.form;
 
 import com.raven.main.Main;
@@ -9,32 +5,19 @@ import config.koneksi;
 import java.awt.Frame;
 import java.awt.Image;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.sql.*;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Timer;
-import java.util.TimerTask;
-import javax.swing.AbstractAction;
+import java.sql.*; 
+import java.time.LocalDateTime;
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import raven.dialog.IncorrectPassword;
-import raven.dialog.Loading;
 import raven.dialog.Logout;
 import raven.dialog.MasukkanPass;
 import raven.dialog.MasukkanUser;
 import raven.dialog.RFIDTidakterdaftar;
-import raven.dialog.loginberhasill;
-import raven.dialog.password_username_kosong;
 
-/**
- *
- * @author Fitrah
- */
 public class FormLogin extends javax.swing.JFrame {
 
     public Statement st;
@@ -42,24 +25,18 @@ public class FormLogin extends javax.swing.JFrame {
     Connection cn = koneksi.getKoneksi();
     private long startTime = 0;
     private boolean isRFIDInput = false;
-    private final long RFID_THRESHOLD_MS = 500; // Contoh threshold 500ms, perlu disesuaikan
+    private final long RFID_THRESHOLD_MS = 500; 
     private String rfidBuffer = "";
 
     public FormLogin() {
         initComponents();
-
-        // Agar JFrame menerima input keyboard
+        ImageIcon icon = new ImageIcon(getClass().getResource("/com/raven/icon/emojis.com grocery-cart.png"));
+        setIconImage(icon.getImage());
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
-
-        
-
-        // Resize image setelah komponen selesai diinisialisasi
         ImageIcon originalIcon = new ImageIcon(getClass().getResource("/com/raven/icon/loginpage123.jpg"));
         Image image = originalIcon.getImage().getScaledInstance(400, 400, Image.SCALE_SMOOTH);
         ImageIcon resizedIcon = new ImageIcon(image);
-
-        // Mengatur gambar pada jLabel2
         jLabel2.setIcon(resizedIcon);
         SwingUtilities.invokeLater(() -> txtUsername.requestFocusInWindow());
         txtUsername.getDocument().addDocumentListener(new DocumentListener() {
@@ -73,23 +50,19 @@ public class FormLogin extends javax.swing.JFrame {
                 } else if (startTime > 0) {
                     long elapsedTime = System.currentTimeMillis() - startTime;
                     if (elapsedTime > RFID_THRESHOLD_MS) {
-                        // Waktu input melebihi threshold, anggap ini input manual
                         startTime = 0;
                         isRFIDInput = false;
                         rfidBuffer = "";
                     }
                 }
 
-                // Asumsikan ID RFID memiliki panjang tertentu, ganti 10 dengan panjang ID Anda
                 if (startTime > 0 && currentText.length() == 10 && (System.currentTimeMillis() - startTime) <= RFID_THRESHOLD_MS) {
                     isRFIDInput = true;
                     konversiRFIDtoLogin(currentText);
-                    // Reset variabel waktu dan flag
                     startTime = 0;
                     isRFIDInput = false;
                     rfidBuffer = "";
                 } else if (currentText.isEmpty()) {
-                    // Reset jika field kosong
                     startTime = 0;
                     isRFIDInput = false;
                     rfidBuffer = "";
@@ -98,7 +71,6 @@ public class FormLogin extends javax.swing.JFrame {
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                // Reset jika ada penghapusan, karena ini kemungkinan interaksi manual
                 startTime = 0;
                 isRFIDInput = false;
                 rfidBuffer = "";
@@ -106,14 +78,13 @@ public class FormLogin extends javax.swing.JFrame {
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                // Tidak diperlukan untuk JTextField
             }
         });
 
         txtUsername.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
-                    NotifKeluar(); // Menutup form
+                    NotifKeluar(); 
                 }
             }
         });
@@ -135,51 +106,71 @@ public class FormLogin extends javax.swing.JFrame {
         txtPassword.setText("Password");
         txtPassword.setEchoChar((char) 0);
         hidepw.setVisible(false);
-        
-        
+
     }
-    private void NotifKeluar(){
+
+    private void NotifKeluar() {
         Window window = SwingUtilities.getWindowAncestor(FormLogin.this);
-                    Logout keluar = new Logout((Frame)window, true);
-            keluar.setVisible(true);
-            if(keluar.isConfirmed()){
-                     dispose();// Menutup form
-            }
-             
+        Logout keluar = new Logout((Frame) window, true);
+        keluar.setVisible(true);
+        if (keluar.isConfirmed()) {
+            dispose();
+        }
+
     }
 
     private void konversiRFIDtoLogin(String rfidID) {
+        String username = null;
+        String password = null;
+        PreparedStatement stmt = null;
+
         try {
-            String sql = "SELECT username, password FROM karyawan WHERE id_karyawan = ?"; // Asumsikan ada kolom rfid_id
-            PreparedStatement stmt = cn.prepareStatement(sql);
+            String sql = "SELECT username, password FROM karyawan WHERE uidrfid = ?";
+            stmt = cn.prepareStatement(sql);
             stmt.setString(1, rfidID);
             rs = stmt.executeQuery();
 
             if (rs.next()) {
-                txtUsername.setText(rs.getString("username"));
-                txtPassword.setText(rs.getString("password"));
-                btnLoginActionPerformed(null); // Trigger tombol login secara otomatis
-            } else {
-                RFIDTidakterdaftar user = new RFIDTidakterdaftar(this, rootPaneCheckingEnabled);
-            user.setVisible(true);
-            user.fadeIn();
-                txtUsername.setText(""); // Kosongkan kembali username field
-            return;
+                username = rs.getString("username"); 
+                password = rs.getString("password");
             }
-
-            rs.close();
-            stmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat memproses RFID: " + e.getMessage());
-        }
+            SwingUtilities.invokeLater(() -> {
+                JOptionPane.showMessageDialog(this, "Terjadi kesalahan database saat memproses RFID: " + e.getMessage(), "Error Database", JOptionPane.ERROR_MESSAGE);
+                txtUsername.setText("");
+                startTime = 0;
+                isRFIDInput = false;
+                rfidBuffer = "";
+            });
+            return;
+        } 
+        final String finalUsername = username;
+        final String finalPassword = password;
+        SwingUtilities.invokeLater(() -> {
+            if (finalUsername != null) {
+                System.out.println("RFID Ditemukan: " + rfidID + ", User: " + finalUsername); 
+                txtUsername.setText(finalUsername);
+                txtPassword.setText(finalPassword);
+                txtPassword.setEchoChar('*'); 
+                startTime = 0;
+                isRFIDInput = false;
+                rfidBuffer = "";
+                btnLoginActionPerformed(null);
+            } else {
+                System.out.println("RFID Tidak Terdaftar: " + rfidID);
+                RFIDTidakterdaftar user = new RFIDTidakterdaftar(this, rootPaneCheckingEnabled);
+                user.setVisible(true);
+                user.fadeIn();
+                txtUsername.setText("");
+                startTime = 0;
+                isRFIDInput = false;
+                rfidBuffer = "";
+            }
+        });
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -214,7 +205,7 @@ public class FormLogin extends javax.swing.JFrame {
         getContentPane().add(BGKANAN, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 0, 390, 460));
 
         jPanel2.setBackground(new java.awt.Color(8, 112, 105));
-        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        jPanel2.setLayout(null);
 
         showpw.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/showpw.png"))); // NOI18N
         showpw.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -222,7 +213,8 @@ public class FormLogin extends javax.swing.JFrame {
                 showpwMouseClicked(evt);
             }
         });
-        jPanel2.add(showpw, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 260, -1, -1));
+        jPanel2.add(showpw);
+        showpw.setBounds(250, 260, 25, 25);
 
         hidepw.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/hidepw.png"))); // NOI18N
         hidepw.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -230,13 +222,16 @@ public class FormLogin extends javax.swing.JFrame {
                 hidepwMouseClicked(evt);
             }
         });
-        jPanel2.add(hidepw, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 260, -1, -1));
+        jPanel2.add(hidepw);
+        hidepw.setBounds(250, 260, 25, 25);
 
         jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/pwikon.png"))); // NOI18N
-        jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 260, -1, -1));
+        jPanel2.add(jLabel6);
+        jLabel6.setBounds(60, 260, 25, 25);
 
         jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/usrikon.png"))); // NOI18N
-        jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 190, -1, -1));
+        jPanel2.add(jLabel5);
+        jLabel5.setBounds(60, 190, 25, 25);
 
         txtPassword.setBackground(new java.awt.Color(8, 112, 105));
         txtPassword.setFont(new java.awt.Font("Century", 0, 12)); // NOI18N
@@ -256,7 +251,8 @@ public class FormLogin extends javax.swing.JFrame {
                 txtPasswordActionPerformed(evt);
             }
         });
-        jPanel2.add(txtPassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 260, 220, 30));
+        jPanel2.add(txtPassword);
+        txtPassword.setBounds(60, 260, 220, 30);
 
         txtUsername.setBackground(new java.awt.Color(8, 112, 105));
         txtUsername.setFont(new java.awt.Font("Century", 0, 12)); // NOI18N
@@ -277,7 +273,8 @@ public class FormLogin extends javax.swing.JFrame {
                 txtUsernameActionPerformed(evt);
             }
         });
-        jPanel2.add(txtUsername, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 190, 220, 28));
+        jPanel2.add(txtUsername);
+        txtUsername.setBounds(60, 190, 220, 28);
 
         garisusername.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -292,7 +289,8 @@ public class FormLogin extends javax.swing.JFrame {
             .addGap(0, 1, Short.MAX_VALUE)
         );
 
-        jPanel2.add(garisusername, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 220, 220, 1));
+        jPanel2.add(garisusername);
+        garisusername.setBounds(60, 220, 220, 1);
 
         garispw.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -307,7 +305,8 @@ public class FormLogin extends javax.swing.JFrame {
             .addGap(0, 1, Short.MAX_VALUE)
         );
 
-        jPanel2.add(garispw, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 290, 220, 1));
+        jPanel2.add(garispw);
+        garispw.setBounds(60, 290, 220, 1);
 
         btnLogin.setForeground(new java.awt.Color(0, 0, 0));
         btnLogin.setText("LOGIN");
@@ -321,17 +320,20 @@ public class FormLogin extends javax.swing.JFrame {
                 btnLoginActionPerformed(evt);
             }
         });
-        jPanel2.add(btnLogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 330, 220, 30));
+        jPanel2.add(btnLogin);
+        btnLogin.setBounds(60, 330, 220, 30);
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Please sign in to your account");
-        jPanel2.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 90, -1, -1));
+        jPanel2.add(jLabel1);
+        jLabel1.setBounds(60, 90, 189, 20);
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("LOGIN");
-        jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 50, -1, -1));
+        jPanel2.add(jLabel3);
+        jLabel3.setBounds(60, 50, 111, 48);
 
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 330, 460));
 
@@ -392,25 +394,19 @@ public class FormLogin extends javax.swing.JFrame {
             return;
         }
 
-        Connection conn = null;
         PreparedStatement pstmt = null;
-        ResultSet rs = null;
 
         try {
-            String url = "jdbc:mysql://localhost:/sembakogrok";
-            String dbUser = "root";
-            String dbPass = "";
-            conn = DriverManager.getConnection(url, dbUser, dbPass);
 
             String sql = "SELECT username, status FROM karyawan WHERE username = ? AND password = ?";
-            pstmt = conn.prepareStatement(sql);
+            pstmt = cn.prepareStatement(sql);
             pstmt.setString(1, username);
             pstmt.setString(2, password);
             rs = pstmt.executeQuery();
 
             if (rs.next()) {
                 data.setUsername(rs.getString("username"));
-                data.setLoginTime(LocalTime.now());
+                data.setLoginTime(LocalDateTime.now());
                 data.setRole(rs.getString("status"));
 
                 new Main().setVisible(true);
@@ -423,20 +419,6 @@ public class FormLogin extends javax.swing.JFrame {
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Koneksi database gagal: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }//GEN-LAST:event_btnLoginActionPerformed
 

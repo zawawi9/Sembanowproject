@@ -1,11 +1,10 @@
-
 package com.raven.form;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 public class data {
     private static String username;
-    private static LocalTime loginTime;
+    private static LocalDateTime loginTime;
     private static String role;
 
     // Getters
@@ -13,7 +12,7 @@ public class data {
         return username;
     }
 
-    public static LocalTime getLoginTime() {
+    public static LocalDateTime getLoginTime() {
         return loginTime;
     }
 
@@ -26,7 +25,7 @@ public class data {
         data.username = username;
     }
 
-    public static void setLoginTime(LocalTime loginTime) {
+    public static void setLoginTime(LocalDateTime loginTime) {
         data.loginTime = loginTime;
     }
 

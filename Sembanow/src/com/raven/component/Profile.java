@@ -13,26 +13,25 @@ public class Profile extends javax.swing.JPanel {
 
         pic = new com.raven.swing.ImageAvatar();
 
-        setOpaque(false);
-
         pic.setForeground(new java.awt.Color(245, 245, 245));
+        pic.setAutoscrolls(true);
         pic.setBorderSize(2);
-        pic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/sembakohd.png"))); // NOI18N
+        pic.setFocusTraversalPolicyProvider(true);
+        pic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/greencart.png"))); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(pic, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(pic, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addComponent(pic, javax.swing.GroupLayout.DEFAULT_SIZE, 87, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(pic, javax.swing.GroupLayout.DEFAULT_SIZE, 128, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

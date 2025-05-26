@@ -1,8 +1,6 @@
 package com.raven.form;
 
-import chart.ModelChart;
 import config.koneksi;
-import java.awt.Color;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -195,12 +193,11 @@ public void cariBerdasarkanTanggal() {
 
         // Validasi format tanggal
         String sql = "";
-        String[] dateParts = inputTanggal.split("/");
+        String[] dateParts = inputTanggal.split("-");
 
         if (dateParts.length == 3) {
-            // Format: yyyy/MM/dd (tanggal spesifik)
             if (!dateParts[0].matches("\\d{4}") || !dateParts[1].matches("\\d{2}") || !dateParts[2].matches("\\d{2}")) {
-                javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy/MM/dd (contoh: 2025/04/26).");
+                javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy-MM-dd (contoh: 2025-04-26).");
                 return;
             }
 
@@ -240,7 +237,7 @@ public void cariBerdasarkanTanggal() {
         } else if (dateParts.length == 2) {
             // Format: yyyy/MM (bulan spesifik)
             if (!dateParts[0].matches("\\d{4}") || !dateParts[1].matches("\\d{2}")) {
-                javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy/MM (contoh: 2025/04).");
+                javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy-MM (contoh: 2025-04).");
                 return;
             }
 

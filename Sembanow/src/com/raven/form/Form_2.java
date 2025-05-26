@@ -25,7 +25,6 @@ public class Form_2 extends javax.swing.JPanel {
     private final DecimalFormat df;
 
     public Form_2() {
-        // Inisialisasi format untuk pemisah ribuan
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
         symbols.setGroupingSeparator('.'); // Pemisah ribuan menggunakan titik
         df = new DecimalFormat("#,###", symbols);
@@ -43,7 +42,6 @@ public class Form_2 extends javax.swing.JPanel {
         chart.addLegend("Pemasukan Harian", Color.decode("#2c3ebd"), Color.decode("#49c3fb"));
 
         try {
-            // Query untuk mengambil total harian dalam 7 hari terakhir
             String sql = "SELECT DATE(tanggal) AS tanggal_hari, SUM(total_keseluruhan) AS total_harian " +
                         "FROM dashboard " +
                         "GROUP BY DATE(tanggal) " +
@@ -51,34 +49,29 @@ public class Form_2 extends javax.swing.JPanel {
             PreparedStatement stmt = cn.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
 
-            // Array untuk menyimpan total per hari (7 hari)
             double[] totals = new double[7];
             String[] days = new String[7];
-            SimpleDateFormat sdf = new SimpleDateFormat("EEEE"); // Format nama hari (Senin, Selasa, dst.)
+            SimpleDateFormat sdf = new SimpleDateFormat("EEEE");
 
-            // Inisialisasi array dengan 0
             Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.DAY_OF_YEAR, -6); // Mulai dari 6 hari sebelum hari ini
+            cal.add(Calendar.DAY_OF_YEAR, -6); 
             for (int i = 0; i < 7; i++) {
                 totals[i] = 0;
                 days[i] = sdf.format(cal.getTime());
                 cal.add(Calendar.DAY_OF_YEAR, 1);
             }
 
-            // Isi total berdasarkan data dari query
             while (rs.next()) {
                 Date tanggal = rs.getDate("tanggal_hari");
                 double totalHarian = rs.getDouble("total_harian");
 
-                // Hitung selisih hari dari tanggal saat ini
                 long diff = (new Date().getTime() - tanggal.getTime()) / (1000 * 60 * 60 * 24);
-                int index = 6 - (int) diff; // Indeks dalam array (0 adalah 6 hari lalu, 6 adalah hari ini)
+                int index = 6 - (int) diff; 
                 if (index >= 0 && index < 7) {
                     totals[index] = totalHarian;
                 }
             }
 
-            // Tambahkan data ke chart
             for (int i = 0; i < 7; i++) {
                 chart.addData(new ModelChart(days[i], new double[]{totals[i]}));
             }
@@ -94,7 +87,6 @@ public class Form_2 extends javax.swing.JPanel {
         Icon icon = IconFontSwing.buildIcon(GoogleMaterialDesignIcons.PEOPLE, 60, new Color(255, 255, 255, 100), new Color(255, 255, 255, 15));
         
         try {
-            // Query untuk menghitung jumlah transaksi dalam 7 hari terakhir
             String sql = "SELECT COUNT(*) AS jumlah_transaksi FROM dashboard";
             PreparedStatement stmt = cn.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
@@ -115,7 +107,6 @@ public class Form_2 extends javax.swing.JPanel {
         Icon icon = IconFontSwing.buildIcon(GoogleMaterialDesignIcons.ACCOUNT_BALANCE, 60, new Color(255, 255, 255, 100), new Color(255, 255, 255, 15));
         
         try {
-            // Query untuk menghitung akumulasi total_keseluruhan dalam 7 hari terakhir
             String sql = "SELECT SUM(total_keseluruhan) AS total_akumulasi FROM dashboard";
             PreparedStatement stmt = cn.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
@@ -134,16 +125,14 @@ public class Form_2 extends javax.swing.JPanel {
 
     public void table() {
         DefaultTableModel model = new DefaultTableModel();
-        model.addColumn("nama");
-        model.addColumn("jumlah");
-        model.addColumn("harga jual");
-        model.addColumn("harga beli");
-        model.addColumn("total");
-        model.addColumn("tanggal");
+        model.addColumn("Nama");
+        model.addColumn("Total");
+        model.addColumn("Bayar");
+        model.addColumn("Kembalian");
         model.addColumn("Kasir");
+        model.addColumn("Tanggal");
 
         try {
-            // Query untuk mengambil data dari view
             String sql = "SELECT id_penjualan, nama_pelanggan, tanggal, total_keseluruhan, bayar, kembalian, nama_karyawan " +
                         "FROM dashboard " +
                         "ORDER BY tanggal DESC";
@@ -152,25 +141,22 @@ public class Form_2 extends javax.swing.JPanel {
 
             while (rs.next()) {
                 model.addRow(new Object[]{
-                    rs.getInt("id_penjualan"),
                     rs.getString("nama_pelanggan"),
-                    new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal")),
                     df.format(rs.getDouble("total_keseluruhan")),
                     df.format(rs.getDouble("bayar")),
                     df.format(rs.getDouble("kembalian")),
-                    rs.getString("nama_karyawan")
+                    rs.getString("nama_karyawan"),
+                    new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal"))
                 });
             }
 
             table1.setModel(model);
             
-            // Pengaturan lebar kolom (opsional, sesuaikan sesuai kebutuhan)
-            int[] columnWidths = {100, 150, 150, 150, 150, 150, 150};
+            int[] columnWidths = {100, 150, 150, 150, 150, 150};
             for (int i = 0; i < columnWidths.length; i++) {
                 table1.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
             }
             
-            // Sesuaikan tabel dengan scroll pane (jika ada method custom)
             table1.fixTable(jScrollPane1);
 
         } catch (SQLException e) {
@@ -207,6 +193,7 @@ public class Form_2 extends javax.swing.JPanel {
         jScrollPane1.setViewportView(table1);
 
         chart.setFillColor(true);
+        chart.setTitleColor(new java.awt.Color(0, 0, 0));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);

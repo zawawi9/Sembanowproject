@@ -36,7 +36,13 @@ public class pilihanKeuangan extends javax.swing.JPanel {
                     tabbedPaneCustom1.setComponentAt(1, new Form_pengeluaran());
                 }else if (selectedIndex == 2) {
                     // Tab "Pengeluaran" dipilih, buat instance baru Form_2
-                    tabbedPaneCustom1.setComponentAt(2, new Form_rekap());
+                    tabbedPaneCustom1.setComponentAt(2, new Form_profit());
+                }else if (selectedIndex == 3) {
+                    // Tab "Pengeluaran" dipilih, buat instance baru Form_2
+                    tabbedPaneCustom1.setComponentAt(3, new Form_rekap());
+                }else if (selectedIndex == 4) {
+                    // Tab "Pengeluaran" dipilih, buat instance baru Form_2
+                    tabbedPaneCustom1.setComponentAt(4, new Form_rekapharian());
                 }
             }
         });
@@ -55,6 +61,8 @@ public class pilihanKeuangan extends javax.swing.JPanel {
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
+        jPanel5 = new javax.swing.JPanel();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -97,7 +105,33 @@ public class pilihanKeuangan extends javax.swing.JPanel {
             .addGap(0, 265, Short.MAX_VALUE)
         );
 
-        tabbedPaneCustom1.addTab("Rekap", jPanel3);
+        tabbedPaneCustom1.addTab("Laba bersih", jPanel3);
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 895, Short.MAX_VALUE)
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 265, Short.MAX_VALUE)
+        );
+
+        tabbedPaneCustom1.addTab("rekap", jPanel4);
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 895, Short.MAX_VALUE)
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 265, Short.MAX_VALUE)
+        );
+
+        tabbedPaneCustom1.addTab("Rekap harian", jPanel5);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -116,6 +150,8 @@ public class pilihanKeuangan extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
     private tabbed.TabbedPaneCustom tabbedPaneCustom1;
     // End of variables declaration//GEN-END:variables
 }

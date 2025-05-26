@@ -5,18 +5,22 @@ import com.raven.event.EventMenuSelected;
 import com.raven.form.Form_2;
 import com.raven.form.Form_transaksi;
 import com.raven.form.MainForm;
-import com.raven.form.pilihan;
+import com.raven.form.pilihanproduk;
 import com.raven.form.FormLogin;
-import com.raven.form.Form_searchproduk;
 import com.raven.form.data;
 import com.raven.form.pilihanKeuangan;
 import com.raven.form.pilihanpendataan;
-import java.awt.Frame;
-import java.awt.Window;
+import config.koneksi;
+import java.sql.PreparedStatement;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
@@ -26,7 +30,7 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.animation.timing.Animator;
 import org.jdesktop.animation.timing.TimingTarget;
 import org.jdesktop.animation.timing.TimingTargetAdapter;
-import raven.dialog.LogoutSure;
+
 
 public class Main extends javax.swing.JFrame {
 
@@ -35,6 +39,9 @@ public class Main extends javax.swing.JFrame {
     private final MenuLayout menu;
     private final Animator animator;
     private final int menuWidth = 215;
+    public Statement st;
+    public ResultSet rs;
+    Connection cn = koneksi.getKoneksi();
 
     public Main() {
         initComponents();
@@ -120,40 +127,86 @@ public class Main extends javax.swing.JFrame {
             @Override
             public void selected(int index) {
                 String role = data.getRole();
-                if (index == 8) {
+                if (index == 9 && "admin".equals(role)) {
                     main.show(new Form_2());
                 }else if (index == 10 && "admin".equals(role)) {
-                    main.show(new pilihan());
-                } else if (index == 12 && "admin".equals(role)) {
-                    main.show(new pilihanpendataan());
+                    main.show(new pilihanproduk());
                 } else if (index == 11 && "admin".equals(role)) {
                     main.show(new Form_transaksi());
+                } else if (index == 12 && "admin".equals(role)) {
+                    main.show(new pilihanpendataan());
                 } else if (index == 13 && "admin".equals(role)) {
                     main.show(new pilihanKeuangan());
-                } else if (index == 9 && "admin".equals(role)) {
-                    main.show(new Form_2());
-                } else if (index == 9 && "karyawan".equals(role)) {
-                    main.show(new pilihan());
+                }  else if (index == 9 && "karyawan".equals(role)) {
+                    main.show(new pilihanproduk());
                 } else if (index == 10 && "karyawan".equals(role)) {
                     main.show(new Form_transaksi());
-                } else if (index == 18 && "admin".equals(role) || index == 14 && "karyawan".equals(role)) {
-                    // Logout
-                    Window window = SwingUtilities.getWindowAncestor(Main.this);
-            LogoutSure sure = new LogoutSure((Frame)window, true);
-            sure.setVisible(true);
-            if(sure.isConfirmed()){
-                    data.clearSession();
-                    dispose();
-                    new FormLogin().setVisible(true);
-            }else{
-                sure.dispose();
-            }
+                }else if ((index == 18 && "admin".equals(role)) || (index == 14 && "karyawan".equals(role))) {
+    try {
+        // Get username and loginTime from data class
+        String username = data.getUsername();
+        LocalDateTime checkIn = data.getLoginTime(); // LocalDateTime
+        LocalDateTime checkOut = LocalDateTime.now(); // LocalDateTime (saat logout)
+        LocalDate tanggalHariIni = LocalDate.now();   // LocalDate (tanggal saat ini)
+
+        // Validate inputs
+        if (username == null || checkIn == null || tanggalHariIni == null) {
+            JOptionPane.showMessageDialog(null, "Error: Data login tidak lengkap.");
+            return;
+        }
+
+        // Debug: Print input values
+        System.out.println("username: " + username);
+        System.out.println("checkIn: " + checkIn);
+        System.out.println("checkOut: " + checkOut);
+        System.out.println("tanggalHariIni: " + tanggalHariIni);
+
+        // Step 1: Fetch id_karyawan and nama from karyawan table using username
+        String selectSql = "SELECT id_karyawan, username FROM karyawan WHERE username = ?";
+        try (PreparedStatement selectStmt = cn.prepareStatement(selectSql)) {
+            selectStmt.setString(1, username);
+            try (ResultSet rs = selectStmt.executeQuery()) {
+                if (rs.next()) {
+                    String idKaryawan = rs.getString("id_karyawan");
+                    String nama = rs.getString("username");
+
+                    // Step 2: Insert into absensi table
+                    String insertSql = "INSERT INTO absensi (id_karyawan, tanggal, check_in, check_out) VALUES (?, ?, ?, ?)";
+                    try (PreparedStatement insertStmt = cn.prepareStatement(insertSql)) {
+                        // Set parameters for the insert statement
+                        insertStmt.setString(1, idKaryawan);
+                        insertStmt.setDate(2, java.sql.Date.valueOf(tanggalHariIni));
+                        insertStmt.setObject(3, checkIn); // Use setObject for LocalDateTime
+                        insertStmt.setObject(4, checkOut); // Use setObject for LocalDateTime
+
+                        // Execute the insert
+                        insertStmt.executeUpdate();
+
+                        System.out.println("Absensi disimpan untuk " + nama + " pada " + tanggalHariIni);
                     }
-                
+                } else {
+                    JOptionPane.showMessageDialog(null, "Error: Username " + username + " tidak ditemukan di tabel karyawan.");
+                    return;
+                }
+            }
+        }
+
+        // Clear session and proceed with logout
+        data.clearSession();
+        dispose();
+        new FormLogin().setVisible(true);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Error saat menyimpan data logout: " + e.getMessage());
+    }
+}
+
             }
         });
         setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
+    
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -210,7 +263,7 @@ public class Main extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new FormLogin().setVisible(true); // Mulai dari Form_Login
+                new FormLogin().setVisible(true);
             }
         });
     }

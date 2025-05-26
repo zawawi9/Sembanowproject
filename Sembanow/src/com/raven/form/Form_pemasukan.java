@@ -35,13 +35,11 @@ public class Form_pemasukan extends javax.swing.JPanel {
     chart.setTitle("Pemasukan Tahunan");
     chart.addLegend("Pemasukan ", Color.decode("#2c3ebd"), Color.decode("#49c3fb"));
 
-    try {
-        // Query untuk mengambil total pemasukan per bulan dalam tahun 2025
+    try { 
         String sql = "SELECT MONTH(tanggal) AS bulan, SUM(total_keseluruhan) AS total_pemasukan " +
-                     "FROM dashboard " +
+                     "FROM detail_transaksi " +
                      "WHERE YEAR(tanggal) = YEAR(CURDATE()) " +
-                     "GROUP BY MONTH(tanggal) " +
-                     "ORDER BY bulan ASC";
+                     "GROUP BY MONTH(tanggal)";
         PreparedStatement stmt = cn.prepareStatement(sql);
         ResultSet rs = stmt.executeQuery();
 
@@ -73,80 +71,77 @@ public class Form_pemasukan extends javax.swing.JPanel {
         javax.swing.JOptionPane.showMessageDialog(null, "Error saat mengambil data chart: " + e.getMessage());
     }
 }
-
+    
     public void table() {
-        DefaultTableModel model = new DefaultTableModel();
-        model.setRowCount(0);
-        model.setColumnCount(0);
-        model.addColumn("Nama Pelanggan");
-        model.addColumn("Total");
-        model.addColumn("Tanggal");
-
-        try {
-            // Query untuk mengambil data dari view, hanya nama_pelanggan, total_keseluruhan, dan tanggal
-            String sql =    "SELECT \n" +
-                            "    p.nama AS nama_pelanggan, \n" +
-                            "    pen.total_keseluruhan, \n" +
-                            "    pen.tanggal\n" +
-                            "FROM \n" +
-                            "    penjualan pen\n" +
-                            "JOIN \n" +
-                            "    pelanggan p ON pen.id_pelanggan = p.id_pelanggan\n" +
-                            "ORDER BY \n" +
-                            "    pen.tanggal DESC;";
-            PreparedStatement stmt = cn.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                model.addRow(new Object[]{
-                    rs.getString("nama_pelanggan"),
-                    df.format(rs.getDouble("total_keseluruhan")),
-                    new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal"))
-                });
-            }
-
-            table1.setModel(model);
-            
-            // Pengaturan lebar kolom (opsional, sesuaikan sesuai kebutuhan)
-            int[] columnWidths = {150, 150, 150};
-            for (int i = 0; i < columnWidths.length; i++) {
-                table1.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
-            }
-            
-            // Sesuaikan tabel dengan scroll pane (jika ada method custom)
-            table1.fixTable(jScrollPane1);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            javax.swing.JOptionPane.showMessageDialog(null, "Error saat mengambil data tabel: " + e.getMessage());
-        }
-}
-   public void cariBerdasarkanTanggal() {
     DefaultTableModel model = new DefaultTableModel();
     model.setRowCount(0);
-        model.setColumnCount(0);
+    model.setColumnCount(0);
     model.addColumn("Nama Pelanggan");
-    model.addColumn("Total");
+    model.addColumn("Total Belanja");
     model.addColumn("Tanggal");
 
     try {
-        // Ambil input dari jtxPencarian
+        String sql = "SELECT pelanggan, total_keseluruhan, tanggal " +
+                     "FROM detail_transaksi " +
+                     "WHERE YEAR(tanggal) = YEAR(CURDATE()) AND MONTH(tanggal) = MONTH(CURDATE()) " +
+                     "ORDER BY tanggal DESC";
+        PreparedStatement stmt = cn.prepareStatement(sql);
+        ResultSet rs = stmt.executeQuery();
+
+        double totalSum = 0; // Variabel untuk menyimpan jumlah total
+        while (rs.next()) {
+            double totalKeseluruhan = rs.getDouble("total_keseluruhan");
+            model.addRow(new Object[]{
+                rs.getString("pelanggan"),
+                df.format(totalKeseluruhan),
+                new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal"))
+            });
+            totalSum += totalKeseluruhan; // Tambahkan ke totalSum
+        }
+
+        table1.setModel(model);
+        
+        // Pengaturan lebar kolom (opsional, sesuaikan sesuai kebutuhan)
+        int[] columnWidths = {200, 150, 150};
+        for (int i = 0; i < columnWidths.length; i++) {
+            table1.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
+        }
+        
+        // Sesuaikan tabel dengan scroll pane (jika ada method custom)
+        table1.fixTable(jScrollPane1);
+
+        // Set total ke jtx bernama "total"
+        total.setText(df.format(totalSum));
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        javax.swing.JOptionPane.showMessageDialog(null, "Error saat mengambil data tabel: " + e.getMessage());
+    }
+}
+    
+    public void cariBerdasarkanTanggal() {
+    DefaultTableModel model = new DefaultTableModel();
+    model.setRowCount(0);
+    model.setColumnCount(0);
+    model.addColumn("Nama Pelanggan");
+    model.addColumn("Total Belanja");
+    model.addColumn("Tanggal");
+
+    try {
         String inputTanggal = pencarian.getText().trim();
         if (inputTanggal.isEmpty()) {
             javax.swing.JOptionPane.showMessageDialog(null, "Masukkan tanggal terlebih dahulu!");
             return;
         }
 
-        // Validasi format tanggal
         String sql = "";
-        String[] dateParts = inputTanggal.split("/");
+        String[] dateParts = inputTanggal.split("-");
         
-        // Validasi apakah setiap bagian adalah angka
+        double totalSum = 0;
+
         if (dateParts.length == 3) {
-            // Format: yyyy/MM/dd (tanggal spesifik)
-            // Validasi bahwa setiap bagian adalah angka
             if (!dateParts[0].matches("\\d{4}") || !dateParts[1].matches("\\d{2}") || !dateParts[2].matches("\\d{2}")) {
-                javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy/MM/dd (contoh: 2025/04/26).");
+                javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy-MM-dd (contoh: 2025-04-26).");
                 return;
             }
             
@@ -162,26 +157,27 @@ public class Form_pemasukan extends javax.swing.JPanel {
                 return;
             }
 
-            sql = "SELECT p.nama AS nama_pelanggan, pen.total_keseluruhan, pen.tanggal " +
-                  "FROM penjualan pen " +
-                  "JOIN pelanggan p ON pen.id_pelanggan = p.id_pelanggan " +
-                  "WHERE DATE(pen.tanggal) = ? " +
-                  "ORDER BY pen.tanggal DESC";
+            sql = "SELECT pelanggan, total_keseluruhan, tanggal " +
+                  "FROM detail_transaksi " +
+                  "WHERE DATE(tanggal) = ? " +
+                  "ORDER BY tanggal DESC";
             PreparedStatement stmt = cn.prepareStatement(sql);
             stmt.setString(1, inputTanggal.replace("/", "-")); // Ubah format ke yyyy-MM-dd untuk SQL
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
+                double totalKeseluruhan = rs.getDouble("total_keseluruhan");
                 model.addRow(new Object[]{
-                    rs.getString("nama_pelanggan"),
-                    df.format(rs.getDouble("total_keseluruhan")),
+                    rs.getString("pelanggan"),
+                    df.format(totalKeseluruhan),
                     new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal"))
                 });
+                totalSum += totalKeseluruhan; // Tambahkan ke totalSum
             }
         } else if (dateParts.length == 2) {
             // Format: yyyy/MM (bulan spesifik)
             if (!dateParts[0].matches("\\d{4}") || !dateParts[1].matches("\\d{2}")) {
-                javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy/MM (contoh: 2025/04).");
+                javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy-MM (contoh: 2025-04).");
                 return;
             }
 
@@ -191,22 +187,23 @@ public class Form_pemasukan extends javax.swing.JPanel {
                 return;
             }
 
-            sql = "SELECT p.nama AS nama_pelanggan, pen.total_keseluruhan, pen.tanggal " +
-                  "FROM penjualan pen " +
-                  "JOIN pelanggan p ON pen.id_pelanggan = p.id_pelanggan " +
-                  "WHERE YEAR(pen.tanggal) = ? AND MONTH(pen.tanggal) = ? " +
-                  "ORDER BY pen.tanggal DESC";
+            sql = "SELECT pelanggan, total_keseluruhan, tanggal " +
+                  "FROM detail_transaksi " +
+                  "WHERE YEAR(tanggal) = ? AND MONTH(tanggal) = ? " +
+                  "ORDER BY tanggal DESC";
             PreparedStatement stmt = cn.prepareStatement(sql);
             stmt.setInt(1, Integer.parseInt(dateParts[0])); // Tahun
             stmt.setInt(2, bulan); // Bulan
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
+                double totalKeseluruhan = rs.getDouble("total_keseluruhan");
                 model.addRow(new Object[]{
-                    rs.getString("nama_pelanggan"),
-                    df.format(rs.getDouble("total_keseluruhan")),
+                    rs.getString("pelanggan"),
+                    df.format(totalKeseluruhan),
                     new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal"))
                 });
+                totalSum += totalKeseluruhan; // Tambahkan ke totalSum
             }
         } else if (dateParts.length == 1) {
             // Format: yyyy (tahun spesifik)
@@ -215,21 +212,22 @@ public class Form_pemasukan extends javax.swing.JPanel {
                 return;
             }
 
-            sql = "SELECT p.nama AS nama_pelanggan, pen.total_keseluruhan, pen.tanggal " +
-                  "FROM penjualan pen " +
-                  "JOIN pelanggan p ON pen.id_pelanggan = p.id_pelanggan " +
-                  "WHERE YEAR(pen.tanggal) = ? " +
-                  "ORDER BY pen.tanggal DESC";
+            sql = "SELECT pelanggan, total_keseluruhan, tanggal " +
+                  "FROM detail_transaksi " +
+                  "WHERE YEAR(tanggal) = ? " +
+                  "ORDER BY tanggal DESC";
             PreparedStatement stmt = cn.prepareStatement(sql);
             stmt.setInt(1, Integer.parseInt(dateParts[0])); // Tahun
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
+                double totalKeseluruhan = rs.getDouble("total_keseluruhan");
                 model.addRow(new Object[]{
-                    rs.getString("nama_pelanggan"),
-                    df.format(rs.getDouble("total_keseluruhan")),
+                    rs.getString("pelanggan"),
+                    df.format(totalKeseluruhan),
                     new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal"))
                 });
+                totalSum += totalKeseluruhan; // Tambahkan ke totalSum
             }
         } else {
             // Jika format tidak valid
@@ -241,7 +239,7 @@ public class Form_pemasukan extends javax.swing.JPanel {
         table1.setModel(model);
 
         // Pengaturan lebar kolom
-        int[] columnWidths = {150, 150, 150};
+        int[] columnWidths = {200, 150, 150};
         for (int i = 0; i < columnWidths.length; i++) {
             table1.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
         }
@@ -249,11 +247,15 @@ public class Form_pemasukan extends javax.swing.JPanel {
         // Sesuaikan tabel dengan scroll pane
         table1.fixTable(jScrollPane1);
 
+        // Set total ke jtx bernama "total"
+        total.setText(df.format(totalSum));
+
     } catch (SQLException e) {
         e.printStackTrace();
         javax.swing.JOptionPane.showMessageDialog(null, "Error saat mengambil data tabel: " + e.getMessage());
     }
 }
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -264,18 +266,21 @@ public class Form_pemasukan extends javax.swing.JPanel {
         chart = new chart.CurveLineChart();
         pencarian = new jtextfield.TextFieldSuggestion();
         jLabel1 = new javax.swing.JLabel();
+        total = new jtextfield.TextFieldSuggestion();
+        jLabel2 = new javax.swing.JLabel();
+        comboBox = new jtextfield.ComboBoxSuggestion();
 
         setBackground(new java.awt.Color(250, 250, 250));
 
         table1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Title 1", "Title 2", "Title 3"
             }
         ));
         jScrollPane1.setViewportView(table1);
@@ -287,6 +292,14 @@ public class Form_pemasukan extends javax.swing.JPanel {
         });
 
         jLabel1.setText("Pencarian :");
+
+        total.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                totalActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setText("Total :");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -302,9 +315,15 @@ public class Form_pemasukan extends javax.swing.JPanel {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(comboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(pencarian, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(pencarian, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(30, 30, 30)
+                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(total, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(chart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(17, 17, 17))))
         );
@@ -316,7 +335,10 @@ public class Form_pemasukan extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(pencarian, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1))
+                    .addComponent(jLabel1)
+                    .addComponent(total, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2)
+                    .addComponent(comboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
                 .addContainerGap())
@@ -327,13 +349,20 @@ public class Form_pemasukan extends javax.swing.JPanel {
         cariBerdasarkanTanggal();
     }//GEN-LAST:event_pencarianActionPerformed
 
+    private void totalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_totalActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_totalActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.raven.component.Card card3;
     private chart.CurveLineChart chart;
+    private jtextfield.ComboBoxSuggestion comboBox;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private jtextfield.TextFieldSuggestion pencarian;
     private com.raven.swing.Table1 table1;
+    private jtextfield.TextFieldSuggestion total;
     // End of variables declaration//GEN-END:variables
 }

@@ -1,14 +1,14 @@
 package com.raven.form;
 
 import config.koneksi;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,6 +16,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -34,25 +36,25 @@ public class Form_exp extends javax.swing.JPanel {
         setupListeners(); // Set up listeners for search and delete
     }
 
-    // Display data from the exp_near_expiry_view in the JTable
     public void showData() {
-        String[] columnNames = {"ID", "Nama", "Stok Dos", "Stok Pcs", "Harga Beli", "Stok Per Dos", "Tanggal Exp"};
+        String[] columnNames = {"Kode","ID", "Nama", "Stok Dos", "Stok Pcs", "Harga Beli", "Stok Per Dos", "Tanggal Exp"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         
-        String sql = "SELECT id_exp, nama, quantity_dos, quantity_pcs, harga_beli, pcs_per_dos, exp_date " +
+        String sql = "SELECT id_exp, id_produk, nama, quantity_dos, quantity_pcs, harga_beli, pcs_per_dos, exp_date " +
                      "FROM exp_near_expiry_view";
         
         try (PreparedStatement pstmt = cn.prepareStatement(sql)) {
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                Object[] row = new Object[7];
+                Object[] row = new Object[8];
                 row[0] = rs.getInt("id_exp");
-                row[1] = rs.getString("nama");
-                row[2] = rs.getInt("quantity_dos");
-                row[3] = rs.getInt("quantity_pcs");
-                row[4] = rs.getInt("harga_beli");
-                row[5] = rs.getInt("pcs_per_dos");
-                row[6] = rs.getDate("exp_date");
+                row[1] = rs.getInt("id_produk");
+                row[2] = rs.getString("nama");
+                row[3] = rs.getInt("quantity_dos");
+                row[4] = rs.getInt("quantity_pcs");
+                row[5] = rs.getInt("harga_beli");
+                row[6] = rs.getInt("pcs_per_dos");
+                row[7] = rs.getDate("exp_date");
                 model.addRow(row);
             }
             table.setModel(model);
@@ -67,29 +69,31 @@ public class Form_exp extends javax.swing.JPanel {
 
     private void filterData() {
     String searchText = search.getText().trim();
-    String[] columnNames = {"ID", "Nama", "Stok Dos", "Stok Pcs", "Harga Beli", "Stok Per Dos", "Tanggal Exp"};
+    String[] columnNames = {"Kode","ID", "Nama", "Stok Dos", "Stok Pcs", "Harga Beli", "Stok Per Dos", "Tanggal Exp"};
     DefaultTableModel model = new DefaultTableModel(columnNames, 0);
 
     // Base SQL query
-    String sql = "SELECT id_exp, nama, quantity_dos, quantity_pcs, harga_beli, pcs_per_dos, exp_date " +
+    String sql = "SELECT id_exp,id_produk, nama, quantity_dos, quantity_pcs, harga_beli, pcs_per_dos, exp_date " +
                  "FROM exp_near_expiry_view " +
-                 "WHERE nama LIKE ? OR DATE_FORMAT(exp_date, '%Y-%m-%d') LIKE ?";
+                 "WHERE id_produk LIKE ? OR nama LIKE ? OR DATE_FORMAT(exp_date, '%Y-%m-%d') LIKE ?";
 
     try (PreparedStatement pstmt = cn.prepareStatement(sql)) {
         String searchPattern = "%" + searchText + "%";
         pstmt.setString(1, searchPattern); // For nama
         pstmt.setString(2, searchPattern); // For exp_date (formatted as YYYY-MM-DD)
+        pstmt.setString(3, searchPattern); // For exp_date (formatted as YYYY-MM-DD)
 
         ResultSet rs = pstmt.executeQuery();
         while (rs.next()) {
-            Object[] row = new Object[7];
+            Object[] row = new Object[8];
             row[0] = rs.getInt("id_exp");
-            row[1] = rs.getString("nama");
-            row[2] = rs.getInt("quantity_dos");
-            row[3] = rs.getInt("quantity_pcs");
-            row[4] = rs.getInt("harga_beli");
-            row[5] = rs.getInt("pcs_per_dos");
-            row[6] = rs.getDate("exp_date");
+            row[1] = rs.getInt("id_produk");
+            row[2] = rs.getString("nama");
+            row[3] = rs.getInt("quantity_dos");
+            row[4] = rs.getInt("quantity_pcs");
+            row[5] = rs.getInt("harga_beli");
+            row[6] = rs.getInt("pcs_per_dos");
+            row[7] = rs.getDate("exp_date");
             model.addRow(row);
         }
         table.setModel(model);
@@ -102,9 +106,7 @@ public class Form_exp extends javax.swing.JPanel {
     }
 }
 
-    // Set up listeners for search and delete functionality
     private void setupListeners() {
-        // Search functionality
         search.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
@@ -117,14 +119,12 @@ public class Form_exp extends javax.swing.JPanel {
             public void keyPressed(java.awt.event.KeyEvent e) {
                 int selectedRow = table.getSelectedRow();
                 if (selectedRow == -1) {
-                    return; // No row selected, do nothing
+                    return; 
                 }
 
                 if (e.getKeyCode() == java.awt.event.KeyEvent.VK_DELETE) {
-                    // Handle DELETE key (existing functionality)
                     deleteAndTransferToPengeluaran(selectedRow);
                 } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                    // Handle ENTER key (new functionality for return and update exp_date)
                     handleReturnAndUpdateExpDate(selectedRow);
                 }
             }
@@ -137,36 +137,26 @@ public class Form_exp extends javax.swing.JPanel {
     int idExp = (int) table.getValueAt(selectedRow, 0);
     TextFieldSuggestion tanggalField = new TextFieldSuggestion();
     JLabel labelTanggal = new JLabel("Enter new expiration date (YYYY-MM-DD):");
-
-    // Create panel
     JPanel panel = new JPanel(new GridLayout(0, 1));
     panel.add(labelTanggal);
-    panel.add(tanggalField); // Add the text field to the panel
-
-    // Create JOptionPane with custom header
+    panel.add(tanggalField); 
     JOptionPane optionPane = new JOptionPane(
         panel,
         JOptionPane.PLAIN_MESSAGE,
         JOptionPane.OK_CANCEL_OPTION
     );
 
-    // Create dialog
     JDialog dialog = optionPane.createDialog(this, "Update Expiration Date");
 
-    // Set background recursively
     setBackgroundRecursively(dialog.getContentPane(), Color.WHITE);
 
-    // Show dialog
     dialog.setVisible(true);
 
-    // Get result from dialog
     Object selectedValue = optionPane.getValue();
     if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
         JOptionPane.showMessageDialog(this, "Operasi dibatalkan.");
         return;
     }
-
-    // Get and validate input
     String newExpDateStr = tanggalField.getText().trim();
     if (newExpDateStr.isEmpty()) {
         JOptionPane.showMessageDialog(
@@ -178,11 +168,10 @@ public class Form_exp extends javax.swing.JPanel {
         return;
     }
 
-    // Parse the date string to java.sql.Date
     java.sql.Date newExpDate;
     try {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        sdf.setLenient(false); // Strict parsing
+        sdf.setLenient(false); 
         java.util.Date parsedDate = sdf.parse(newExpDateStr);
         newExpDate = new java.sql.Date(parsedDate.getTime());
     } catch (ParseException ex) {
@@ -195,10 +184,9 @@ public class Form_exp extends javax.swing.JPanel {
         return;
     }
 
-    // Update the database
     String updateSql = "UPDATE exp SET exp_date = ? WHERE id_exp = ?";
     try (PreparedStatement pstmt = cn.prepareStatement(updateSql)) {
-        pstmt.setDate(1, newExpDate); // Use the parsed java.sql.Date
+        pstmt.setDate(1, newExpDate); 
         pstmt.setInt(2, idExp);
         int rowsAffected = pstmt.executeUpdate();
 
@@ -209,7 +197,6 @@ public class Form_exp extends javax.swing.JPanel {
                 "Success",
                 JOptionPane.INFORMATION_MESSAGE
             );
-            // Refresh the table to reflect the change
             showData();
         } else {
             JOptionPane.showMessageDialog(
@@ -230,82 +217,214 @@ public class Form_exp extends javax.swing.JPanel {
     }
 }
 
-// Method to set background recursively
-private void setBackgroundRecursively(Container container, Color color) {
-    container.setBackground(color);
-    for (Component comp : container.getComponents()) {
-        comp.setBackground(color);
-        if (comp instanceof Container) {
-            setBackgroundRecursively((Container) comp, color);
-        }
+private void deleteAndTransferToPengeluaran(int selectedRow) {
+    // Extract data from the selected row
+    int idExp = (int) table.getValueAt(selectedRow, 0); 
+    String nama = (String) table.getValueAt(selectedRow, 2); 
+    int stokDos = (int) table.getValueAt(selectedRow, 3); 
+    int stokPcs = (int) table.getValueAt(selectedRow, 4); 
+    int hargaBeli = (int) table.getValueAt(selectedRow, 5); 
+    int pcsPerDos = (int) table.getValueAt(selectedRow, 6); 
+    Object dateObj = table.getValueAt(selectedRow, 7);
+    String tanggalExp;
+    if (dateObj instanceof java.sql.Date) {
+        tanggalExp = dateObj.toString(); // Converts java.sql.Date to String
+    } else {
+        tanggalExp = dateObj.toString(); // Fallback
     }
-}
+    String satuan = "pcs"; 
 
-    // Delete the exp record and transfer data to pengeluaran table
-    private void deleteAndTransferToPengeluaran(int selectedRow) {
-        int idExp = (int) table.getValueAt(selectedRow, 0); // ID (id_exp)
-        String nama = (String) table.getValueAt(selectedRow, 1); // Nama (keterangan)
-        int stokDos = (int) table.getValueAt(selectedRow, 2); // Stok Dos
-        int stokPcs = (int) table.getValueAt(selectedRow, 3); // Stok Pcs
-        int hargaBeli = (int) table.getValueAt(selectedRow, 4); // Harga Beli
-        int pcsPerDos = (int) table.getValueAt(selectedRow, 5); // Pcs Per Dos
+    // Initialize input fields
+    TextFieldSuggestion jtxId = new TextFieldSuggestion();
+    TextFieldSuggestion jtxNama = new TextFieldSuggestion();
+    TextFieldSuggestion jtxStokDos = new TextFieldSuggestion();
+    TextFieldSuggestion jtxStokPcs = new TextFieldSuggestion();
+    TextFieldSuggestion jtxStokBuang = new TextFieldSuggestion();
+    TextFieldSuggestion jtxDisplayBuang = new TextFieldSuggestion();
 
-        // Convert stokDos to pcs and calculate total pcs (jumlah)
-        int totalPcs = (stokDos * pcsPerDos) + stokPcs;
-        // Calculate total cost (total = harga_beli * totalPcs)
-        long total = (long) hargaBeli * totalPcs;
+    // Set field sizes
+    Dimension fieldSize = new Dimension(200, 35);
+    jtxId.setPreferredSize(fieldSize);
+    jtxNama.setPreferredSize(fieldSize);
+    jtxStokDos.setPreferredSize(fieldSize);
+    jtxStokPcs.setPreferredSize(fieldSize);
+    jtxStokBuang.setPreferredSize(fieldSize);
+    jtxDisplayBuang.setPreferredSize(fieldSize);
 
-        // Start a transaction
-        try {
-            cn.setAutoCommit(false);
+    // Set labels
+    JLabel lId = new JLabel("ID:");
+    JLabel lNama = new JLabel("Nama:");
+    JLabel lStokDos = new JLabel("Stok Dos:");
+    JLabel lStokPcs = new JLabel("Stok Pcs:");
+    JLabel lStokBuang = new JLabel("Stok yang Dibuang:");
+    JLabel lDisplayBuang = new JLabel("Display yang Dibuang:");
 
-            // Insert into pengeluaran table
-            String insertPengeluaranSql = "INSERT INTO pengeluaran (status, keterangan, jumlah, total) VALUES (?, ?, ?, ?)";
+    // Prefill fields with table data and disable all except jtxStokBuang & jtxDisplayBuang
+    jtxId.setText(String.valueOf(idExp));
+    jtxId.setEnabled(false);
+    jtxNama.setText(nama);
+    jtxNama.setEnabled(false);
+    jtxStokDos.setText(String.valueOf(stokDos));
+    jtxStokDos.setEnabled(false);
+    jtxStokPcs.setText(String.valueOf(stokPcs));
+    jtxStokPcs.setEnabled(false);
+    jtxStokBuang.setText("0"); // Default to 0
+    jtxDisplayBuang.setText("0"); // Default to 0
+
+    // Create the main panel for the dialog
+    JPanel mainPanel = new JPanel(new GridLayout(3, 2, 2, 2));
+    mainPanel.add(createInputPanel(lId, jtxId));
+    mainPanel.add(createInputPanel(lNama, jtxNama));
+    mainPanel.add(createInputPanel(lStokDos, jtxStokDos));
+    mainPanel.add(createInputPanel(lStokPcs, jtxStokPcs));
+    mainPanel.add(createInputPanel(lStokBuang, jtxStokBuang));
+    mainPanel.add(createInputPanel(lDisplayBuang, jtxDisplayBuang));
+
+    // Create the dialog panel
+    JPanel dialogPanel = new JPanel(new BorderLayout(10, 10));
+    dialogPanel.add(mainPanel, BorderLayout.CENTER);
+    dialogPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+    // Create the dialog
+    JOptionPane optionPane = new JOptionPane(
+        dialogPanel,
+        JOptionPane.PLAIN_MESSAGE,
+        JOptionPane.OK_CANCEL_OPTION
+    ) {
+        @Override
+        public void selectInitialValue() {
+            jtxStokBuang.requestFocusInWindow();
+        }
+    };
+
+    JDialog dialog = optionPane.createDialog(this, "Buang Produk");
+    setBackgroundRecursively(dialog.getContentPane(), Color.WHITE);
+
+    // Add key listener to handle Enter key navigation
+    jtxStokBuang.addKeyListener(new java.awt.event.KeyAdapter() {
+        @Override
+        public void keyPressed(java.awt.event.KeyEvent e) {
+            if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                e.consume(); // Prevent default Enter action
+                jtxDisplayBuang.requestFocusInWindow(); // Move focus to next field
+            }
+        }
+    });
+
+    
+
+    dialog.setVisible(true);
+
+    // Handle dialog result
+    Object selectedValue = optionPane.getValue();
+    if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
+        String message = (selectedValue != null && (Integer) selectedValue == JOptionPane.CLOSED_OPTION)
+            ? "Dialog ditutup. Operasi dibatalkan."
+            : "Operasi dibatalkan.";
+        JOptionPane.showMessageDialog(this, message);
+        return;
+    }
+
+    // Get user input for quantities to discard
+    String stokBuangStr = jtxStokBuang.getText().trim();
+    String displayBuangStr = jtxDisplayBuang.getText().trim();
+
+    try {
+        int stokBuang = 0;
+        int displayBuang = 0;
+        if (!stokBuangStr.isEmpty()) stokBuang = Integer.parseInt(stokBuangStr);
+        if (!displayBuangStr.isEmpty()) displayBuang = Integer.parseInt(displayBuangStr);
+        if (stokBuangStr.isEmpty() && displayBuangStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tidak ada jumlah yang dibuang.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (stokBuang < 0 || displayBuang < 0) {
+            JOptionPane.showMessageDialog(this, "Jumlah yang dibuang tidak boleh negatif.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (stokBuang > stokDos || displayBuang > stokPcs) {
+            JOptionPane.showMessageDialog(this, "Jumlah yang dibuang melebihi stok yang tersedia.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int totalPcsBuang = (stokBuang * pcsPerDos) + displayBuang;
+        long totalCost = (long) hargaBeli * totalPcsBuang;
+
+        cn.setAutoCommit(false);
+
+        if (totalPcsBuang > 0) {
+            String insertPengeluaranSql = "INSERT INTO pengeluaran (status, keterangan, jumlah, total, satuan) VALUES (?, ?, ?, ?, ?)";
             try (PreparedStatement pstmt = cn.prepareStatement(insertPengeluaranSql)) {
-                pstmt.setString(1, "exp"); // Status
-                pstmt.setString(2, nama);  // Keterangan
-                pstmt.setInt(3, totalPcs); // Jumlah (total pcs)
-                pstmt.setLong(4, total);   // Total (cost)
+                pstmt.setString(1, "exp");
+                pstmt.setString(2, nama);
+                pstmt.setInt(3, totalPcsBuang);
+                pstmt.setLong(4, totalCost);
+                pstmt.setString(5, satuan);
                 pstmt.executeUpdate();
             }
+        }
 
-            // Delete from exp table
+        if (stokBuang == stokDos && displayBuang == stokPcs) {
             String deleteExpSql = "DELETE FROM exp WHERE id_exp = ?";
             try (PreparedStatement pstmt = cn.prepareStatement(deleteExpSql)) {
                 pstmt.setInt(1, idExp);
                 pstmt.executeUpdate();
             }
-
-            cn.commit(); // Commit the transaction
-            JOptionPane.showMessageDialog(null,
-                "Data transferred to pengeluaran and deleted from exp successfully!",
-                "Success",
-                JOptionPane.INFORMATION_MESSAGE);
-
-            // Refresh the table
-            showData();
-
-        } catch (SQLException ex) {
-            try {
-                cn.rollback(); // Rollback on error
-            } catch (SQLException rollbackEx) {
-                rollbackEx.printStackTrace();
+        } else if (stokBuang > 0 || displayBuang > 0) {
+            String updateExpSql = "UPDATE exp SET quantity_dos = quantity_dos - ?, quantity_pcs = quantity_pcs - ? WHERE id_exp = ? AND exp_date = ?";
+            try (PreparedStatement pstmt = cn.prepareStatement(updateExpSql)) {
+                pstmt.setInt(1, stokBuang);
+                pstmt.setInt(2, displayBuang);
+                pstmt.setInt(3, idExp);
+                pstmt.setString(4, tanggalExp);
+                int rowsAffected = pstmt.executeUpdate();
+                if (rowsAffected == 0) {
+                    throw new SQLException("Tidak ada data yang diperbarui di tabel exp.");
+                }
             }
-            JOptionPane.showMessageDialog(null,
-                "Error processing data: " + ex.getMessage(),
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace();
-        } finally {
-            try {
-                cn.setAutoCommit(true); // Re-enable autocommit
-            } catch (SQLException finallyEx) {
-                finallyEx.printStackTrace();
+        }
+
+        cn.commit();
+        JOptionPane.showMessageDialog(this, "Operasi berhasil dilakukan!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        showData(); 
+
+    } catch (SQLException | NumberFormatException ex) {
+        try {
+            if (cn != null) cn.rollback();
+        } catch (SQLException rollbackEx) {
+            rollbackEx.printStackTrace();
+        }
+        JOptionPane.showMessageDialog(this, "Error menyimpan data: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
+    } finally {
+        try {
+            if (cn != null) {
+                cn.setAutoCommit(true);
+            }
+        } catch (SQLException finallyEx) {
+            finallyEx.printStackTrace();
+        }
+    }
+}
+    
+    private JPanel createInputPanel(JLabel label, JComponent input) {
+            JPanel panel = new JPanel(new BorderLayout(0, 2)); 
+            panel.add(label, BorderLayout.NORTH);
+            panel.add(input, BorderLayout.CENTER);
+            return panel;
+        }
+    
+    private void setBackgroundRecursively(Container container, Color color) {
+        container.setBackground(color);
+        for (Component comp : container.getComponents()) {
+            comp.setBackground(color);
+            if (comp instanceof Container) {
+                setBackgroundRecursively((Container) comp, color);
             }
         }
     }
 
-    
 
     
 
@@ -333,6 +452,7 @@ private void setBackgroundRecursively(Container container, Color color) {
                 "ID", "Produk", "H1", "H2", "H3"
             }
         ));
+        table.fixTable(jScrollPane1);
         jScrollPane1.setViewportView(table);
         if (table.getColumnModel().getColumnCount() > 0) {
             table.getColumnModel().getColumn(4).setResizable(false);

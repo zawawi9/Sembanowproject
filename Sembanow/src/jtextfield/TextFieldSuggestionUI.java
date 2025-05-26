@@ -77,7 +77,7 @@ public class TextFieldSuggestionUI extends MetalTextFieldUI {
             Graphics2D g2 = (Graphics2D) grphcs.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setColor(color); // Use the green border color
-            g2.drawRoundRect(x, y, width - 1, height - 1, round, round);
+            g2.drawRoundRect(x + 1, y + 1, width - 3, height - 3, round, round);
             g2.dispose();
         }
     }

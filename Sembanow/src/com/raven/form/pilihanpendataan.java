@@ -19,9 +19,9 @@ public class pilihanpendataan extends javax.swing.JPanel {
     public pilihanpendataan() {
         initComponents();
         
-        // Pastikan tab "Pemasukan" dipilih secara default dan tampilkan Form_Supplier
+        // Pastikan tab "Pemasukan" dipilih secara default dan tampilkan Form_1
         tabbedPaneCustom1.setSelectedIndex(0);
-        tabbedPaneCustom1.setComponentAt(0, new Form_Supplier());
+        tabbedPaneCustom1.setComponentAt(0, new Form_Pelanggan());
 
         // Tambahkan listener untuk tab
         tabbedPaneCustom1.addChangeListener(new ChangeListener() {
@@ -29,13 +29,14 @@ public class pilihanpendataan extends javax.swing.JPanel {
             public void stateChanged(ChangeEvent e) {
                 int selectedIndex = tabbedPaneCustom1.getSelectedIndex();
                 if (selectedIndex == 0) {
-                    // Tab "Supplier" dipilih, buat instance baru Form_Supplier
-                    tabbedPaneCustom1.setComponentAt(0, new Form_Supplier());
+                    // Tab "Pemasukan" dipilih, buat instance baru Form_1
+                    tabbedPaneCustom1.setComponentAt(0, new Form_Pelanggan());
                 } else if (selectedIndex == 1) {
-                    // Tab "Pelanggan" dipilih, buat instance baru Form_Pelanggan
-                    tabbedPaneCustom1.setComponentAt(1, new Form_Pelanggan());
-                } else if (selectedIndex == 2) {
-                    tabbedPaneCustom1.setComponentAt(2, new Form_Karyawan());
+                    // Tab "Pengeluaran" dipilih, buat instance baru Form_2
+                    tabbedPaneCustom1.setComponentAt(1, new Form_Karyawan());
+                }else if (selectedIndex == 2) {
+                    // Tab "Pengeluaran" dipilih, buat instance baru Form_2
+                    tabbedPaneCustom1.setComponentAt(2, new Form_Supplier());
                 }
             }
         });
@@ -61,14 +62,14 @@ public class pilihanpendataan extends javax.swing.JPanel {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 895, Short.MAX_VALUE)
+            .addGap(0, 847, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 265, Short.MAX_VALUE)
         );
 
-        tabbedPaneCustom1.addTab("Supplier", jPanel1);
+        tabbedPaneCustom1.addTab("Pelanggan", jPanel1);
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -76,42 +77,41 @@ public class pilihanpendataan extends javax.swing.JPanel {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 895, Short.MAX_VALUE)
+            .addGap(0, 847, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 265, Short.MAX_VALUE)
         );
 
-        tabbedPaneCustom1.addTab("Pelanggan", jPanel2);
-
-        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        tabbedPaneCustom1.addTab("karyawan", jPanel2);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 895, Short.MAX_VALUE)
+            .addGap(0, 847, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 265, Short.MAX_VALUE)
         );
 
-        tabbedPaneCustom1.addTab("Karyawan", jPanel3);
+        tabbedPaneCustom1.addTab("supplier", jPanel3);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbedPaneCustom1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(tabbedPaneCustom1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(42, 42, 42))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(tabbedPaneCustom1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
-
-        tabbedPaneCustom1.getAccessibleContext().setAccessibleName("Supplier");
     }// </editor-fold>//GEN-END:initComponents
 
 
