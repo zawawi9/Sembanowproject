@@ -4,12 +4,14 @@
  */
 package com.raven.form;
 import config.koneksi;
+import java.awt.Color;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.Random;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import raven.dialog.DataAda;
@@ -26,14 +28,6 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
         initComponents();
         setLocationRelativeTo(parent);
         fadeIn();
-        
-        IDSupplier.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt){
-                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                Nama_Supplier.requestFocus();
-            }
-            }
-        });
         Nama_Supplier.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
@@ -77,13 +71,34 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
         }
     }).start();
 }
+    public int generateRandomID() {
+    Random rand = new Random();
+    return rand.nextInt(90000) + 10000; // 10000 - 99999
+}
+
+public boolean isIDExist(Connection conn, int id) throws SQLException {
+    String sql = "SELECT COUNT(*) FROM supplier WHERE id_supplier = ?";
+    PreparedStatement stmt = conn.prepareStatement(sql);
+    stmt.setInt(1, id);
+    ResultSet rs = stmt.executeQuery();
+    rs.next();
+    return rs.getInt(1) > 0;
+}
+
+public int generateUniqueID(Connection conn) throws SQLException {
+    int id;
+    do {
+        id = generateRandomID();
+    } while (isIDExist(conn, id));
+    return id;
+}
     private void Tambahkan(){
-        String ID = IDSupplier.getText();
+        int ID = generateRandomID();
         String Nama = Nama_Supplier.getText();
         String Telepon = Telepon_Supplier.getText();
         String Alamat = Alamat_Supplier.getText();
         
-        if(ID.isEmpty() || Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty()){
+        if(Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty()){
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
             LengkapiData lengkap = new LengkapiData(parent, true);
             lengkap.setVisible(true);
@@ -111,7 +126,7 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
             
             String checkSql = "SELECT COUNT(*) FROM supplier WHERE id_supplier = ? OR nama = ? OR no_hp = ? OR alamat = ?";
             PreparedStatement check = conn.prepareStatement(checkSql);
-            check.setString(1, ID);
+            check.setInt(1, ID);
             check.setString(2, Nama);
             check.setString(3, Telepon);
             check.setString(4, Alamat);
@@ -125,7 +140,7 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
             
             String sql = "INSERT INTO supplier (id_supplier, nama, alamat, no_hp) VALUES (?,?,?,?)";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, ID);
+            pstmt.setInt(1, ID);
             pstmt.setString(2, Nama);
             pstmt.setString(3, Alamat);
             pstmt.setString(4, Telepon);
@@ -148,7 +163,6 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
         }
     }
     private void clearFields(){
-        IDSupplier.setText("");
         Nama_Supplier.setText("");
         Alamat_Supplier.setText("");
         Telepon_Supplier.setText("");
@@ -165,8 +179,6 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        IDSupplier = new jtextfield.TextFieldSuggestion();
-        jLabel1 = new javax.swing.JLabel();
         Nama_Supplier = new jtextfield.TextFieldSuggestion();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -183,14 +195,6 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
 
         jPanel1.setBackground(new java.awt.Color(250, 250, 250));
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-
-        IDSupplier.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                IDSupplierActionPerformed(evt);
-            }
-        });
-
-        jLabel1.setText("ID");
 
         Nama_Supplier.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -285,32 +289,26 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(30, 30, 30)
-                        .addComponent(tomboltambah, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(14, 14, 14)
+                        .addGap(15, 15, 15)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
                             .addComponent(jLabel4)
                             .addComponent(jLabel3)
                             .addComponent(jLabel2)
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(Alamat_Supplier, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
+                                .addComponent(Alamat_Supplier, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(Telepon_Supplier, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(Nama_Supplier, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(IDSupplier, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
-                .addContainerGap(35, Short.MAX_VALUE))
+                                .addComponent(Nama_Supplier, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addComponent(tomboltambah, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(34, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(IDSupplier, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -323,11 +321,11 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(Alamat_Supplier, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(tomboltambah, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                .addContainerGap(20, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -343,10 +341,6 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void IDSupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IDSupplierActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_IDSupplierActionPerformed
 
     private void Nama_SupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Nama_SupplierActionPerformed
         // TODO add your handling code here:
@@ -418,10 +412,8 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private jtextfield.TextFieldSuggestion Alamat_Supplier;
     private Custom.Custom_ButtonRounded Close;
-    private jtextfield.TextFieldSuggestion IDSupplier;
     private jtextfield.TextFieldSuggestion Nama_Supplier;
     private jtextfield.TextFieldSuggestion Telepon_Supplier;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;

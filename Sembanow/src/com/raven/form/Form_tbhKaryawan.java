@@ -8,8 +8,15 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import raven.dialog.DataAda;
 import raven.dialog.JabatanOnly;
 import raven.dialog.LengkapiData;
@@ -25,12 +32,31 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
     /**
      * Creates new form Form_tbhSupplier
      */
+    private List<String> karyawantype = Arrays.asList("admin", "karyawan");
+    private DocumentListener myListener;
     public Form_tbhKaryawan(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         setUndecorated(true);
         initComponents();
         setLocationRelativeTo(parent);
         fadeIn();
+        jabatan.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                listen();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                listen();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                listen();
+            }
+        }
+        );
         
         NIKKaryawan.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt){
@@ -56,11 +82,11 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
         Alamat_Karyawan.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                IDKaryawan.requestFocus();
+                RFIDKaryawan.requestFocus();
             }
             }
         });
-        IDKaryawan.addKeyListener(new java.awt.event.KeyAdapter() {
+        RFIDKaryawan.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
                 UNKaryawan.requestFocus();
@@ -88,7 +114,34 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
             }
             }
         });
+        BoxTipe.addActionListener((evt) -> {
+            String selectedType = (String)BoxTipe.getSelectedItem();
+            if (selectedType!=null && !selectedType.isEmpty()) {
+                jabatan.setText(selectedType);
+            }
+        });
+    }
+    public void listen(){
+        if (!jabatan.isShowing() || !BoxTipe.isShowing()) {
+            return;
+            
+        }
+        String keyword = jabatan.getText().toLowerCase();
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
         
+        boolean hasResult = false;
+        for (String Tipe : karyawantype){
+            if (Tipe.toLowerCase().contains(keyword)) {
+                model.addElement(Tipe);
+                hasResult = true;
+            }
+        }
+        BoxTipe.setModel(model);
+        if (hasResult && !keyword.isEmpty()) {
+            BoxTipe.showPopup();
+        }else{
+            BoxTipe.hidePopup();
+        }
     }
     public void fadeIn() {
     setOpacity(0f); // Mulai dari transparan
@@ -103,9 +156,30 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
         }
     }).start();
 }
+    public int generateRandomID() {
+    Random rand = new Random();
+    return rand.nextInt(90000) + 10000; // hasil: antara 10000 - 99999
+}
+    public int generateUniqueID(Connection conn) throws SQLException {
+    int id;
+    do {
+        id = generateRandomID();
+    } while (isIDExist(conn, id)); // Ulangi kalau sudah ada di DB
+    return id;
+}
+
+public boolean isIDExist(Connection conn, int id) throws SQLException {
+    String sql = "SELECT COUNT(*) FROM karyawan WHERE id_karyawan = ?";
+    PreparedStatement stmt = conn.prepareStatement(sql);
+    stmt.setInt(1, id);
+    ResultSet rs = stmt.executeQuery();
+    rs.next();
+    return rs.getInt(1) > 0;
+}
     private void Tambahkan(){
+        int ID = generateRandomID();
         String NIK = NIKKaryawan.getText();
-        String ID = IDKaryawan.getText();
+        String RFID = RFIDKaryawan.getText();
         String Nama = Nama_Karyawan.getText();
         String Telepon = Telepon_Karyawan.getText();
         String Alamat = Alamat_Karyawan.getText();
@@ -114,7 +188,7 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
         String Jabatan = jabatan.getText();
         String Gaji = gaji.getText();
         
-        if(ID.isEmpty() || Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty() || Username.isEmpty() || Password.isEmpty() || Jabatan.isEmpty() || Gaji.isEmpty()){
+        if(RFID.isEmpty() || Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty() || Username.isEmpty() || Password.isEmpty() || Jabatan.isEmpty() || Gaji.isEmpty()){
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
             LengkapiData lengkap = new LengkapiData(parent, true);
             lengkap.setVisible(true);
@@ -148,7 +222,7 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
             
             String checkSql = "SELECT COUNT(*) FROM karyawan WHERE id_karyawan = ? OR username = ? OR nik = ?";
             PreparedStatement check = conn.prepareStatement(checkSql);
-            check.setString(1, ID);
+            check.setInt(1, ID);
             check.setString(2, Username);
             check.setString(3, NIK);
             ResultSet rs = check.executeQuery();
@@ -159,17 +233,18 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
             return;
             }
             
-            String sql = "INSERT INTO karyawan (id_karyawan, nama_karyawan, no_hp, alamat, username, password, nik, status, gaji) VALUES (?,?,?,?,?,?,?,?,?)";
+            String sql = "INSERT INTO karyawan (id_karyawan, uidrfid, nama_karyawan, no_hp, alamat, username, password, nik, status, gaji) VALUES (?,?,?,?,?,?,?,?,?,?)";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, ID);
-            pstmt.setString(2, Nama);
-            pstmt.setString(3, Telepon);
-            pstmt.setString(4, Alamat);
-            pstmt.setString(5, Username);
-            pstmt.setString(6, Password);
-            pstmt.setString(7, NIK);
-            pstmt.setString(8, Jabatan);
-            pstmt.setString(9, Gaji);
+            pstmt.setInt(1, ID);
+            pstmt.setString(2, RFID);
+            pstmt.setString(3, Nama);
+            pstmt.setString(4, Telepon);
+            pstmt.setString(5, Alamat);
+            pstmt.setString(6, Username);
+            pstmt.setString(7, Password);
+            pstmt.setString(8, NIK);
+            pstmt.setString(9, Jabatan);
+            pstmt.setString(10, Gaji);
             
             int success = pstmt.executeUpdate();
             if(success>0){
@@ -190,7 +265,7 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
     }
     private void clearFields(){
         NIKKaryawan.setText("");
-        IDKaryawan.setText("");
+        RFIDKaryawan.setText("");
         Nama_Karyawan.setText("");
         Telepon_Karyawan.setText("");
         Alamat_Karyawan.setText("");
@@ -221,7 +296,7 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
         tomboltambah = new com.raven.swing.CustomButton_Rounded();
         tombolbatal = new com.raven.swing.CustomButton_Rounded();
         jLabel5 = new javax.swing.JLabel();
-        IDKaryawan = new jtextfield.TextFieldSuggestion();
+        RFIDKaryawan = new jtextfield.TextFieldSuggestion();
         jLabel6 = new javax.swing.JLabel();
         UNKaryawan = new jtextfield.TextFieldSuggestion();
         jLabel7 = new javax.swing.JLabel();
@@ -233,43 +308,53 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
         jabatan = new jtextfield.TextFieldSuggestion();
         jLabel10 = new javax.swing.JLabel();
         gaji = new jtextfield.TextFieldSuggestion();
+        BoxTipe = new jtextfield.ComboBoxSuggestion();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(250, 250, 250));
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         NIKKaryawan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 NIKKaryawanActionPerformed(evt);
             }
         });
+        jPanel1.add(NIKKaryawan, new org.netbeans.lib.awtextra.AbsoluteConstraints(17, 74, 235, -1));
 
         jLabel1.setText("NIK");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(17, 46, -1, -1));
 
         Nama_Karyawan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Nama_KaryawanActionPerformed(evt);
             }
         });
+        jPanel1.add(Nama_Karyawan, new org.netbeans.lib.awtextra.AbsoluteConstraints(17, 150, 235, -1));
 
         jLabel2.setText("Nama");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(17, 122, -1, -1));
 
         jLabel3.setText("Nomor Telepon");
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(17, 198, -1, -1));
 
         Telepon_Karyawan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Telepon_KaryawanActionPerformed(evt);
             }
         });
+        jPanel1.add(Telepon_Karyawan, new org.netbeans.lib.awtextra.AbsoluteConstraints(17, 226, 235, 38));
 
         jLabel4.setText("Alamat");
+        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(17, 284, -1, -1));
 
         Alamat_Karyawan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Alamat_KaryawanActionPerformed(evt);
             }
         });
+        jPanel1.add(Alamat_Karyawan, new org.netbeans.lib.awtextra.AbsoluteConstraints(17, 312, 235, -1));
 
         tomboltambah.setForeground(new java.awt.Color(0, 0, 0));
         tomboltambah.setText("Tambahkan");
@@ -281,6 +366,7 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
                 tomboltambahActionPerformed(evt);
             }
         });
+        jPanel1.add(tomboltambah, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 450, 100, 40));
 
         tombolbatal.setText("Batalkan");
         tombolbatal.setFillClick(new java.awt.Color(153, 0, 0));
@@ -290,30 +376,37 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
                 tombolbatalActionPerformed(evt);
             }
         });
+        jPanel1.add(tombolbatal, new org.netbeans.lib.awtextra.AbsoluteConstraints(262, 450, 100, 40));
 
         jLabel5.setText("ID");
+        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(264, 46, -1, -1));
 
-        IDKaryawan.addActionListener(new java.awt.event.ActionListener() {
+        RFIDKaryawan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                IDKaryawanActionPerformed(evt);
+                RFIDKaryawanActionPerformed(evt);
             }
         });
+        jPanel1.add(RFIDKaryawan, new org.netbeans.lib.awtextra.AbsoluteConstraints(264, 74, 235, -1));
 
         jLabel6.setText("Username");
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(264, 122, -1, -1));
 
         UNKaryawan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 UNKaryawanActionPerformed(evt);
             }
         });
+        jPanel1.add(UNKaryawan, new org.netbeans.lib.awtextra.AbsoluteConstraints(264, 150, 235, -1));
 
         jLabel7.setText("Password");
+        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(264, 198, -1, -1));
 
         PWKaryawan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 PWKaryawanActionPerformed(evt);
             }
         });
+        jPanel1.add(PWKaryawan, new org.netbeans.lib.awtextra.AbsoluteConstraints(264, 226, 235, 38));
 
         jPanel2.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), null));
 
@@ -354,110 +447,34 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
                 .addContainerGap(12, Short.MAX_VALUE))
         );
 
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1, 1, -1, -1));
+
         jLabel9.setText("Jabatan");
+        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(264, 282, -1, -1));
 
         jabatan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jabatanActionPerformed(evt);
             }
         });
+        jPanel1.add(jabatan, new org.netbeans.lib.awtextra.AbsoluteConstraints(264, 310, 235, 38));
 
         jLabel10.setText("Gaji");
+        jPanel1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(264, 360, -1, -1));
 
         gaji.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 gajiActionPerformed(evt);
             }
         });
+        jPanel1.add(gaji, new org.netbeans.lib.awtextra.AbsoluteConstraints(264, 388, 235, 38));
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(149, 149, 149)
-                        .addComponent(tomboltambah, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(16, 16, 16)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jLabel1)
-                                .addComponent(jLabel3)
-                                .addComponent(jLabel2)
-                                .addComponent(Nama_Karyawan, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
-                                .addComponent(Alamat_Karyawan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(NIKKaryawan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(Telepon_Karyawan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addComponent(jLabel4))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel10)
-                            .addComponent(jLabel5)
-                            .addComponent(jLabel7)
-                            .addComponent(jLabel6)
-                            .addComponent(UNKaryawan, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
-                            .addComponent(IDKaryawan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(PWKaryawan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel9)
-                            .addComponent(jabatan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(gaji, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(NIKKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(Nama_Karyawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(Telepon_Karyawan, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(IDKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel6)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(UNKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel7)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(PWKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(Alamat_Karyawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel9)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jabatan, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel10)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(gaji, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(tomboltambah, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
-        );
+        BoxTipe.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BoxTipeActionPerformed(evt);
+            }
+        });
+        jPanel1.add(BoxTipe, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 350, 240, 0));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -497,9 +514,9 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
         Tambahkan();
     }//GEN-LAST:event_tomboltambahActionPerformed
 
-    private void IDKaryawanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IDKaryawanActionPerformed
+    private void RFIDkaryawanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RFIDkaryawanActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_IDKaryawanActionPerformed
+    }//GEN-LAST:event_RFIDkaryawanActionPerformed
 
     private void UNKaryawanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UNKaryawanActionPerformed
         // TODO add your handling code here:
@@ -520,6 +537,14 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
     private void gajiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gajiActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_gajiActionPerformed
+
+    private void RFIDKaryawanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RFIDKaryawanActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_RFIDKaryawanActionPerformed
+
+    private void BoxTipeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BoxTipeActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_BoxTipeActionPerformed
 
     /**
      * @param args the command line arguments
@@ -572,11 +597,12 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private jtextfield.TextFieldSuggestion Alamat_Karyawan;
+    private jtextfield.ComboBoxSuggestion BoxTipe;
     private Custom.Custom_ButtonRounded Close;
-    private jtextfield.TextFieldSuggestion IDKaryawan;
     private jtextfield.TextFieldSuggestion NIKKaryawan;
     private jtextfield.TextFieldSuggestion Nama_Karyawan;
     private jtextfield.TextFieldSuggestion PWKaryawan;
+    private jtextfield.TextFieldSuggestion RFIDKaryawan;
     private jtextfield.TextFieldSuggestion Telepon_Karyawan;
     private jtextfield.TextFieldSuggestion UNKaryawan;
     private jtextfield.TextFieldSuggestion gaji;

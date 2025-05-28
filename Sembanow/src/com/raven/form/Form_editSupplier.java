@@ -15,6 +15,7 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import javax.swing.SwingUtilities;
+import raven.dialog.DataAda;
 import raven.dialog.LengkapiData;
 import raven.dialog.Loading;
 import raven.dialog.SesuaiFormat;
@@ -24,6 +25,7 @@ public class Form_editSupplier extends javax.swing.JDialog {
     PreparedStatement pstmt;
            ResultSet rs;
            Connection conn;
+           
     
     public boolean isConfirmed(){
         return confirmed;
@@ -42,14 +44,6 @@ public class Form_editSupplier extends javax.swing.JDialog {
         initComponents();
         setLocationRelativeTo(null);
         fadeIn();
-        
-        IDSupplier.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt){
-                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                Nama_Supplier.requestFocus();
-            }
-            }
-        });
         Nama_Supplier.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
@@ -87,19 +81,17 @@ public class Form_editSupplier extends javax.swing.JDialog {
     }).start();
 }
     public void ambilData(String ID, String Nama, String Telepon, String Alamat){
-        IDSupplier.setText(ID);
         Nama_Supplier.setText(Nama);
         Telepon_Supplier.setText(Telepon);
         Alamat_Supplier.setText(Alamat);
         
     }
     public String[]getData(){
-        String ID = IDSupplier.getText();
         String Nama = Nama_Supplier.getText();
         String Telepon = Telepon_Supplier.getText();
         String Alamat = Alamat_Supplier.getText();
         
-        if(ID.isEmpty() || Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty()){
+        if(Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty()){
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
             LengkapiData lengkap = new LengkapiData(parent, true);
             lengkap.setVisible(true);
@@ -125,17 +117,15 @@ public class Form_editSupplier extends javax.swing.JDialog {
             String dbUser = "root";
             String dbPass = "";
             conn = DriverManager.getConnection(url, dbUser, dbPass);
-           String sql = "SELECT * FROM supplier";
+           String sql = "SELECT * FROM supplier WHERE id_supplier = ?";
            pstmt=conn.prepareStatement(sql);
-           pstmt.setString(0, ID);
+           pstmt.setString(1, ID);
            rs=pstmt.executeQuery();
            if(rs.next()){
-               String ID = rs.getString("id_supplier");
                String Nama = rs.getString("nama");
                String Telepon = rs.getString("no_hp");
                String Alamat = rs.getString("alamat");
                
-               IDSupplier.setText(ID);
                Nama_Supplier.setText(Nama);
                Telepon_Supplier.setText(Telepon);
                Alamat_Supplier.setText(Alamat);
@@ -144,6 +134,28 @@ public class Form_editSupplier extends javax.swing.JDialog {
             e.printStackTrace();
         }
  
+    }
+    private boolean isDuplicate(String ID, String Nama, String Telepon){
+        String sql = "SELECT COUNT(*) FROM supplier WHERE nama = ? AND no_hp = ? AND id_supplier != ?";
+        try {
+           String url = "jdbc:mysql://localhost:/sembakogrok";
+            String dbUser = "root";
+            String dbPass = "";
+            conn = DriverManager.getConnection(url, dbUser, dbPass);
+           pstmt=conn.prepareStatement(sql);
+           pstmt.setString(1, Nama);
+           pstmt.setString(2, Telepon);
+           pstmt.setString(3, ID);
+           rs=pstmt.executeQuery();
+           if(rs.next()){
+               int count = rs.getInt(1);
+               return count > 0;
+           }
+           
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
     
 
@@ -157,8 +169,6 @@ public class Form_editSupplier extends javax.swing.JDialog {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        IDSupplier = new jtextfield.TextFieldSuggestion();
-        jLabel1 = new javax.swing.JLabel();
         Nama_Supplier = new jtextfield.TextFieldSuggestion();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -175,14 +185,6 @@ public class Form_editSupplier extends javax.swing.JDialog {
 
         jPanel1.setBackground(new java.awt.Color(250, 250, 250));
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-
-        IDSupplier.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                IDSupplierActionPerformed(evt);
-            }
-        });
-
-        jLabel1.setText("ID");
 
         Nama_Supplier.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -253,7 +255,7 @@ public class Form_editSupplier extends javax.swing.JDialog {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 160, Short.MAX_VALUE)
                 .addComponent(Close, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -273,32 +275,26 @@ public class Form_editSupplier extends javax.swing.JDialog {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(15, 15, 15)
+                .addGap(17, 17, 17)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
                     .addComponent(jLabel4)
                     .addComponent(jLabel3)
                     .addComponent(jLabel2)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addComponent(Alamat_Supplier, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(Telepon_Supplier, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(Nama_Supplier, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(IDSupplier, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(Nama_Supplier, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(14, 14, 14)
                         .addComponent(tomboledit, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(47, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(IDSupplier, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -315,7 +311,7 @@ public class Form_editSupplier extends javax.swing.JDialog {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(tomboledit, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -326,15 +322,13 @@ public class Form_editSupplier extends javax.swing.JDialog {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void IDSupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IDSupplierActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_IDSupplierActionPerformed
 
     private void Nama_SupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Nama_SupplierActionPerformed
         // TODO add your handling code here:
@@ -372,6 +366,12 @@ public class Form_editSupplier extends javax.swing.JDialog {
                 e.printStackTrace();
                 return;
             }
+        }
+        if (isDuplicate(ID,Nama,Telepon)) {
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+                DataAda ada = new DataAda(parent, true);
+            ada.setVisible(true);
+            return;
         }
         String sql = "UPDATE supplier SET nama = ?, alamat = ?, no_hp = ? WHERE id_supplier = ?";
        
@@ -458,10 +458,8 @@ public class Form_editSupplier extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private jtextfield.TextFieldSuggestion Alamat_Supplier;
     private Custom.Custom_ButtonRounded Close;
-    private jtextfield.TextFieldSuggestion IDSupplier;
     private jtextfield.TextFieldSuggestion Nama_Supplier;
     private jtextfield.TextFieldSuggestion Telepon_Supplier;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;

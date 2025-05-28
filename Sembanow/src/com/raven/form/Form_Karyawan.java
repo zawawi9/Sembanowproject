@@ -4,6 +4,7 @@
  */
 package com.raven.form;
 
+import Sortdata.UrutanDataKaryawan;
 import config.koneksi;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -45,6 +46,7 @@ import jtextfield.ComboBoxSuggestion;
 import jtextfield.TextFieldSuggestion;
 import raven.dialog.Delete;
 import raven.dialog.GajiBerhasil;
+import raven.dialog.GajiGagal;
 import raven.dialog.Loading;
 import raven.dialog.Pilihdahulu;
 import raven.dialog.Pilihsalahsatu;
@@ -73,9 +75,6 @@ public class Form_Karyawan extends javax.swing.JPanel {
         getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("1"),"refresh");
         getActionMap().put("refresh", new AbstractAction(){
             public void actionPerformed(ActionEvent e){
-                Window window = SwingUtilities.getWindowAncestor(Form_Karyawan.this);
-                Loading muat = new Loading((java.awt.Frame) window, true);
-        muat.setVisible(true);
                 showData();
             }
         });
@@ -91,6 +90,8 @@ public class Form_Karyawan extends javax.swing.JPanel {
         });
     }
     public void showData(){
+        pencarian.setText("");
+        jComboBox_Custom1.setSelectedItem("Terbaru");
         DefaultTableModel model = (DefaultTableModel) table1.getModel();
         model.setRowCount(0);
             Connection conn = null;
@@ -106,7 +107,9 @@ public class Form_Karyawan extends javax.swing.JPanel {
             stmt = conn.createStatement();
             rs = stmt.executeQuery(SQL);
             while(rs.next()){
-                Object[]row = {rs.getString("id_karyawan"),
+                Object[]row = {
+                    rs.getString("id_karyawan"),
+                    rs.getString("uidrfid"),
                         rs.getString("nama_karyawan"),
                 rs.getString("alamat"),
                 rs.getString("no_hp"),
@@ -128,6 +131,7 @@ public class Form_Karyawan extends javax.swing.JPanel {
     model.setRowCount(0);
     model.setColumnCount(0);
     model.addColumn("ID");
+    model.addColumn("RFID");
     model.addColumn("Nama");
     model.addColumn("Alamat");
     model.addColumn("No HP"); // Added no_hp column
@@ -140,6 +144,7 @@ public class Form_Karyawan extends javax.swing.JPanel {
     try {
         String sql = "SELECT " +
                      "    id_karyawan, " +
+                     "    uidrfid, " +
                      "    nama_karyawan, " +
                      "    alamat, " +
                      "    no_hp, " +
@@ -154,7 +159,8 @@ public class Form_Karyawan extends javax.swing.JPanel {
         ResultSet rs = stmt.executeQuery();
 
         while (rs.next()) {
-            String idKaryawan = rs.getString("id_karyawan");
+            String id = rs.getString("id_karyawan");
+            String rfid = rs.getString("uidrfid");
             String namakaryawan = rs.getString("nama_karyawan");
             String alamat = rs.getString("alamat");
             String noHp = rs.getString("no_hp"); // Added no_hp data
@@ -164,7 +170,8 @@ public class Form_Karyawan extends javax.swing.JPanel {
             String status = rs.getString("status");
             double gaji = rs.getDouble("gaji");
             model.addRow(new Object[]{
-                idKaryawan,
+                id,
+                rfid,
                 namakaryawan,
                 alamat,
                 noHp, // Added no_hp to row
@@ -178,8 +185,11 @@ public class Form_Karyawan extends javax.swing.JPanel {
 
         table1.setModel(model);
 
-        int[] columnWidths = {100, 150, 150, 150, 150, 150, 150, 100, 150};
+        int[] columnWidths = {0, 100, 150, 150, 150, 150, 150, 150, 100, 150};
         for (int i = 0; i < columnWidths.length; i++) {
+            table1.getColumnModel().getColumn(0).setMinWidth(0);
+table1.getColumnModel().getColumn(0).setMaxWidth(0);
+table1.getColumnModel().getColumn(0).setWidth(0);
             table1.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
         }
 
@@ -242,6 +252,62 @@ public class Form_Karyawan extends javax.swing.JPanel {
 
     table2.fixTable(jScrollPane2);
 }
+    public void UpdateTabel(List<UrutanDataKaryawan>SortKaryawan){
+        DefaultTableModel model = (DefaultTableModel)table1.getModel();
+        model.setRowCount(0);
+        for(UrutanDataKaryawan dataKaryawan : SortKaryawan){
+            model.addRow(new Object[]{dataKaryawan.getID(), dataKaryawan.getRFID(), dataKaryawan.getNama(), dataKaryawan.getTelepon(), dataKaryawan.getAlamat(), 
+                dataKaryawan.getUsername(), dataKaryawan.getPassword(), dataKaryawan.getNIK(), dataKaryawan.getStatus(), dataKaryawan.getGaji()});
+        }
+    }
+    public void UrutanData(String choose){
+                
+        String sql = "SELECT id_karyawan, uidrfid, nama_karyawan, alamat, no_hp, username, password, nik, status, gaji FROM karyawan";
+        switch (choose) {
+            case "Terbaru":
+                sql += " ORDER BY uidrfid";
+                System.out.println("Data diurut terbaru");
+                break;
+                case "Nama Paling Awal":
+                sql += " ORDER BY nama_karyawan ASC";
+                System.out.println("Data diurut nama paling awal");
+                break;
+                case "Nama Paling Akhir":
+                sql += " ORDER BY nama_karyawan DESC";
+                System.out.println("Data diurut nama paling akhir");
+                break;
+            default:sql += " ORDER BY id_karyawan";
+                System.out.println("Data diurut terbaru");
+                break;
+                
+        }
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:/sembakogrok", "root", "");
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()){
+            List<UrutanDataKaryawan>SortKaryawan = new ArrayList<>();
+            while (rs.next()) {                
+                UrutanDataKaryawan urutanKaryawan = new UrutanDataKaryawan();
+                urutanKaryawan.setID(rs.getString("id_karyawan"));
+                urutanKaryawan.setRFID(rs.getString("uidrfid"));
+                urutanKaryawan.setNama(rs.getString("nama_karyawan"));
+                urutanKaryawan.setTelepon(rs.getString("no_hp"));
+                urutanKaryawan.setAlamat(rs.getString("alamat"));
+                urutanKaryawan.setUsername(rs.getString("username"));
+                urutanKaryawan.setPassword(rs.getString("password"));
+                urutanKaryawan.setNIK(rs.getString("nik"));
+                urutanKaryawan.setStatus(rs.getString("status"));
+                urutanKaryawan.setGaji(rs.getString("gaji"));
+                SortKaryawan.add(urutanKaryawan);
+            }
+            Window window = SwingUtilities.getWindowAncestor(Form_Karyawan.this);
+                Loading muat = new Loading((java.awt.Frame) window, true);
+        muat.setVisible(true);
+            UpdateTabel(SortKaryawan);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+    }
     
     private void searchKaryawan() {
     String searchText = pencarian.getText().trim();
@@ -249,7 +315,8 @@ public class Form_Karyawan extends javax.swing.JPanel {
     DefaultTableModel model = new DefaultTableModel();
     model.setRowCount(0);
     model.setColumnCount(0);
-    model.addColumn("ID Karyawan");
+    model.addColumn("ID");
+    model.addColumn("RFID");
     model.addColumn("Nama");
     model.addColumn("Alamat");
     model.addColumn("No HP"); // Added no_hp column
@@ -263,6 +330,7 @@ public class Form_Karyawan extends javax.swing.JPanel {
         // Query untuk mencari data berdasarkan id_karyawan atau username
         String sql = "SELECT " +
                      "    id_karyawan, " +
+                     "    uidrfid, " +
                      "    nama_karyawan, " +
                      "    alamat, " +
                      "    no_hp, " + // Added no_hp field
@@ -284,7 +352,8 @@ public class Form_Karyawan extends javax.swing.JPanel {
         ResultSet rs = stmt.executeQuery();
 
         while (rs.next()) {
-            String idKaryawan = rs.getString("id_karyawan");
+            String ID = rs.getString("id_karyawan");
+            String rfid = rs.getString("uidrfid");
             String namakaryawan = rs.getString("nama_karyawan");
             String alamat = rs.getString("alamat");
             String noHp = rs.getString("no_hp"); // Added no_hp data
@@ -294,7 +363,8 @@ public class Form_Karyawan extends javax.swing.JPanel {
             String status = rs.getString("status");
             double gaji = rs.getDouble("gaji");
             model.addRow(new Object[]{
-                idKaryawan,
+                ID,
+                rfid,
                 namakaryawan,
                 alamat,
                 noHp, // Added no_hp to row
@@ -309,8 +379,11 @@ public class Form_Karyawan extends javax.swing.JPanel {
         table1.setModel(model);
 
         // Pengaturan lebar kolom
-        int[] columnWidths = {100, 150, 150, 150, 150, 150, 100, 150};
+        int[] columnWidths = {0, 100, 150, 150, 150, 150, 150, 100, 150, 150};
         for (int i = 0; i < columnWidths.length; i++) {
+            table1.getColumnModel().getColumn(0).setMinWidth(0);
+table1.getColumnModel().getColumn(0).setMaxWidth(0);
+table1.getColumnModel().getColumn(0).setWidth(0);
             table1.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
         }
 
@@ -332,31 +405,31 @@ public class Form_Karyawan extends javax.swing.JPanel {
             int rows = selectedRows[0];
             DefaultTableModel Model = (DefaultTableModel) table1.getModel();
             String ID = Model.getValueAt(rows, 0).toString();
-            String Nama = Model.getValueAt(rows, 1).toString();
-            String Alamat = Model.getValueAt(rows, 2).toString();
-            String Telepon = Model.getValueAt(rows, 3).toString();
-            String Username = Model.getValueAt(rows, 4).toString();
-            String Password = Model.getValueAt(rows, 5).toString();
-            String NIK = Model.getValueAt(rows, 6).toString();
-            String Gaji = Model.getValueAt(rows, 8).toString();
+            String RFID = Model.getValueAt(rows, 1).toString();
+            String Nama = Model.getValueAt(rows, 2).toString();
+            String Alamat = Model.getValueAt(rows, 3).toString();
+            String Telepon = Model.getValueAt(rows, 4).toString();
+            String Username = Model.getValueAt(rows, 5).toString();
+            String Password = Model.getValueAt(rows, 6).toString();
+            String NIK = Model.getValueAt(rows, 7).toString();
+            String Gaji = Model.getValueAt(rows, 9).toString();
             
-            NIK = NIKKaryawan(ID);
-            Gaji = GajiKaryawan(ID);
             Window window = SwingUtilities.getWindowAncestor(Form_Karyawan.this);
             Form_editKaryawan editKaryawan = new Form_editKaryawan((Frame)window, true);
             editKaryawan.setID(ID);
-            editKaryawan.ambilData(NIK, ID, Nama, Telepon, Alamat, Username, Password, Gaji);
+            editKaryawan.ambilData(ID, NIK, RFID, Nama, Telepon, Alamat, Username, Password, Gaji);
             editKaryawan.setVisible(true);
             String[]updateData=editKaryawan.getData();
             if(updateData != null){
                 Model.setValueAt(updateData[0], rows, 0);//ID
-                Model.setValueAt(updateData[1], rows, 1);//Nama
-                Model.setValueAt(updateData[2], rows, 2);//Telepon
-                Model.setValueAt(updateData[3], rows, 3);//Alamat
-                Model.setValueAt(updateData[3], rows, 4);//Username
-                Model.setValueAt(updateData[3], rows, 5);//Password
-                Model.setValueAt(updateData[3], rows, 6);//NIK
-                Model.setValueAt(updateData[3], rows, 7);//Gaji
+                Model.setValueAt(updateData[1], rows, 1);//FRID
+                Model.setValueAt(updateData[2], rows, 2);//Nama
+                Model.setValueAt(updateData[3], rows, 3);//Telepon
+                Model.setValueAt(updateData[4], rows, 4);//Alamat
+                Model.setValueAt(updateData[5], rows, 5);//Username
+                Model.setValueAt(updateData[6], rows, 6);//Password
+                Model.setValueAt(updateData[7], rows, 7);//NIK
+                Model.setValueAt(updateData[8], rows, 8);//Gaji
                 
             }
         
@@ -372,54 +445,8 @@ public class Form_Karyawan extends javax.swing.JPanel {
             }
         });
     }
-    private String NIKKaryawan(String ID){
-        String NIK = "";
-        try {
-            Connection conn;
-            PreparedStatement pstmt;
-            String url = "jdbc:mysql://localhost:/sembakogrok";
-            String dbUser = "root";
-            String dbPass = "";
-            conn = DriverManager.getConnection(url, dbUser, dbPass);
-            
-            String sql = "SELECT nik FROM karyawan WHERE id_karyawan = ?";
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, ID);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                NIK = rs.getString("nik");
-            }
-            rs.close();
-            pstmt.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return NIK;
-    }
-    private String GajiKaryawan(String ID){
-        String Gaji = "";
-        try {
-            Connection conn;
-            PreparedStatement pstmt;
-            String url = "jdbc:mysql://localhost:/sembakogrok";
-            String dbUser = "root";
-            String dbPass = "";
-            conn = DriverManager.getConnection(url, dbUser, dbPass);
-            
-            String sql = "SELECT gaji FROM karyawan WHERE id_karyawan = ?";
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, ID);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                Gaji = rs.getString("gaji");
-            }
-            rs.close();
-            pstmt.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return Gaji;
-    }
+    
+    
     
     private void setupTableListener() {
         // Tambahkan KeyListener pada tabel untuk mendeteksi tombol Enter dan Delete
@@ -444,9 +471,15 @@ public class Form_Karyawan extends javax.swing.JPanel {
                 if (!e.getValueIsAdjusting()) { // Pastikan event selesai
                     int selectedRow = table1.getSelectedRow();
                     if (selectedRow >= 0) {
+                        Object value = table1.getValueAt(selectedRow, 0);
                         // Ambil id_supplier dari baris yang dipilih
-                        String idSupplier = table1.getValueAt(selectedRow, 0).toString();
-                        updateTable2(idSupplier); // Perbarui table2 berdasarkan id_supplier
+                        if (value != null) {
+                    String idKaryawan = value.toString();
+                    updateTable2(idKaryawan); // Perbarui table2 berdasarkan idKaryawan
+                } else {
+                    System.out.println("Kolom 0 pada baris " + selectedRow + " bernilai null.");
+                    updateTable2(null); // Atau bisa abaikan updateTable2 sama sekali jika null
+                }
                     } else {
                         updateTable2(null); // Kosongkan table2 jika tidak ada baris yang dipilih
                     }
@@ -900,10 +933,9 @@ public class Form_Karyawan extends javax.swing.JPanel {
                 GajiBerhasil berhasil = new GajiBerhasil((java.awt.Frame) window, true);
         berhasil.setVisible(true);
         } else {
-            JOptionPane.showMessageDialog(null, 
-                "Gagal menyimpan data penggajian!", 
-                "Error", 
-                JOptionPane.ERROR_MESSAGE);
+            Window window = SwingUtilities.getWindowAncestor(Form_Karyawan.this);
+                GajiGagal gagal = new GajiGagal((java.awt.Frame) window, true);
+        gagal.setVisible(true);
         }
     } catch (SQLException ex) {
         JOptionPane.showMessageDialog(null, 
@@ -926,6 +958,10 @@ public class Form_Karyawan extends javax.swing.JPanel {
         table2 = new com.raven.swing.Table1();
         Tambahbtn = new Custom.Custom_ButtonRounded();
         Gajibtn = new Custom.Custom_ButtonRounded();
+        jLabel2 = new javax.swing.JLabel();
+        jComboBox_Custom1 = new com.raven.swing.jComboBox_Custom();
+        Edit = new Custom.Custom_ButtonRounded();
+        Hapus = new Custom.Custom_ButtonRounded();
 
         setBackground(new java.awt.Color(250, 250, 250));
 
@@ -948,7 +984,14 @@ public class Form_Karyawan extends javax.swing.JPanel {
         table1.fixTable(jScrollPane1);
         jScrollPane1.setViewportView(table1);
 
-        pencarian.setText("Search ");
+        pencarian.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                pencarianFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                pencarianFocusLost(evt);
+            }
+        });
         pencarian.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 pencarianActionPerformed(evt);
@@ -986,6 +1029,32 @@ public class Form_Karyawan extends javax.swing.JPanel {
             }
         });
 
+        jLabel2.setText("Urutkan berdasarkan :");
+
+        jComboBox_Custom1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Terbaru", "Nama Paling Awal", "Nama Paling Akhir" }));
+        jComboBox_Custom1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox_Custom1ActionPerformed(evt);
+            }
+        });
+
+        Edit.setText("Edit");
+        Edit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                EditActionPerformed(evt);
+            }
+        });
+
+        Hapus.setText("Hapus");
+        Hapus.setFillClick(new java.awt.Color(153, 0, 0));
+        Hapus.setFillOriginal(new java.awt.Color(255, 0, 0));
+        Hapus.setFillOver(new java.awt.Color(255, 51, 51));
+        Hapus.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                HapusActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -998,17 +1067,21 @@ public class Form_Karyawan extends javax.swing.JPanel {
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 724, Short.MAX_VALUE)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 712, Short.MAX_VALUE)
                             .addComponent(jScrollPane2))
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(pencarian, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(pencarian, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(18, 18, 18)
                                 .addComponent(Tambahbtn, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(Gajibtn, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(Gajibtn, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jComboBox_Custom1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(Edit, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(Hapus, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(52, 52, 52))))
         );
         layout.setVerticalGroup(
@@ -1019,14 +1092,23 @@ public class Form_Karyawan extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 203, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 227, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(pencarian, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(Tambahbtn, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(Gajibtn, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 203, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 227, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Gajibtn, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Edit, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Hapus, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(25, 25, 25)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jComboBox_Custom1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(71, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -1050,11 +1132,115 @@ public class Form_Karyawan extends javax.swing.JPanel {
         gaji();
     }//GEN-LAST:event_GajibtnActionPerformed
 
+    private void jComboBox_Custom1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox_Custom1ActionPerformed
+        String selectedOption = (String)jComboBox_Custom1.getSelectedItem();
+        UrutanData(selectedOption);
+    }//GEN-LAST:event_jComboBox_Custom1ActionPerformed
+
+    private void EditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EditActionPerformed
+        int[]selectedRows=table1.getSelectedRows();
+                
+        if(selectedRows.length==1){
+            int rows = selectedRows[0];
+            DefaultTableModel Model = (DefaultTableModel) table1.getModel();
+            String ID = Model.getValueAt(rows, 0).toString();
+            String RFID = Model.getValueAt(rows, 1).toString();
+            String Nama = Model.getValueAt(rows, 2).toString();
+            String Alamat = Model.getValueAt(rows, 3).toString();
+            String Telepon = Model.getValueAt(rows, 4).toString();
+            String Username = Model.getValueAt(rows, 5).toString();
+            String Password = Model.getValueAt(rows, 6).toString();
+            String NIK = Model.getValueAt(rows, 7).toString();
+            String Gaji = Model.getValueAt(rows, 9).toString();
+            
+            Window window = SwingUtilities.getWindowAncestor(Form_Karyawan.this);
+            Form_editKaryawan editKaryawan = new Form_editKaryawan((Frame)window, true);
+            editKaryawan.setID(ID);
+            editKaryawan.ambilData(ID, NIK, RFID, Nama, Telepon, Alamat, Username, Password, Gaji);
+            editKaryawan.setVisible(true);
+            String[]updateData=editKaryawan.getData();
+            if(updateData != null){
+                Model.setValueAt(updateData[0], rows, 0);//ID
+                Model.setValueAt(updateData[1], rows, 1);//FRID
+                Model.setValueAt(updateData[2], rows, 2);//Nama
+                Model.setValueAt(updateData[3], rows, 3);//Telepon
+                Model.setValueAt(updateData[4], rows, 4);//Alamat
+                Model.setValueAt(updateData[5], rows, 5);//Username
+                Model.setValueAt(updateData[6], rows, 6);//Password
+                Model.setValueAt(updateData[7], rows, 7);//NIK
+                Model.setValueAt(updateData[8], rows, 8);//Gaji
+                
+            }
+        
+        }else if(selectedRows.length>1){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_Karyawan.this);
+            Pilihsalahsatu salah = new Pilihsalahsatu(parent, true);
+            salah.setVisible(true);
+            return;
+        }else{
+            
+        }
+        showData();
+    }//GEN-LAST:event_EditActionPerformed
+
+    private void HapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_HapusActionPerformed
+        int[] selectedRows = table1.getSelectedRows();
+    if (selectedRows.length > 0) {
+        List<String> DeleteID = new ArrayList<>();
+        for (int row : selectedRows) {
+            Object value = table1.getValueAt(row, 0); // kolom 0 = id_karyawan
+            if (value != null) {
+                DeleteID.add(value.toString());
+            }
+        }
+
+
+        Window window = SwingUtilities.getWindowAncestor(Form_Karyawan.this);
+        Delete hapus = new Delete((Frame) window, true);
+        hapus.setVisible(true);
+
+        if (hapus.isConfirmed()) {
+            String sql = "DELETE FROM karyawan WHERE id_karyawan IN ("
+                    + String.join(",", Collections.nCopies(DeleteID.size(), "?")) + ")";
+            try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/sembakogrok", "root", "");
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+                for (int i = 0; i < DeleteID.size(); i++) {
+                    pstmt.setString(i + 1, DeleteID.get(i));
+                }
+
+                int rowsAffected = pstmt.executeUpdate();
+                if (rowsAffected > 0) {
+                    System.out.println("Data terhapus");
+                    showData();
+                } else {
+                    System.out.println("Tidak ada data yang terhapus");
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+    }//GEN-LAST:event_HapusActionPerformed
+
+    private void pencarianFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pencarianFocusGained
+        pencarian.setText("");
+    }//GEN-LAST:event_pencarianFocusGained
+
+    private void pencarianFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pencarianFocusLost
+        pencarian.setText("Cari");
+        pencarian.setForeground(Color.GRAY);
+    }//GEN-LAST:event_pencarianFocusLost
+
    
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private Custom.Custom_ButtonRounded Edit;
     private Custom.Custom_ButtonRounded Gajibtn;
+    private Custom.Custom_ButtonRounded Hapus;
     private Custom.Custom_ButtonRounded Tambahbtn;
+    private com.raven.swing.jComboBox_Custom jComboBox_Custom1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private jtextfield.TextFieldSuggestion pencarian;

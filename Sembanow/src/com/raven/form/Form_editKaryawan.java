@@ -68,21 +68,22 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         Alamat_Karyawan.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                IDKaryawan.requestFocus();
-            }
-            }
-        });
-        IDKaryawan.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt){
-                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
                 UNKaryawan.requestFocus();
             }
             }
         });
+        
         UNKaryawan.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
                 PWKaryawan.requestFocus();
+            }
+            }
+        });
+        PWKaryawan.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt){
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                gaji.requestFocus();
             }
             }
         });
@@ -101,10 +102,10 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         }
     }).start();
 }
-    private String idLama;
-    public void ambilData(String NIK, String ID, String Nama, String Telepon, String Alamat, String Username, String Password, String Gaji){
+    
+    public void ambilData(String ID, String NIK, String RFIDkaryawan, String Nama, String Telepon, String Alamat, String Username, String Password, String Gaji){
         NIKKaryawan.setText(NIK);
-        IDKaryawan.setText(ID);
+        RFID.setText(RFIDkaryawan);
         Nama_Karyawan.setText(Nama);
         Telepon_Karyawan.setText(Telepon);
         Alamat_Karyawan.setText(Alamat);
@@ -112,12 +113,10 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         PWKaryawan.setText(Password);
         gaji.setText(Gaji);
         
-        idLama = ID;
-        
     }
     public String[]getData(){
         String NIK = NIKKaryawan.getText();
-        String ID = IDKaryawan.getText();
+        String RFIDkaryawan = RFID.getText();
         String Nama = Nama_Karyawan.getText();
         String Telepon = Telepon_Karyawan.getText();
         String Alamat = Alamat_Karyawan.getText();
@@ -126,7 +125,7 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         String Gaji = gaji.getText();
         
         
-        if(NIK.isEmpty() || ID.isEmpty() || Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty() || Username.isEmpty() || Password.isEmpty() || Gaji.isEmpty()){
+        if(NIK.isEmpty() || RFIDkaryawan.isEmpty() || Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty() || Username.isEmpty() || Password.isEmpty() || Gaji.isEmpty()){
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
             LengkapiData lengkap = new LengkapiData(parent, true);
             lengkap.setVisible(true);
@@ -150,7 +149,7 @@ public class Form_editKaryawan extends javax.swing.JDialog {
             frmt.setVisible(true);
             return null;
         }
-        return new String[]{NIK, ID, Nama, Telepon, Alamat, Username, Password, Gaji};
+        return new String[]{ID, NIK, RFIDkaryawan, Nama, Telepon, Alamat, Username, Password, Gaji};
     }
     public void Refresh(){
         try {
@@ -163,8 +162,8 @@ public class Form_editKaryawan extends javax.swing.JDialog {
            pstmt.setString(1, ID);
            rs=pstmt.executeQuery();
            if(rs.next()){
+               String RFIDkaryawan = rs.getString("uidrfid");
                String NIK = rs.getString("nik");
-               String ID = rs.getString("id_karyawan");
                String Nama = rs.getString("nama_karyawan");
                String Telepon = rs.getString("no_hp");
                String Alamat = rs.getString("alamat");
@@ -172,8 +171,8 @@ public class Form_editKaryawan extends javax.swing.JDialog {
                String Password = rs.getString("password");
                String Gaji = rs.getString("gaji");
                
+               RFID.setText(RFIDkaryawan);
                NIKKaryawan.setText(NIK);
-               IDKaryawan.setText(ID);
                Nama_Karyawan.setText(Nama);
                Telepon_Karyawan.setText(Telepon);
                Alamat_Karyawan.setText(Alamat);
@@ -186,8 +185,8 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         }
  
     }
-    private boolean isDuplicate(String NIK, String NewID, String IDLama){
-        String sql = "SELECT COUNT(*) FROM karyawan WHERE (nik = ? OR id_karyawan = ?) AND id_karyawan != ?";
+    private boolean isDuplicate(String NIK, String ID){
+        String sql = "SELECT COUNT(*) FROM karyawan WHERE NIK = ? AND id_karyawan != ?";
         try {
            String url = "jdbc:mysql://localhost:/sembakogrok";
             String dbUser = "root";
@@ -195,8 +194,7 @@ public class Form_editKaryawan extends javax.swing.JDialog {
             conn = DriverManager.getConnection(url, dbUser, dbPass);
            pstmt=conn.prepareStatement(sql);
            pstmt.setString(1, NIK);
-           pstmt.setString(2, NewID);
-           pstmt.setString(3, IDLama);
+           pstmt.setString(2, ID);
            rs=pstmt.executeQuery();
            if(rs.next()){
                int count = rs.getInt(1);
@@ -230,8 +228,6 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         Alamat_Karyawan = new jtextfield.TextFieldSuggestion();
         tomboledit = new com.raven.swing.CustomButton_Rounded();
         tombolbatal = new com.raven.swing.CustomButton_Rounded();
-        jLabel5 = new javax.swing.JLabel();
-        IDKaryawan = new jtextfield.TextFieldSuggestion();
         jLabel6 = new javax.swing.JLabel();
         UNKaryawan = new jtextfield.TextFieldSuggestion();
         jLabel7 = new javax.swing.JLabel();
@@ -241,6 +237,8 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         Close = new Custom.Custom_ButtonRounded();
         jLabel9 = new javax.swing.JLabel();
         gaji = new jtextfield.TextFieldSuggestion();
+        RFID = new jtextfield.TextFieldSuggestion();
+        jLabel5 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -297,14 +295,6 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         tombolbatal.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 tombolbatalActionPerformed(evt);
-            }
-        });
-
-        jLabel5.setText("ID");
-
-        IDKaryawan.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                IDKaryawanActionPerformed(evt);
             }
         });
 
@@ -371,6 +361,14 @@ public class Form_editKaryawan extends javax.swing.JDialog {
             }
         });
 
+        RFID.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                RFIDActionPerformed(evt);
+            }
+        });
+
+        jLabel5.setText("RFID");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -391,15 +389,15 @@ public class Form_editKaryawan extends javax.swing.JDialog {
                     .addComponent(jLabel4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel5)
                     .addComponent(jLabel7)
                     .addComponent(jLabel6)
                     .addComponent(UNKaryawan, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
-                    .addComponent(IDKaryawan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(PWKaryawan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel9)
-                    .addComponent(gaji, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(gaji, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel5)
+                    .addComponent(RFID, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(20, Short.MAX_VALUE))
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
@@ -412,37 +410,40 @@ public class Form_editKaryawan extends javax.swing.JDialog {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(NIKKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(Nama_Karyawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(Telepon_Karyawan, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(NIKKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(IDKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel6)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(UNKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel7)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(PWKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(RFID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(Alamat_Karyawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(172, 172, 172)
                         .addComponent(jLabel9)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(gaji, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(gaji, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(UNKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(PWKaryawan, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(Nama_Karyawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(Telepon_Karyawan, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(20, 20, 20)
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(Alamat_Karyawan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -489,15 +490,15 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         if(data==null){
             return;
         }
-        String NIK = data[0];
-        String Nama = data[2];
-        String Telepon = data[3];
-        String Alamat = data[4];  
-        String Username = data[5];  
-        String Password = data[6];  
-        String Gaji = data[7];
-        String IDLama = idLama;
-        String NewID = IDKaryawan.getText();
+        String ID = data[0];
+        String NIK = data[1];
+        String RFIDkaryawan = data[2];
+        String Nama = data[3];
+        String Telepon = data[4];
+        String Alamat = data[5];  
+        String Username = data[6];  
+        String Password = data[7];  
+        String Gaji = data[8];
         if(conn==null){
             String url = "jdbc:mysql://localhost:/sembakogrok";
             String dbUser = "root";
@@ -509,20 +510,20 @@ public class Form_editKaryawan extends javax.swing.JDialog {
                 return;
             }
         }
-        if (isDuplicate(NIK, NewID, IDLama)) {
+        if (isDuplicate(NIK, ID)) {
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
                 DataAda ada = new DataAda(parent, true);
             ada.setVisible(true);
             return;
         }
-        String sql = "UPDATE karyawan SET id_karyawan = ?, nik = ?, nama_karyawan = ?, no_hp = ?, alamat = ?, username = ?, password = ?, gaji = ? WHERE id_karyawan = ?";
+        String sql = "UPDATE karyawan SET uidrfid = ?, nik = ?, nama_karyawan = ?, no_hp = ?, alamat = ?, username = ?, password = ?, gaji = ? WHERE id_karyawan = ?";
        
         try {
             conn.setAutoCommit(false);
             int rowUpdate = 0;
             try(PreparedStatement ps = conn.prepareStatement(sql)){
                 
-                ps.setString(1, NewID);
+                ps.setString(1, RFIDkaryawan);
                 ps.setString(2, NIK);
                 ps.setString(3, Nama);
                 ps.setString(4, Telepon);
@@ -530,7 +531,7 @@ public class Form_editKaryawan extends javax.swing.JDialog {
                 ps.setString(6, Username);
                 ps.setString(7, Password);
                 ps.setString(8, Gaji);
-                ps.setString(9, IDLama);
+                ps.setString(9, ID);
                 
                 rowUpdate = ps.executeUpdate();
             }
@@ -554,10 +555,6 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_tomboleditActionPerformed
 
-    private void IDKaryawanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IDKaryawanActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_IDKaryawanActionPerformed
-
     private void UNKaryawanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UNKaryawanActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_UNKaryawanActionPerformed
@@ -573,6 +570,10 @@ public class Form_editKaryawan extends javax.swing.JDialog {
     private void gajiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gajiActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_gajiActionPerformed
+
+    private void RFIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RFIDActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_RFIDActionPerformed
 
     /**
      * @param args the command line arguments
@@ -634,10 +635,10 @@ public class Form_editKaryawan extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private jtextfield.TextFieldSuggestion Alamat_Karyawan;
     private Custom.Custom_ButtonRounded Close;
-    private jtextfield.TextFieldSuggestion IDKaryawan;
     private jtextfield.TextFieldSuggestion NIKKaryawan;
     private jtextfield.TextFieldSuggestion Nama_Karyawan;
     private jtextfield.TextFieldSuggestion PWKaryawan;
+    private jtextfield.TextFieldSuggestion RFID;
     private jtextfield.TextFieldSuggestion Telepon_Karyawan;
     private jtextfield.TextFieldSuggestion UNKaryawan;
     private jtextfield.TextFieldSuggestion gaji;

@@ -4,12 +4,17 @@
  */
 package com.raven.form;
 
+import java.awt.Color;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentListener;
 import raven.dialog.DataAda;
 import raven.dialog.LengkapiData;
 import raven.dialog.Loading;
@@ -19,7 +24,10 @@ import raven.dialog.SesuaiFormat;
  *
  * @author Fitrah
  */
+
 public class Form_editPelanggan extends javax.swing.JDialog {
+private List<String> pelanggantype = Arrays.asList("h1", "h2", "h3");
+    private DocumentListener myListener;
 private Runnable ondataEdited;
     private String ID;
     PreparedStatement pstmt;
@@ -42,8 +50,7 @@ private Runnable ondataEdited;
         initComponents();
         setLocationRelativeTo(parent);
         fadeIn();
-        
-        IDPelanggan.addKeyListener(new java.awt.event.KeyAdapter() {
+        RFIDpelanggan1.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
                 Nama_Pelanggan.requestFocus();
@@ -51,6 +58,13 @@ private Runnable ondataEdited;
             }
         });
         Nama_Pelanggan.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt){
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                Telepon_Pelanggan.requestFocus();
+            }
+            }
+        });
+        Telepon_Pelanggan.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
                 Alamat_Pelanggan.requestFocus();
@@ -64,7 +78,35 @@ private Runnable ondataEdited;
             }
             }
         });
+        BoxTipe.addActionListener((evt) -> {
+            String selectedType = (String)BoxTipe.getSelectedItem();
+            if (selectedType!=null && !selectedType.isEmpty()) {
+                TipePelanggan.setText(selectedType);
+            }
+        });
         
+    }
+     public void listen(){
+        if (!TipePelanggan.isShowing() || !BoxTipe.isShowing()) {
+            return;
+            
+        }
+        String keyword = TipePelanggan.getText().toLowerCase();
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+        
+        boolean hasResult = false;
+        for (String Tipe : pelanggantype){
+            if (Tipe.toLowerCase().contains(keyword)) {
+                model.addElement(Tipe);
+                hasResult = true;
+            }
+        }
+        BoxTipe.setModel(model);
+        if (hasResult && !keyword.isEmpty()) {
+            BoxTipe.showPopup();
+        }else{
+            BoxTipe.hidePopup();
+        }
     }
     public void fadeIn() {
     setOpacity(0f); // Mulai dari transparan
@@ -79,23 +121,22 @@ private Runnable ondataEdited;
         }
     }).start();
 }
-    private String idLama;
-    public void ambilData(String ID, String Nama, String Alamat, String Tipe){
-        IDPelanggan.setText(ID);
+    public void ambilData(String ID, String RFID, String Nama, String Telepon, String Alamat, String Tipe){
+        RFIDpelanggan1.setText(RFID);
         Nama_Pelanggan.setText(Nama);
+        Telepon_Pelanggan.setText(Telepon);
         Alamat_Pelanggan.setText(Alamat);
         TipePelanggan.setText(Tipe);
         
-        idLama = ID;
-        
     }
     public String[]getData(){
-        String ID = IDPelanggan.getText();
+        String RFID = RFIDpelanggan1.getText();
         String Nama = Nama_Pelanggan.getText();
+        String Telepon = Telepon_Pelanggan.getText();
         String Alamat = Alamat_Pelanggan.getText();
         String Tipe = TipePelanggan.getText();
         
-        if(ID.isEmpty() || Nama.isEmpty() || Alamat.isEmpty() || Tipe.isEmpty()){
+        if(RFID.isEmpty() || Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty() || Tipe.isEmpty()){
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
             LengkapiData lengkap = new LengkapiData(parent, true);
             lengkap.setVisible(true);
@@ -107,7 +148,13 @@ private Runnable ondataEdited;
             frmt.setVisible(true);
             return null;
         }
-        return new String[]{ID, Nama, Alamat, Tipe};
+        if(!Telepon.matches("\\d+")){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+            SesuaiFormat frmt = new SesuaiFormat(parent, true);
+            frmt.setVisible(true);
+            return null;
+        }
+        return new String[]{ID, RFID, Nama, Telepon, Alamat, Tipe};
     }
     public void Refresh(){
         try {
@@ -115,18 +162,20 @@ private Runnable ondataEdited;
             String dbUser = "root";
             String dbPass = "";
             conn = DriverManager.getConnection(url, dbUser, dbPass);
-           String sql = "SELECT * FROM pelanggan";
+           String sql = "SELECT * FROM pelanggan WHERE id_pelanggan = ?";
            pstmt=conn.prepareStatement(sql);
-           pstmt.setString(0, ID);
+           pstmt.setString(1, ID);
            rs=pstmt.executeQuery();
            if(rs.next()){
-               String ID = rs.getString("id_pelanggan");
+               String RFID = rs.getString("rfidpelanggan");
                String Nama = rs.getString("nama");
+               String Telepon = rs.getString("no_hp");
                String Alamat = rs.getString("alamat");
                String Tipe = rs.getString("tipe_harga");
                
-               IDPelanggan.setText(ID);
+               RFIDpelanggan1.setText(RFID);
                Nama_Pelanggan.setText(Nama);
+               Telepon_Pelanggan.setText(Telepon);
                Alamat_Pelanggan.setText(Alamat);
                TipePelanggan.setText(Tipe);
            }
@@ -135,17 +184,16 @@ private Runnable ondataEdited;
         }
  
     }
-    private boolean isDuplicate(String NewID, String Tipe, String IDLama){
-        String sql = "SELECT COUNT(*) FROM pelanggan WHERE (id_pelanggan = ? OR tipe_harga = ?) AND id_pelanggan != ?";
+    private boolean isDuplicate(String RFID, String ID){
+        String sql = "SELECT COUNT(*) FROM pelanggan WHERE rfidpelanggan = ? AND id_pelanggan != ?";
         try {
            String url = "jdbc:mysql://localhost:/sembakogrok";
             String dbUser = "root";
             String dbPass = "";
             conn = DriverManager.getConnection(url, dbUser, dbPass);
            pstmt=conn.prepareStatement(sql);
-           pstmt.setString(1, NewID);
-           pstmt.setString(2, Tipe);
-           pstmt.setString(3, IDLama);
+           pstmt.setString(1, RFID);
+           pstmt.setString(2, ID);
            rs=pstmt.executeQuery();
            if(rs.next()){
                int count = rs.getInt(1);
@@ -169,8 +217,6 @@ private Runnable ondataEdited;
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        IDPelanggan = new jtextfield.TextFieldSuggestion();
-        jLabel1 = new javax.swing.JLabel();
         Nama_Pelanggan = new jtextfield.TextFieldSuggestion();
         jLabel2 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -182,35 +228,37 @@ private Runnable ondataEdited;
         Close = new Custom.Custom_ButtonRounded();
         jLabel6 = new javax.swing.JLabel();
         TipePelanggan = new jtextfield.TextFieldSuggestion();
+        jLabel3 = new javax.swing.JLabel();
+        Telepon_Pelanggan = new jtextfield.TextFieldSuggestion();
+        BoxTipe = new jtextfield.ComboBoxSuggestion();
+        RFIDpelanggan1 = new jtextfield.TextFieldSuggestion();
+        jLabel7 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(250, 250, 250));
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-
-        IDPelanggan.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                IDPelangganActionPerformed(evt);
-            }
-        });
-
-        jLabel1.setText("ID");
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         Nama_Pelanggan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Nama_PelangganActionPerformed(evt);
             }
         });
+        jPanel1.add(Nama_Pelanggan, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 160, 260, -1));
 
         jLabel2.setText("Nama");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 130, -1, -1));
 
         jLabel4.setText("Alamat");
+        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 50, -1, -1));
 
         Alamat_Pelanggan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Alamat_PelangganActionPerformed(evt);
             }
         });
+        jPanel1.add(Alamat_Pelanggan, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 80, 260, -1));
 
         tomboledit.setForeground(new java.awt.Color(0, 0, 0));
         tomboledit.setText("Edit");
@@ -222,6 +270,7 @@ private Runnable ondataEdited;
                 tomboleditActionPerformed(evt);
             }
         });
+        jPanel1.add(tomboledit, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 300, 101, 40));
 
         tombolbatal.setText("Batalkan");
         tombolbatal.setFillClick(new java.awt.Color(153, 0, 0));
@@ -231,6 +280,7 @@ private Runnable ondataEdited;
                 tombolbatalActionPerformed(evt);
             }
         });
+        jPanel1.add(tombolbatal, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 300, 100, 40));
 
         jPanel2.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), null));
 
@@ -257,7 +307,7 @@ private Runnable ondataEdited;
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 143, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 498, Short.MAX_VALUE)
                 .addComponent(Close, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -271,84 +321,63 @@ private Runnable ondataEdited;
                 .addContainerGap(12, Short.MAX_VALUE))
         );
 
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1, 1, 660, -1));
+
         jLabel6.setText("Tipe Pelanggan");
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 130, -1, -1));
 
         TipePelanggan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 TipePelangganActionPerformed(evt);
             }
         });
+        TipePelanggan.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                TipePelangganKeyReleased(evt);
+            }
+        });
+        jPanel1.add(TipePelanggan, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 160, 260, -1));
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(16, 16, 16)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel2)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(Alamat_Pelanggan, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
-                                .addComponent(Nama_Pelanggan, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(IDPelanggan, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(TipePelanggan, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE))))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(31, 31, 31)
-                        .addComponent(tomboledit, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(IDPelanggan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(Nama_Pelanggan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(Alamat_Pelanggan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel6)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(TipePelanggan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(tombolbatal, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(tomboledit, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
-        );
+        jLabel3.setText("Telepon");
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 220, -1, -1));
+
+        Telepon_Pelanggan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Telepon_PelangganActionPerformed(evt);
+            }
+        });
+        jPanel1.add(Telepon_Pelanggan, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 240, 260, -1));
+
+        BoxTipe.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BoxTipeActionPerformed(evt);
+            }
+        });
+        jPanel1.add(BoxTipe, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 190, 260, 1));
+
+        RFIDpelanggan1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                RFIDpelanggan1ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(RFIDpelanggan1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 260, -1));
+
+        jLabel7.setText("RFID");
+        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, -1, -1));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void IDPelangganActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IDPelangganActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_IDPelangganActionPerformed
 
     private void Nama_PelangganActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Nama_PelangganActionPerformed
         // TODO add your handling code here:
@@ -367,11 +396,13 @@ private Runnable ondataEdited;
         if(data==null){
             return;
         }
-        String Nama = data[1];
-        String Alamat = data[2];
-        String Tipe = data[3];
-        String IDLama = idLama;
-        String NewID = IDPelanggan.getText();
+        String ID = data[0];
+        String RFID = data[1].trim();
+        String Nama = data[2];
+        String Telepon = data[3];
+        String Alamat = data[4];
+        String Tipe = data[5];
+        
         
         if(conn==null){
             String url = "jdbc:mysql://localhost:/sembakogrok";
@@ -384,23 +415,24 @@ private Runnable ondataEdited;
                 return;
             }
         }
-        if (isDuplicate(NewID, Tipe, IDLama)) {
+        if (isDuplicate(RFID, ID)) {
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
                 DataAda ada = new DataAda(parent, true);
             ada.setVisible(true);
             return;
         }
-        String sql = "UPDATE pelanggan SET id_pelanggan = ?, nama = ?, alamat = ?, tipe_harga = ? WHERE id_pelanggan = ?";
+        String sql = "UPDATE pelanggan SET rfidpelanggan = ?, nama = ?, no_hp = ?, alamat = ?, tipe_harga = ? WHERE id_pelanggan = ?";
        
         try {
             conn.setAutoCommit(false);
             int rowUpdate = 0;
             try(PreparedStatement ps = conn.prepareStatement(sql)){
-                ps.setString(1, NewID);
+                ps.setString(1, RFID);
                 ps.setString(2, Nama);
-                ps.setString(3, Alamat);
-                ps.setString(4, Tipe);
-                ps.setString(5, IDLama);
+                ps.setString(3, Telepon);
+                ps.setString(4, Alamat);
+                ps.setString(5, Tipe);
+                ps.setString(6, ID);
                 
                 rowUpdate = ps.executeUpdate();
             }
@@ -416,9 +448,6 @@ private Runnable ondataEdited;
                 ondataEdited.run();
             }
            dispose();
-           java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
-                Loading muat = new Loading(parent, true);
-            muat.setVisible(true);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -431,6 +460,22 @@ private Runnable ondataEdited;
     private void TipePelangganActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TipePelangganActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_TipePelangganActionPerformed
+
+    private void Telepon_PelangganActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Telepon_PelangganActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_Telepon_PelangganActionPerformed
+
+    private void BoxTipeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BoxTipeActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_BoxTipeActionPerformed
+
+    private void TipePelangganKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_TipePelangganKeyReleased
+        listen();
+    }//GEN-LAST:event_TipePelangganKeyReleased
+
+    private void RFIDpelanggan1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RFIDpelanggan1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_RFIDpelanggan1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -483,15 +528,18 @@ private Runnable ondataEdited;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private jtextfield.TextFieldSuggestion Alamat_Pelanggan;
+    private jtextfield.ComboBoxSuggestion BoxTipe;
     private Custom.Custom_ButtonRounded Close;
-    private jtextfield.TextFieldSuggestion IDPelanggan;
     private jtextfield.TextFieldSuggestion Nama_Pelanggan;
+    private jtextfield.TextFieldSuggestion RFIDpelanggan1;
+    private jtextfield.TextFieldSuggestion Telepon_Pelanggan;
     private jtextfield.TextFieldSuggestion TipePelanggan;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private com.raven.swing.CustomButton_Rounded tombolbatal;
