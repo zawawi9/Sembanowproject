@@ -6,7 +6,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.GridLayout;
+import java.awt.Window;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.Connection;
@@ -22,8 +24,16 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import jtextfield.TextFieldSuggestion;
+import raven.dialog.Loading;
+import raven.dialog.MasukkanTanggal;
+import raven.dialog.NegatifBarang;
+import raven.dialog.OverBarang;
+import raven.dialog.Pilihdahulu;
+import raven.dialog.SesuaiFormat1;
+import raven.dialog.Tidakadajumlahbarang;
 
 public class Form_exp extends javax.swing.JPanel {
     public Statement st;
@@ -37,6 +47,9 @@ public class Form_exp extends javax.swing.JPanel {
     }
 
     public void showData() {
+        Window window = SwingUtilities.getWindowAncestor(Form_exp.this);
+                Loading barang = new Loading((Frame)window, true);
+                barang.setVisible(true);
         String[] columnNames = {"Kode","ID", "Nama", "Stok Dos", "Stok Pcs", "Harga Beli", "Stok Per Dos", "Tanggal Exp"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         
@@ -154,17 +167,13 @@ public class Form_exp extends javax.swing.JPanel {
 
     Object selectedValue = optionPane.getValue();
     if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
-        JOptionPane.showMessageDialog(this, "Operasi dibatalkan.");
         return;
     }
     String newExpDateStr = tanggalField.getText().trim();
     if (newExpDateStr.isEmpty()) {
-        JOptionPane.showMessageDialog(
-            this,
-            "Tanggal tidak boleh kosong!",
-            "Error",
-            JOptionPane.ERROR_MESSAGE
-        );
+        Window window = SwingUtilities.getWindowAncestor(Form_exp.this);
+                MasukkanTanggal tanggal = new MasukkanTanggal((Frame)window, true);
+                tanggal.setVisible(true);
         return;
     }
 
@@ -175,12 +184,9 @@ public class Form_exp extends javax.swing.JPanel {
         java.util.Date parsedDate = sdf.parse(newExpDateStr);
         newExpDate = new java.sql.Date(parsedDate.getTime());
     } catch (ParseException ex) {
-        JOptionPane.showMessageDialog(
-            this,
-            "Format tanggal tidak valid! Gunakan YYYY-MM-DD.",
-            "Error",
-            JOptionPane.ERROR_MESSAGE
-        );
+        Window window = SwingUtilities.getWindowAncestor(Form_exp.this);
+                SesuaiFormat1 pilih = new SesuaiFormat1((Frame)window, true);
+                pilih.setVisible(true);
         return;
     }
 
@@ -191,12 +197,9 @@ public class Form_exp extends javax.swing.JPanel {
         int rowsAffected = pstmt.executeUpdate();
 
         if (rowsAffected > 0) {
-            JOptionPane.showMessageDialog(
-                this,
-                "Expiration date updated successfully!",
-                "Success",
-                JOptionPane.INFORMATION_MESSAGE
-            );
+            Window window = SwingUtilities.getWindowAncestor(Form_exp.this);
+                Loading load = new Loading((Frame)window, true);
+                load.setVisible(true);
             showData();
         } else {
             JOptionPane.showMessageDialog(
@@ -318,10 +321,6 @@ private void deleteAndTransferToPengeluaran(int selectedRow) {
     // Handle dialog result
     Object selectedValue = optionPane.getValue();
     if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
-        String message = (selectedValue != null && (Integer) selectedValue == JOptionPane.CLOSED_OPTION)
-            ? "Dialog ditutup. Operasi dibatalkan."
-            : "Operasi dibatalkan.";
-        JOptionPane.showMessageDialog(this, message);
         return;
     }
 
@@ -335,16 +334,22 @@ private void deleteAndTransferToPengeluaran(int selectedRow) {
         if (!stokBuangStr.isEmpty()) stokBuang = Integer.parseInt(stokBuangStr);
         if (!displayBuangStr.isEmpty()) displayBuang = Integer.parseInt(displayBuangStr);
         if (stokBuangStr.isEmpty() && displayBuangStr.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Tidak ada jumlah yang dibuang.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            Window window = SwingUtilities.getWindowAncestor(Form_exp.this);
+                Tidakadajumlahbarang barang = new Tidakadajumlahbarang((Frame)window, true);
+                barang.setVisible(true);
             return;
         }
 
         if (stokBuang < 0 || displayBuang < 0) {
-            JOptionPane.showMessageDialog(this, "Jumlah yang dibuang tidak boleh negatif.", "Error", JOptionPane.ERROR_MESSAGE);
+            Window window = SwingUtilities.getWindowAncestor(Form_exp.this);
+                NegatifBarang barang = new NegatifBarang((Frame)window, true);
+                barang.setVisible(true);
             return;
         }
         if (stokBuang > stokDos || displayBuang > stokPcs) {
-            JOptionPane.showMessageDialog(this, "Jumlah yang dibuang melebihi stok yang tersedia.", "Error", JOptionPane.ERROR_MESSAGE);
+            Window window = SwingUtilities.getWindowAncestor(Form_exp.this);
+                OverBarang barang = new OverBarang((Frame)window, true);
+                barang.setVisible(true);
             return;
         }
 
@@ -386,7 +391,9 @@ private void deleteAndTransferToPengeluaran(int selectedRow) {
         }
 
         cn.commit();
-        JOptionPane.showMessageDialog(this, "Operasi berhasil dilakukan!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        Window window = SwingUtilities.getWindowAncestor(Form_exp.this);
+                Loading barang = new Loading((Frame)window, true);
+                barang.setVisible(true);
         showData(); 
 
     } catch (SQLException | NumberFormatException ex) {
