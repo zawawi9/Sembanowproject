@@ -40,6 +40,9 @@ public class Form_opname extends javax.swing.JPanel {
         initComponents();
         setupListeners();
         comboboxTanggalOpname();
+        Window window = SwingUtilities.getWindowAncestor(Form_opname.this);
+                Loading muat = new Loading((java.awt.Frame) window, true);
+        muat.setVisible(true);
     }
 
     private void setupListeners() {

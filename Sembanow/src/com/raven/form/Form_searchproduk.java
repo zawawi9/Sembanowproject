@@ -34,6 +34,7 @@ import javax.swing.table.DefaultTableModel;
 import jtextfield.ComboBoxSuggestion;
 import jtextfield.TextFieldSuggestion;
 import raven.dialog.LengkapiData;
+import raven.dialog.Loading;
 import raven.dialog.Pilihdahulu;
 import raven.dialog.SesuaiFormat1;
 
@@ -47,6 +48,10 @@ public class Form_searchproduk extends javax.swing.JPanel {
         initComponents();
         showData1();
         setupListeners(); 
+        
+        Window window = SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+                Loading muat = new Loading((java.awt.Frame) window, true);
+        muat.setVisible(true);
     }
 
     private void setupListeners() {
