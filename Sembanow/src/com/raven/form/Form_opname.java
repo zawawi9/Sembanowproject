@@ -6,7 +6,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.GridLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
@@ -21,12 +23,15 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import jtextfield.ComboBoxSuggestion;
 import jtextfield.TextFieldSuggestion;
-
+import raven.dialog.LengkapiData;
+import raven.dialog.Loading;
 
 public class Form_opname extends javax.swing.JPanel {
+
     public Statement st;
     public ResultSet rs;
     Connection cn = koneksi.getKoneksi();
@@ -35,6 +40,9 @@ public class Form_opname extends javax.swing.JPanel {
         initComponents();
         setupListeners();
         comboboxTanggalOpname();
+        Window window = SwingUtilities.getWindowAncestor(Form_opname.this);
+                Loading muat = new Loading((java.awt.Frame) window, true);
+        muat.setVisible(true);
     }
 
     private void setupListeners() {
@@ -42,14 +50,13 @@ public class Form_opname extends javax.swing.JPanel {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 if (!jtxId.isEnabled()) {
-                    JOptionPane.showMessageDialog(null, 
-                        "Input dinonaktifkan.\nSilakan ubah pencarian menjadi 'Pilih Tanggal' terlebih dahulu.",
-                        "Peringatan",
-                        JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(null,
+                            "Input dinonaktifkan.\nSilakan ubah pencarian menjadi 'Pilih Tanggal' terlebih dahulu.",
+                            "Peringatan",
+                            JOptionPane.WARNING_MESSAGE);
                 }
             }
         });
-
 
         jtxId.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
@@ -78,7 +85,7 @@ public class Form_opname extends javax.swing.JPanel {
                     } else {
                         JOptionPane.showMessageDialog(null, "Error: ID tidak boleh kosong");
                     }
-                } 
+                }
             }
         });
 
@@ -142,7 +149,7 @@ public class Form_opname extends javax.swing.JPanel {
                 String selectedDate = (String) comboBox.getSelectedItem();
                 if (selectedDate.equals("Pilih Tanggal")) {
                     DefaultTableModel model = (DefaultTableModel) table.getModel();
-                    model.setRowCount(0); 
+                    model.setRowCount(0);
                     setEnabled();
                 }
             }
@@ -152,8 +159,8 @@ public class Form_opname extends javax.swing.JPanel {
             public void keyPressed(java.awt.event.KeyEvent e) {
                 if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
                     int selectedRow = table.getSelectedRow();
-                    int colCatatan = 7; 
-                    int colId = 0;      
+                    int colCatatan = 7;
+                    int colId = 0;
 
                     if (selectedRow != -1) {
                         String catatanValue = table.getValueAt(selectedRow, colCatatan).toString();
@@ -167,10 +174,10 @@ public class Form_opname extends javax.swing.JPanel {
                             }
 
                             int pilihan = JOptionPane.showConfirmDialog(
-                                null,
-                                "Barang dicatat 'hilang'. Ganti catatan jadi 'aman'?",
-                                "Konfirmasi",
-                                JOptionPane.YES_NO_OPTION
+                                    null,
+                                    "Barang dicatat 'hilang'. Ganti catatan jadi 'aman'?",
+                                    "Konfirmasi",
+                                    JOptionPane.YES_NO_OPTION
                             );
 
                             if (pilihan == JOptionPane.YES_OPTION) {
@@ -195,17 +202,16 @@ public class Form_opname extends javax.swing.JPanel {
                             }
                         }
                     }
-                    e.consume(); 
+                    e.consume();
                 }
             }
         });
 
-
     }
-    
+
     private void tampilDataBerdasarkanTanggal(String tanggal) {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
-        model.setRowCount(0); 
+        model.setRowCount(0);
 
         String query = "SELECT * FROM opname WHERE tanggal_opname = ?";
         try (PreparedStatement ps = cn.prepareStatement(query)) {
@@ -222,7 +228,7 @@ public class Form_opname extends javax.swing.JPanel {
                 String selisih = rs.getString("selisih");
                 String catatan = rs.getString("catatan");
 
-                Object[] data = { idProduk, nama, awalD, awalP, akhirD, akhirP, selisih, catatan };
+                Object[] data = {idProduk, nama, awalD, awalP, akhirD, akhirP, selisih, catatan};
                 model.addRow(data);
             }
             clear();
@@ -243,17 +249,17 @@ public class Form_opname extends javax.swing.JPanel {
             }
 
             comboBox.removeAllItems();
-            comboBox.addItem("Pilih Tanggal"); 
+            comboBox.addItem("Pilih Tanggal");
 
             while (rs.next()) {
                 Date tanggal = rs.getDate("tanggal_opname");
-                comboBox.addItem(tanggal.toString()); 
+                comboBox.addItem(tanggal.toString());
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-    
+
     private void kalkulasiSelisih() {
         int id = Integer.parseInt(jtxId.getText().trim());
         int awalDosVal = Integer.parseInt(awaldos.getText().trim());
@@ -267,20 +273,20 @@ public class Form_opname extends javax.swing.JPanel {
         String selisihText = "";
 
         if (selisihDos != 0 && selisihPcs != 0) {
-            selisihText = (selisihDos > 0 ? "+" : "") + selisihDos + " dos & " +
-                          (selisihPcs > 0 ? "+" : "") + selisihPcs + " pcs";
+            selisihText = (selisihDos > 0 ? "+" : "") + selisihDos + " dos & "
+                    + (selisihPcs > 0 ? "+" : "") + selisihPcs + " pcs";
         } else if (selisihDos != 0) {
             selisihText = (selisihDos > 0 ? "+" : "") + selisihDos + " dos";
         } else if (selisihPcs != 0) {
             selisihText = (selisihPcs > 0 ? "+" : "") + selisihPcs + " pcs";
         } else {
-            selisihText = "pas"; 
+            selisihText = "pas";
         }
 
-        selisih.setText(selisihText); 
+        selisih.setText(selisihText);
     }
 
-    private void clear(){
+    private void clear() {
         jtxId.setText("");
         jtxNama.setText("");
         awaldos.setText("");
@@ -289,7 +295,7 @@ public class Form_opname extends javax.swing.JPanel {
         akhirpcs.setText("");
         selisih.setText("");
     }
-    
+
     private void nonEnabled() {
         jtxId.setEnabled(false);
         jtxNama.setEnabled(false);
@@ -309,7 +315,7 @@ public class Form_opname extends javax.swing.JPanel {
         akhirpcs.setEnabled(true);
         selisih.setEnabled(true);
     }
-    
+
     public void showData() {
         try {
 
@@ -326,33 +332,32 @@ public class Form_opname extends javax.swing.JPanel {
                 catatan = "aman";
             } else {
                 if (sel.contains("-")) {
-                    catatan = "hilang"; 
+                    catatan = "hilang";
                 } else {
-                    catatan = "aman"; 
+                    catatan = "aman";
                 }
             }
 
-
-            if (idProduk.isEmpty() || nama.isEmpty() || awalD.isEmpty() || awalP.isEmpty() || 
-                akhirD.isEmpty() || akhirP.isEmpty() || sel.isEmpty()) {
+            if (idProduk.isEmpty() || nama.isEmpty() || awalD.isEmpty() || awalP.isEmpty()
+                    || akhirD.isEmpty() || akhirP.isEmpty() || sel.isEmpty()) {
                 JOptionPane.showMessageDialog(null, "Semua field harus diisi!");
                 return;
             }
 
             DefaultTableModel model = (DefaultTableModel) table.getModel();
             Object[] data = {
-                idProduk,        
-                nama,            
-                awalD,           
-                awalP,           
-                akhirD,       
-                akhirP, 
+                idProduk,
+                nama,
+                awalD,
+                awalP,
+                akhirD,
+                akhirP,
                 sel,
                 catatan
             };
             model.addRow(data);
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
         }
@@ -367,7 +372,7 @@ public class Form_opname extends javax.swing.JPanel {
         }
 
         String sqlOpname = "INSERT INTO opname (nama_produk, id_produk, stok_awal_dos, stok_awal_pcs, stok_akhir_dos, stok_akhir_pcs, selisih, catatan) "
-                         + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmtOpname = cn.prepareStatement(sqlOpname)) {
             cn.setAutoCommit(false); // Mulai transaksi manual
@@ -382,7 +387,6 @@ public class Form_opname extends javax.swing.JPanel {
                     int akhirPcs = Integer.parseInt(model.getValueAt(i, 5).toString());
                     String selisih = model.getValueAt(i, 6).toString();
                     String catatan = model.getValueAt(i, 7).toString();
-
 
                     stmtOpname.setString(1, namaProduk);
                     stmtOpname.setInt(2, idProduk);
@@ -417,179 +421,183 @@ public class Form_opname extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(null, "Terjadi kesalahan saat menyimpan data opname: " + e.getMessage());
         }
     }
-    
+
     private void kelolaStok() {
-    TextFieldSuggestion jtxId = new TextFieldSuggestion();
-    TextFieldSuggestion jtxNama = new TextFieldSuggestion();
-    ComboBoxSuggestion satuan = new ComboBoxSuggestion();
-    TextFieldSuggestion jtxJumlah = new TextFieldSuggestion();
-    ComboBoxSuggestion menu = new ComboBoxSuggestion();
-    ComboBoxSuggestion comboBoxTanggalExp = new ComboBoxSuggestion();
+        TextFieldSuggestion jtxId = new TextFieldSuggestion();
+        TextFieldSuggestion jtxNama = new TextFieldSuggestion();
+        ComboBoxSuggestion satuan = new ComboBoxSuggestion();
+        TextFieldSuggestion jtxJumlah = new TextFieldSuggestion();
+        ComboBoxSuggestion menu = new ComboBoxSuggestion();
+        ComboBoxSuggestion comboBoxTanggalExp = new ComboBoxSuggestion();
 
-    Dimension fieldSize = new Dimension(200, 35);
-    jtxId.setPreferredSize(fieldSize);
-    jtxNama.setPreferredSize(fieldSize);
-    satuan.setPreferredSize(fieldSize);
-    jtxJumlah.setPreferredSize(fieldSize);
-    menu.setPreferredSize(fieldSize);
-    comboBoxTanggalExp.setPreferredSize(fieldSize);
+        Dimension fieldSize = new Dimension(200, 35);
+        jtxId.setPreferredSize(fieldSize);
+        jtxNama.setPreferredSize(fieldSize);
+        satuan.setPreferredSize(fieldSize);
+        jtxJumlah.setPreferredSize(fieldSize);
+        menu.setPreferredSize(fieldSize);
+        comboBoxTanggalExp.setPreferredSize(fieldSize);
 
-    JLabel lId = new JLabel("ID:");
-    JLabel lNama = new JLabel("Nama:");
-    JLabel lSatuan = new JLabel("Satuan:");
-    JLabel lJumlah = new JLabel("Jumlah:");
-    JLabel lMenu = new JLabel("Operasi:");
-    JLabel lTanggalExp = new JLabel("Tanggal Exp:");
+        JLabel lId = new JLabel("ID:");
+        JLabel lNama = new JLabel("Nama:");
+        JLabel lSatuan = new JLabel("Satuan:");
+        JLabel lJumlah = new JLabel("Jumlah:");
+        JLabel lMenu = new JLabel("Operasi:");
+        JLabel lTanggalExp = new JLabel("Tanggal Exp:");
 
-    JPanel mainPanel = new JPanel(new GridLayout(3, 2, 2, 2));
-    mainPanel.add(createInputPanel(lId, jtxId));
-    mainPanel.add(createInputPanel(lNama, jtxNama));
-    mainPanel.add(createInputPanel(lSatuan, satuan));
-    mainPanel.add(createInputPanel(lJumlah, jtxJumlah));
-    mainPanel.add(createInputPanel(lMenu, menu));
-    mainPanel.add(createInputPanel(lTanggalExp, comboBoxTanggalExp));
+        JPanel mainPanel = new JPanel(new GridLayout(3, 2, 2, 2));
+        mainPanel.add(createInputPanel(lId, jtxId));
+        mainPanel.add(createInputPanel(lNama, jtxNama));
+        mainPanel.add(createInputPanel(lSatuan, satuan));
+        mainPanel.add(createInputPanel(lJumlah, jtxJumlah));
+        mainPanel.add(createInputPanel(lMenu, menu));
+        mainPanel.add(createInputPanel(lTanggalExp, comboBoxTanggalExp));
 
-    jtxId.addKeyListener(new java.awt.event.KeyAdapter() {
-        @Override
-        public void keyPressed(java.awt.event.KeyEvent e) {
-            if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                e.consume(); 
-                String idProduk = jtxId.getText().trim();
-                if (idProduk.isEmpty()) {
-                    JOptionPane.showMessageDialog(null, "ID tidak boleh kosong");
-                    return;
-                }
-                try {
-                    PreparedStatement stmt = cn.prepareStatement("SELECT nama, satuan FROM produk WHERE id_produk = ?");
-                    stmt.setString(1, idProduk);
-                    ResultSet rs = stmt.executeQuery();
-                    if (rs.next()) {
-                        jtxNama.setText(rs.getString("nama"));
-                        satuan.removeAllItems();
-                        satuan.addItem("pcs");
-                        String satuanProduk = rs.getString("satuan");
-                        if (satuanProduk != null && !satuanProduk.trim().isEmpty()) {
-                            satuan.addItem(satuanProduk);
+        jtxId.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent e) {
+                if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                    e.consume();
+                    String idProduk = jtxId.getText().trim();
+                    if (idProduk.isEmpty()) {
+                        Window window = SwingUtilities.getWindowAncestor(Form_opname.this);
+                        LengkapiData barang = new LengkapiData((Frame)window, true);
+                barang.setVisible(true);
+                        return;
+                    }
+                    try {
+                        PreparedStatement stmt = cn.prepareStatement("SELECT nama, satuan FROM produk WHERE id_produk = ?");
+                        stmt.setString(1, idProduk);
+                        ResultSet rs = stmt.executeQuery();
+                        if (rs.next()) {
+                            jtxNama.setText(rs.getString("nama"));
+                            satuan.removeAllItems();
+                            satuan.addItem("pcs");
+                            String satuanProduk = rs.getString("satuan");
+                            if (satuanProduk != null && !satuanProduk.trim().isEmpty()) {
+                                satuan.addItem(satuanProduk);
+                            }
+                        } else {
+                            jtxNama.setText("Produk tidak ditemukan");
                         }
-                    } else {
-                        jtxNama.setText("Produk tidak ditemukan");
+                        comboBoxTanggalExp.removeAllItems();
+                        PreparedStatement stmtExp = cn.prepareStatement("SELECT exp_date FROM exp WHERE id_produk = ? ORDER BY exp_date");
+                        stmtExp.setString(1, idProduk);
+                        ResultSet rsExp = stmtExp.executeQuery();
+                        while (rsExp.next()) {
+                            comboBoxTanggalExp.addItem(rsExp.getDate("exp_date").toString());
+                        }
+                        jtxJumlah.requestFocusInWindow(); // Move focus to Jumlah field
+                    } catch (SQLException ex) {
+                        jtxNama.setText("Error");
+                        ex.printStackTrace();
                     }
-                    comboBoxTanggalExp.removeAllItems();
-                    PreparedStatement stmtExp = cn.prepareStatement("SELECT exp_date FROM exp WHERE id_produk = ? ORDER BY exp_date");
-                    stmtExp.setString(1, idProduk);
-                    ResultSet rsExp = stmtExp.executeQuery();
-                    while (rsExp.next()) {
-                        comboBoxTanggalExp.addItem(rsExp.getDate("exp_date").toString());
-                    }
-                    jtxJumlah.requestFocusInWindow(); // Move focus to Jumlah field
-                } catch (SQLException ex) {
-                    jtxNama.setText("Error");
-                    ex.printStackTrace();
                 }
             }
-        }
-    });
+        });
 
-    menu.addItem("tambah");
-    menu.addItem("kurangi");
+        menu.addItem("tambah");
+        menu.addItem("kurangi");
 
-    JPanel dialogPanel = new JPanel(new BorderLayout(10, 10));
-    dialogPanel.add(mainPanel, BorderLayout.CENTER);
-    dialogPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel dialogPanel = new JPanel(new BorderLayout(10, 10));
+        dialogPanel.add(mainPanel, BorderLayout.CENTER);
+        dialogPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-    JOptionPane optionPane = new JOptionPane(
-        dialogPanel,
-        JOptionPane.PLAIN_MESSAGE,
-        JOptionPane.OK_CANCEL_OPTION
-    ) {
-        @Override
-        public void selectInitialValue() {
-            jtxId.requestFocusInWindow();
-        }
-    };
+        JOptionPane optionPane = new JOptionPane(
+                dialogPanel,
+                JOptionPane.PLAIN_MESSAGE,
+                JOptionPane.OK_CANCEL_OPTION
+        ) {
+            @Override
+            public void selectInitialValue() {
+                jtxId.requestFocusInWindow();
+            }
+        };
 
-    JDialog dialog = optionPane.createDialog(this, "Edit Produk");
-    setBackgroundRecursively(dialog.getContentPane(), Color.WHITE);
-    dialog.setVisible(true);
+        JDialog dialog = optionPane.createDialog(this, "Edit Produk");
+        setBackgroundRecursively(dialog.getContentPane(), Color.WHITE);
+        dialog.setVisible(true);
 
-    Object selectedValue = optionPane.getValue();
-    if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
-        String message = (selectedValue != null && (Integer) selectedValue == JOptionPane.CLOSED_OPTION)
-            ? "Dialog ditutup. Operasi dibatalkan."
-            : "Operasi dibatalkan.";
-        JOptionPane.showMessageDialog(this, message);
-        return;
-    }
-
-    String idProduk = jtxId.getText().trim();
-    String valSatuan = satuan.getSelectedItem() != null ? satuan.getSelectedItem().toString().trim() : "";
-    String valJumlah = jtxJumlah.getText().trim();
-    String valMenu = menu.getSelectedItem() != null ? menu.getSelectedItem().toString().trim() : "";
-    String valTanggalExp = comboBoxTanggalExp.getSelectedItem() != null ? comboBoxTanggalExp.getSelectedItem().toString().trim() : "";
-
-    try {
-        if (idProduk.isEmpty() || valSatuan.isEmpty() || valJumlah.isEmpty() || valMenu.isEmpty() || valTanggalExp.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Semua field harus diisi.", "Error", JOptionPane.ERROR_MESSAGE);
+        Object selectedValue = optionPane.getValue();
+        if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
+            
             return;
         }
 
-        int quantity = Integer.parseInt(valJumlah);
-        cn.setAutoCommit(false);
+        String idProduk = jtxId.getText().trim();
+        String valSatuan = satuan.getSelectedItem() != null ? satuan.getSelectedItem().toString().trim() : "";
+        String valJumlah = jtxJumlah.getText().trim();
+        String valMenu = menu.getSelectedItem() != null ? menu.getSelectedItem().toString().trim() : "";
+        String valTanggalExp = comboBoxTanggalExp.getSelectedItem() != null ? comboBoxTanggalExp.getSelectedItem().toString().trim() : "";
 
-        String updateSql;
-        if ("pcs".equalsIgnoreCase(valSatuan)) {
-            updateSql = "UPDATE exp SET quantity_pcs = quantity_pcs + ? WHERE id_produk = ? AND exp_date = ?";
-            if ("kurangi".equalsIgnoreCase(valMenu)) {
-                quantity = -quantity; 
-            }
-        } else {
-            updateSql = "UPDATE exp SET quantity_dos = quantity_dos + ? WHERE id_produk = ? AND exp_date = ?";
-            if ("kurangi".equalsIgnoreCase(valMenu)) {
-                quantity = -quantity; 
-            }
-        }
-
-        try (PreparedStatement pstmt = cn.prepareStatement(updateSql)) {
-            pstmt.setInt(1, quantity);
-            pstmt.setString(2, idProduk);
-            pstmt.setString(3, valTanggalExp);
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected == 0) {
-                JOptionPane.showMessageDialog(this, "Data tidak ditemukan untuk update.", "Error", JOptionPane.ERROR_MESSAGE);
-                cn.rollback();
+        try {
+            if (idProduk.isEmpty() || valSatuan.isEmpty() || valJumlah.isEmpty() || valMenu.isEmpty() || valTanggalExp.isEmpty()) {
+                Window window = SwingUtilities.getWindowAncestor(Form_opname.this);
+                        LengkapiData barang = new LengkapiData((Frame)window, true);
+                barang.setVisible(true);
                 return;
             }
-        }
 
-        cn.commit();
-        JOptionPane.showMessageDialog(this, "Operasi berhasil dilakukan!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            int quantity = Integer.parseInt(valJumlah);
+            cn.setAutoCommit(false);
 
-    } catch (SQLException | NumberFormatException ex) {
-        try {
-            if (cn != null) cn.rollback();
-        } catch (SQLException rollbackEx) {
-            rollbackEx.printStackTrace();
-        }
-        JOptionPane.showMessageDialog(this, "Error menyimpan data: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        ex.printStackTrace();
-    } finally {
-        try {
-            if (cn != null) {
-                cn.setAutoCommit(true);
+            String updateSql;
+            if ("pcs".equalsIgnoreCase(valSatuan)) {
+                updateSql = "UPDATE exp SET quantity_pcs = quantity_pcs + ? WHERE id_produk = ? AND exp_date = ?";
+                if ("kurangi".equalsIgnoreCase(valMenu)) {
+                    quantity = -quantity;
+                }
+            } else {
+                updateSql = "UPDATE exp SET quantity_dos = quantity_dos + ? WHERE id_produk = ? AND exp_date = ?";
+                if ("kurangi".equalsIgnoreCase(valMenu)) {
+                    quantity = -quantity;
+                }
             }
-        } catch (SQLException finallyEx) {
-            finallyEx.printStackTrace();
+
+            try (PreparedStatement pstmt = cn.prepareStatement(updateSql)) {
+                pstmt.setInt(1, quantity);
+                pstmt.setString(2, idProduk);
+                pstmt.setString(3, valTanggalExp);
+                int rowsAffected = pstmt.executeUpdate();
+                if (rowsAffected == 0) {
+                    JOptionPane.showMessageDialog(this, "Data tidak ditemukan untuk update.", "Error", JOptionPane.ERROR_MESSAGE);
+                    cn.rollback();
+                    return;
+                }
+            }
+
+            cn.commit();
+            Window window = SwingUtilities.getWindowAncestor(Form_opname.this);
+                        Loading barang = new Loading((Frame)window, true);
+                barang.setVisible(true);
+
+        } catch (SQLException | NumberFormatException ex) {
+            try {
+                if (cn != null) {
+                    cn.rollback();
+                }
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+            JOptionPane.showMessageDialog(this, "Error menyimpan data: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.setAutoCommit(true);
+                }
+            } catch (SQLException finallyEx) {
+                finallyEx.printStackTrace();
+            }
         }
     }
-}
 
     private JPanel createInputPanel(JLabel label, JComponent input) {
-            JPanel panel = new JPanel(new BorderLayout(0, 2)); 
-            panel.add(label, BorderLayout.NORTH);
-            panel.add(input, BorderLayout.CENTER);
-            return panel;
-        }
-
+        JPanel panel = new JPanel(new BorderLayout(0, 2));
+        panel.add(label, BorderLayout.NORTH);
+        panel.add(input, BorderLayout.CENTER);
+        return panel;
+    }
 
     private void setBackgroundRecursively(Container container, Color color) {
         container.setBackground(color);
@@ -623,10 +631,10 @@ public class Form_opname extends javax.swing.JPanel {
         awaldos = new jtextfield.TextFieldSuggestion();
         jLabel13 = new javax.swing.JLabel();
         awalpcs = new jtextfield.TextFieldSuggestion();
-        jButton1 = new javax.swing.JButton();
         jLabel14 = new javax.swing.JLabel();
         comboBox = new jtextfield.ComboBoxSuggestion();
-        jButton2 = new javax.swing.JButton();
+        tambah = new Custom.Custom_ButtonRounded();
+        perbaikan = new Custom.Custom_ButtonRounded();
 
         setBackground(new java.awt.Color(250, 250, 250));
 
@@ -702,19 +710,19 @@ public class Form_opname extends javax.swing.JPanel {
             }
         });
 
-        jButton1.setText("Tambah");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jLabel14.setText("seacrh");
+
+        tambah.setText("Tambah");
+        tambah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                tambahActionPerformed(evt);
             }
         });
 
-        jLabel14.setText("seacrh");
-
-        jButton2.setText("perbaikan");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        perbaikan.setText("Perbaikan");
+        perbaikan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                perbaikanActionPerformed(evt);
             }
         });
 
@@ -753,14 +761,13 @@ public class Form_opname extends javax.swing.JPanel {
                                 .addComponent(akhirdos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jtxNama, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                     .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(selisih, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton2))
+                    .addComponent(selisih, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(comboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(comboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(tambah, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(perbaikan, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -804,10 +811,11 @@ public class Form_opname extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel11)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(selisih, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(selisih, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
+                    .addComponent(tambah, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(perbaikan, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -840,13 +848,13 @@ public class Form_opname extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_selisihActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void perbaikanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_perbaikanActionPerformed
         saveOpname();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_perbaikanActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void tambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tambahActionPerformed
         kelolaStok();
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_tambahActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -856,8 +864,6 @@ public class Form_opname extends javax.swing.JPanel {
     private jtextfield.TextFieldSuggestion awalpcs;
     private com.raven.component.Card card3;
     private jtextfield.ComboBoxSuggestion comboBox;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -870,7 +876,9 @@ public class Form_opname extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane1;
     private jtextfield.TextFieldSuggestion jtxId;
     private jtextfield.TextFieldSuggestion jtxNama;
+    private Custom.Custom_ButtonRounded perbaikan;
     private jtextfield.TextFieldSuggestion selisih;
     private com.raven.swing.Table1 table;
+    private Custom.Custom_ButtonRounded tambah;
     // End of variables declaration//GEN-END:variables
 }

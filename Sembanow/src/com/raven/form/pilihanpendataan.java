@@ -31,6 +31,7 @@ public class pilihanpendataan extends javax.swing.JPanel {
                 if (selectedIndex == 0) {
                     // Tab "Pemasukan" dipilih, buat instance baru Form_1
                     tabbedPaneCustom1.setComponentAt(0, new Form_Pelanggan());
+                    
                 } else if (selectedIndex == 1) {
                     // Tab "Pengeluaran" dipilih, buat instance baru Form_2
                     tabbedPaneCustom1.setComponentAt(1, new Form_Karyawan());
@@ -84,7 +85,7 @@ public class pilihanpendataan extends javax.swing.JPanel {
             .addGap(0, 265, Short.MAX_VALUE)
         );
 
-        tabbedPaneCustom1.addTab("karyawan", jPanel2);
+        tabbedPaneCustom1.addTab("Karyawan", jPanel2);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -97,7 +98,7 @@ public class pilihanpendataan extends javax.swing.JPanel {
             .addGap(0, 265, Short.MAX_VALUE)
         );
 
-        tabbedPaneCustom1.addTab("supplier", jPanel3);
+        tabbedPaneCustom1.addTab("Supplier", jPanel3);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
