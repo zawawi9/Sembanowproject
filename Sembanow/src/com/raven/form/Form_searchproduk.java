@@ -399,6 +399,28 @@ public class Form_searchproduk extends javax.swing.JPanel {
                 }
             }
         };
+        KeyListener angkasaja = new KeyAdapter() {
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+};
+        KeyListener hurufsaja = new KeyAdapter() {
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+};
+        id.addKeyListener(angkasaja);
+        stok.addKeyListener(angkasaja);
+        hargabeli.addKeyListener(angkasaja);
+        harga1.addKeyListener(angkasaja);
+        harga2.addKeyListener(angkasaja);
+        harga3.addKeyListener(angkasaja);
         
         id.addKeyListener(enterKeyListener);
         produk.addKeyListener(enterKeyListener);
@@ -687,6 +709,30 @@ public class Form_searchproduk extends javax.swing.JPanel {
                 }
             }
         };
+        KeyListener angkasaja = new KeyAdapter() {
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+};
+        KeyListener hurufsaja = new KeyAdapter() {
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+};
+        id.addKeyListener(angkasaja);
+        stok.addKeyListener(angkasaja);
+        hargabeli.addKeyListener(angkasaja);
+        harga1.addKeyListener(angkasaja);
+        harga2.addKeyListener(angkasaja);
+        harga3.addKeyListener(angkasaja);
+        pcsh2.addKeyListener(angkasaja);
+        pcsh3.addKeyListener(angkasaja);
 
         satuan.setEditable(true);
 
@@ -971,6 +1017,26 @@ public class Form_searchproduk extends javax.swing.JPanel {
                 }
             }
         };
+        KeyListener angkasaja = new KeyAdapter() {
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+};
+        KeyListener hurufsaja = new KeyAdapter() {
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+};
+        id.addKeyListener(angkasaja);
+        qperdos.addKeyListener(angkasaja);
+        pcsh2.addKeyListener(angkasaja);
+        pcsh3.addKeyListener(angkasaja);
 
         id.addKeyListener(enterKeyListener);
         produk.addKeyListener(enterKeyListener);

@@ -51,6 +51,22 @@ private Runnable ondataEdited;
         setLocationRelativeTo(parent);
         fadeIn();
         RFIDpelanggan1.addKeyListener(new java.awt.event.KeyAdapter() {
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+});
+        Telepon_Pelanggan.addKeyListener(new java.awt.event.KeyAdapter() {
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+});
+        RFIDpelanggan1.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
                 Nama_Pelanggan.requestFocus();
