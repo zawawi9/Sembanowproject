@@ -13,6 +13,9 @@ import java.awt.Window;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,7 +23,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -37,6 +42,8 @@ import raven.dialog.LengkapiData;
 import raven.dialog.Loading;
 import raven.dialog.Pilihdahulu;
 import raven.dialog.SesuaiFormat1;
+import org.krysalis.barcode4j.impl.code128.Code128Bean;
+import org.krysalis.barcode4j.output.bitmap.BitmapCanvasProvider;
 
 
 public class Form_searchproduk extends javax.swing.JPanel {
@@ -52,6 +59,17 @@ public class Form_searchproduk extends javax.swing.JPanel {
         Window window = SwingUtilities.getWindowAncestor(Form_searchproduk.this);
                 Loading muat = new Loading((java.awt.Frame) window, true);
         muat.setVisible(true);
+        
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt){
+                int selectedRow = table.getSelectedRow();
+                if (selectedRow == -1) {
+            return; // Tidak ada baris yang diklik, hindari error
+        }
+                    String idProduk = table.getValueAt(selectedRow, 2).toString();
+                    TampilkanBarcode(idProduk);
+            }
+        });
     }
 
     private void setupListeners() {
@@ -83,6 +101,28 @@ public class Form_searchproduk extends javax.swing.JPanel {
                 }
             }
         });
+    }
+    private void TampilkanBarcode(String idProduk) {
+        try {
+            Code128Bean bean = new Code128Bean();
+            final int dpi = 160;
+            bean.setModuleWidth(0.3);
+            bean.doQuietZone(false);
+
+            File barcodeFile = new File("barcode-" + idProduk + ".png");
+            FileOutputStream out = new FileOutputStream(barcodeFile);
+            BitmapCanvasProvider canvas = new BitmapCanvasProvider(
+                    out, "image/png", dpi, BufferedImage.TYPE_BYTE_BINARY, false, 0);
+            bean.generateBarcode(canvas, idProduk);
+            canvas.finish();
+
+            BufferedImage barcodeImage = ImageIO.read(barcodeFile);
+            ImageIcon icon = new ImageIcon(barcodeImage);
+            barcode.setIcon(icon);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal generate barcode: " + e.getMessage());
+        }
     }
     
     private void displayKartuStokTable(String idProduk) {
@@ -1151,6 +1191,8 @@ public class Form_searchproduk extends javax.swing.JPanel {
         Tambah = new Custom.Custom_ButtonRounded();
         Restock = new Custom.Custom_ButtonRounded();
         Edit = new Custom.Custom_ButtonRounded();
+        jLabel1 = new javax.swing.JLabel();
+        barcode = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(250, 250, 250));
 
@@ -1241,6 +1283,8 @@ public class Form_searchproduk extends javax.swing.JPanel {
             }
         });
 
+        jLabel1.setText("Barcode :");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -1271,7 +1315,10 @@ public class Form_searchproduk extends javax.swing.JPanel {
                                 .addComponent(Tambah, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(Restock, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(Edit, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(Edit, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1)
+                            .addComponent(barcode))
+                        .addGap(5, 5, 5))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE)))
@@ -1279,7 +1326,7 @@ public class Form_searchproduk extends javax.swing.JPanel {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(12, 12, 12)
                 .addComponent(jLabel12)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1312,7 +1359,11 @@ public class Form_searchproduk extends javax.swing.JPanel {
                     .addComponent(Restock, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(Edit, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(186, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(barcode)
+                .addContainerGap(160, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1350,10 +1401,12 @@ public class Form_searchproduk extends javax.swing.JPanel {
     private jtextfield.TextFieldSuggestion QperD;
     private Custom.Custom_ButtonRounded Restock;
     private Custom.Custom_ButtonRounded Tambah;
+    private javax.swing.JLabel barcode;
     private javax.swing.ButtonGroup buttonGroup1;
     private com.raven.component.Card card3;
     private jtextfield.TextFieldSuggestion discounth2;
     private jtextfield.TextFieldSuggestion discounth3;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel6;
