@@ -56,6 +56,31 @@ public class Form_tbhPelanggan extends javax.swing.JDialog {
             }
         }
         );
+        RFIDpelanggan1.addKeyListener(new java.awt.event.KeyAdapter() {
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+});
+        Telepon_Pelanggan.addKeyListener(new java.awt.event.KeyAdapter() {
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+});
+        Nama_Pelanggan.addKeyListener(new java.awt.event.KeyAdapter() {
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isLetter(c) && !Character.isWhitespace(c) && !Character.isISOControl(c)) {
+            evt.consume(); // Mengabaikan input selain huruf, spasi, dan karakter kontrol seperti backspace
+        }
+    }
+});
+
         
         RFIDpelanggan1.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt){

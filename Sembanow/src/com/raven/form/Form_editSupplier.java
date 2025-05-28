@@ -44,6 +44,22 @@ public class Form_editSupplier extends javax.swing.JDialog {
         initComponents();
         setLocationRelativeTo(null);
         fadeIn();
+        Telepon_Supplier.addKeyListener(new java.awt.event.KeyAdapter() {
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+});
+        Nama_Supplier.addKeyListener(new java.awt.event.KeyAdapter() {
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+});
         Nama_Supplier.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
