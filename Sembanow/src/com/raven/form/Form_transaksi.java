@@ -9,52 +9,278 @@ import javax.swing.table.DefaultTableModel;
 import java.time.LocalDateTime;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import javax.swing.event.*;
+import cetak.PenjualanPrinterApp;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Date;
 
 public class Form_transaksi extends javax.swing.JPanel {
-    
+
     public Statement st;
     public ResultSet rs;
-    Connection cn = koneksi.getKoneksi();
+    Connection cn;
+    private Timer barcodeTimer;
+    private DocumentListener barcodeDocumentListener;
+    private Timer rfidTimer;
+    private DocumentListener rfidDocumentListener;
 
     public Form_transaksi() {
         initComponents();
+
+        try {
+            cn = koneksi.getKoneksi();
+            if (cn == null || cn.isClosed()) {
+                JOptionPane.showMessageDialog(this, "Koneksi database gagal atau tertutup!", "Error Koneksi", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error saat inisialisasi koneksi: " + ex.getMessage(), "Error Koneksi", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+
         keyListener();
         setupTableModel();
         jtxkasir.setText(data.getUsername());
         combobox();
+        setupBarcodeScannerListener();
+        setupRfidScannerListener();
     }
-    
-    private void combobox(){
+
+    private void setupBarcodeScannerListener() {
+        barcodeTimer = new Timer(200, e -> {
+            // Pastikan jtxId sedang fokus dan ada teks di dalamnya
+            if (jtxId.getText().trim().length() > 0 && jtxId.isFocusOwner()) {
+                // Panggil metode untuk memproses input (ID produk)
+                processBarcodeInput(jtxId.getText().trim());
+            }
+        });
+        barcodeTimer.setRepeats(false);
+
+        // Tambahkan DocumentListener ke jtxId
+        barcodeDocumentListener = new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                barcodeTimer.restart();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                barcodeTimer.restart();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+
+            }
+        };
+        jtxId.getDocument().addDocumentListener(barcodeDocumentListener);
+    }
+
+    private void processBarcodeInput(String idProdukInput) {
+        // Hapus listener sementara
+        jtxId.getDocument().removeDocumentListener(barcodeDocumentListener);
+
+        // Periksa apakah koneksi masih terbuka
+        if (cn == null) {
+            JOptionPane.showMessageDialog(null, "Koneksi database belum diinisialisasi!", "Error", JOptionPane.ERROR_MESSAGE);
+            jtxId.getDocument().addDocumentListener(barcodeDocumentListener); // Tambahkan kembali listener
+            return;
+        }
+        try {
+            if (cn.isClosed()) {
+                System.out.println("DEBUG: Koneksi tertutup, mencoba membuka ulang...");
+                // Jika koneksi tertutup, coba buka ulang dari koneksi.getKoneksi()
+                cn = koneksi.getKoneksi();
+                if (cn == null || cn.isClosed()) {
+                    JOptionPane.showMessageDialog(null, "Gagal membuka kembali koneksi database!", "Error", JOptionPane.ERROR_MESSAGE);
+                    jtxId.getDocument().addDocumentListener(barcodeDocumentListener); // Tambahkan kembali listener
+                    return;
+                }
+            }
+        } catch (SQLException ex) {
+            System.err.println("DEBUG: Error checking connection status: " + ex.getMessage());
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error mengecek status koneksi: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            jtxId.getDocument().addDocumentListener(barcodeDocumentListener); // Tambahkan kembali listener
+            return;
+        }
+
+        // Sekarang kita gunakan koneksi 'cn' yang sudah diinisialisasi atau dibuka ulang
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            // Gunakan koneksi 'cn' global
+            stmt = cn.prepareStatement("SELECT id_produk, nama, satuan FROM produk WHERE id_produk = ?");
+
+            stmt.setString(1, idProdukInput);
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String idProdukDb = rs.getString("id_produk");
+                String namaProdukDb = rs.getString("nama");
+                String satuanProdukDb = rs.getString("satuan");
+
+                jtxId.setText(idProdukDb);
+                jtxNama.setText(namaProdukDb);
+
+                satuan.removeAllItems();
+                satuan.addItem("pcs");
+                if (satuanProdukDb != null && !satuanProdukDb.trim().isEmpty() && !satuanProdukDb.equalsIgnoreCase("pcs")) {
+                    satuan.addItem(satuanProdukDb);
+                }
+                satuan.requestFocusInWindow();
+            } else {
+                JOptionPane.showMessageDialog(null, "Produk dengan ID " + idProdukInput + " tidak ditemukan!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                clearTextFields();
+                jtxId.requestFocusInWindow();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error mencari produk: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            clearTextFields();
+            jtxId.requestFocusInWindow();
+        } finally {
+            // Tutup Statement dan ResultSet secara manual di blok finally
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException ex) {
+                System.err.println("Error menutup Statement/ResultSet: " + ex.getMessage());
+                ex.printStackTrace();
+            }
+            // Tambahkan kembali listener
+            jtxId.getDocument().addDocumentListener(barcodeDocumentListener);
+        }
+    }
+
+    private void setupRfidScannerListener() {
+        rfidTimer = new Timer(200, e -> {
+            if (txtRFID.getText().trim().length() > 0 && txtRFID.isFocusOwner()) {
+                processRfidInput(txtRFID.getText().trim());
+            }
+        });
+        rfidTimer.setRepeats(false);
+
+        rfidDocumentListener = new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                rfidTimer.restart();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                rfidTimer.restart();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                // Not used
+            }
+        };
+        txtRFID.getDocument().addDocumentListener(rfidDocumentListener);
+    }
+
+    private void processRfidInput(String rfidId) {
+        txtRFID.getDocument().removeDocumentListener(rfidDocumentListener);
+
+        if (cn == null) {
+            JOptionPane.showMessageDialog(null, "Koneksi database belum diinisialisasi!", "Error", JOptionPane.ERROR_MESSAGE);
+            txtRFID.getDocument().addDocumentListener(rfidDocumentListener);
+            return;
+        }
+        try {
+            if (cn.isClosed()) {
+                System.out.println("DEBUG RFID: Koneksi tertutup, mencoba membuka ulang...");
+                cn = koneksi.getKoneksi();
+                if (cn == null || cn.isClosed()) {
+                    JOptionPane.showMessageDialog(null, "Gagal membuka kembali koneksi database!", "Error", JOptionPane.ERROR_MESSAGE);
+                    txtRFID.getDocument().addDocumentListener(rfidDocumentListener);
+                    return;
+                }
+            }
+        } catch (SQLException ex) {
+            System.err.println("DEBUG RFID: Error checking connection status: " + ex.getMessage());
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error mengecek status koneksi RFID: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            txtRFID.getDocument().addDocumentListener(rfidDocumentListener);
+            return;
+        }
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            String sql = "SELECT nama FROM pelanggan WHERE rfidpelanggan = ?";
+            stmt = cn.prepareStatement(sql);
+            stmt.setString(1, rfidId);
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String namaPelanggan = rs.getString("nama"); // Mengambil dari kolom 'nama'
+                // Ini akan memilih item di combopelanggan jika namaPelanggan ada di dalamnya
+                combopelanggan.setSelectedItem(namaPelanggan);
+
+                JOptionPane.showMessageDialog(null, "Pelanggan ditemukan: " + namaPelanggan, "Info", JOptionPane.INFORMATION_MESSAGE);
+                jtxId.requestFocusInWindow(); // Pindah fokus ke jtxId untuk scan produk berikutnya
+            } else {
+                JOptionPane.showMessageDialog(null, "Pelanggan dengan ID RFID " + rfidId + " tidak ditemukan!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                combopelanggan.setSelectedIndex(-1); // Mengosongkan pilihan di combobox
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error mencari pelanggan via RFID: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException ex) {
+                System.err.println("Error menutup Statement/ResultSet RFID: " + ex.getMessage());
+                ex.printStackTrace();
+            }
+            txtRFID.getDocument().addDocumentListener(rfidDocumentListener);
+        }
+    }
+
+    private void combobox() {
         try {
             st = cn.createStatement();
             rs = st.executeQuery("SELECT nama FROM pelanggan WHERE nama IS NOT NULL AND id_pelanggan != 6");
-            if (comboBox == null) {
+            if (combopelanggan == null) {
                 System.out.println("JComboBox belum diinisialisasi!");
                 return;
             }
-            comboBox.removeAllItems();
-            comboBox.addItem("umum"); 
+            combopelanggan.removeAllItems();
+            combopelanggan.addItem("umum");
             while (rs.next()) {
                 String namaPelanggan = rs.getString("nama");
-                comboBox.addItem(namaPelanggan);
+                combopelanggan.addItem(namaPelanggan);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-    
+
     public void call() {
         try {
             int id = Integer.parseInt(jtxId.getText());
             String stn = satuan.getSelectedItem().toString();
             int jml = Integer.parseInt(jtxJumlah.getText());
-            
+
             String sql = "{CALL HitungTransaksi(?, ?, ?)}";
             CallableStatement stmt = cn.prepareCall(sql);
 
-            stmt.setInt(1, id);       
-            stmt.setString(2, stn);  
-            stmt.setInt(3, jml);     
+            stmt.setInt(1, id);
+            stmt.setString(2, stn);
+            stmt.setInt(3, jml);
 
             boolean hasResult = stmt.execute();
 
@@ -79,51 +305,32 @@ public class Form_transaksi extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
         }
     }
-    
+
     private void keyListener() {
         jtxId.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyPressed(java.awt.event.KeyEvent e) {
-                String idProduk = jtxId.getText().trim();
                 if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                    if (!idProduk.isEmpty()) {
-                        try {
-                            String sql = "SELECT nama,satuan FROM produk WHERE id_produk = ?";
-                            PreparedStatement stmt = cn.prepareStatement(sql);
-                            stmt.setString(1, idProduk);
-                            ResultSet rs = stmt.executeQuery();
-
-                            if (rs.next()) {
-                            jtxNama.setText(rs.getString("nama"));
-                            satuan.removeAllItems(); 
-                            satuan.addItem("pcs");
-
-                            String satuanProduk = rs.getString("satuan");
-                            if (satuanProduk != null && !satuanProduk.trim().isEmpty()) {
-                                if (!satuanProduk.equalsIgnoreCase("pcs")) {
-                                    satuan.addItem(satuanProduk);
-                                }
-                            }
-
-                            satuan.requestFocusInWindow();
-                        } else {
-                            jtxNama.setText("Produk tidak ditemukan");
-                        }
-                        } catch (SQLException ex) {
-                            jtxNama.setText("Error: " + ex.getMessage());
-                            ex.printStackTrace();
-                        }
+                    if (barcodeTimer.isRunning()) {
+                        barcodeTimer.stop();
+                    }
+                    String idProdukInput = jtxId.getText().trim();
+                    if (!idProdukInput.isEmpty()) {
+                        processBarcodeInput(idProdukInput);
                     } else {
-                        ProductSearchDialog dialog = new ProductSearchDialog((JFrame) SwingUtilities.getWindowAncestor(jtxId), cn);
+                        // Jika jtxId kosong dan ENTER ditekan, buka ProductSearchDialog
+                        ProductSearchDialog dialog = new ProductSearchDialog((JFrame) SwingUtilities.getWindowAncestor(jtxId), cn); // Pastikan cn dilewatkan dengan benar
                         dialog.setVisible(true);
                         String selectedId = dialog.getSelectedId();
                         if (!selectedId.isEmpty()) {
-                            jtxId.setText(selectedId); // Set ID ke jtxId
+                            jtxId.setText(selectedId);
+                            // Setelah ID diset dari dialog, panggil processBarcodeInput untuk mengisi detail
+                            processBarcodeInput(selectedId);
                         }
                     }
                 } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_DOWN) {
                     if (table.getRowCount() > 0) {
-                        table.requestFocusInWindow(); 
+                        table.requestFocusInWindow();
                         table.setRowSelectionInterval(0, 0);
                     }
                 } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_F12) {
@@ -132,9 +339,28 @@ public class Form_transaksi extends javax.swing.JPanel {
                     } else {
                         JOptionPane.showMessageDialog(null, "Error: tabel kosong !!");
                     }
-                }else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
+                } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
                     jtxId.requestFocusInWindow();
                     clearTextFields();
+                }
+            }
+        });
+
+        txtRFID.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent e) {
+                if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                    if (rfidTimer.isRunning()) {
+                        rfidTimer.stop();
+                    }
+                    String rfidInput = txtRFID.getText().trim();
+                    if (!rfidInput.isEmpty()) {
+                        processRfidInput(rfidInput);
+                    }
+                } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
+                    txtRFID.setText("");
+                    combopelanggan.setSelectedIndex(-1);
+                    jtxId.requestFocusInWindow();
                 }
             }
         });
@@ -148,12 +374,12 @@ public class Form_transaksi extends javax.swing.JPanel {
                     jtxId.requestFocusInWindow();
                 } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_LEFT) {
                     jtxId.requestFocusInWindow();
-                }else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
+                } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
                     jtxId.requestFocusInWindow();
                     clearTextFields();
                 } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_DOWN) {
                     if (table.getRowCount() > 0) {
-                        table.requestFocusInWindow(); 
+                        table.requestFocusInWindow();
                         table.setRowSelectionInterval(0, 0);
                     }
                 }
@@ -183,7 +409,7 @@ public class Form_transaksi extends javax.swing.JPanel {
                 }
             }
         });
-        
+
         jtxBayar.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyPressed(java.awt.event.KeyEvent e) {
@@ -201,10 +427,10 @@ public class Form_transaksi extends javax.swing.JPanel {
             @Override
             public void keyPressed(java.awt.event.KeyEvent e) {
                 if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                    saveTransaction(); 
-                }else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_UP) {
+                    saveTransaction();
+                } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_UP) {
                     jtxBayar.requestFocusInWindow();
-                }else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
+                } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
                     jtxId.requestFocusInWindow();
                     clearTextFields();
                 }
@@ -214,7 +440,7 @@ public class Form_transaksi extends javax.swing.JPanel {
         table.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyPressed(java.awt.event.KeyEvent e) {
-                    int selectedRow = table.getSelectedRow();
+                int selectedRow = table.getSelectedRow();
                 if (e.getKeyCode() == java.awt.event.KeyEvent.VK_F5) {
                     if (selectedRow >= 0) {
                         DefaultTableModel model = (DefaultTableModel) table.getModel();
@@ -232,7 +458,7 @@ public class Form_transaksi extends javax.swing.JPanel {
                     if (selectedRow >= 0) {
                         DefaultTableModel model = (DefaultTableModel) table.getModel();
                         String id = model.getValueAt(selectedRow, 0).toString();
-                        String nama = model.getValueAt(selectedRow, 1).toString(); 
+                        String nama = model.getValueAt(selectedRow, 1).toString();
                         model.removeRow(selectedRow);
 
                         jtxId.setText(id);
@@ -240,11 +466,11 @@ public class Form_transaksi extends javax.swing.JPanel {
                         jtxId.requestFocusInWindow();
                         table.clearSelection();
                     }
-                } 
+                }
             }
         });
     }
-    
+
     private void setupTableModel() {
         DefaultTableModel model = new DefaultTableModel();
         model.addColumn("ID Produk");
@@ -265,67 +491,66 @@ public class Form_transaksi extends javax.swing.JPanel {
     }
 
     public void showData() {
-    try {
-        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-        symbols.setGroupingSeparator('.'); 
-        DecimalFormat df = new DecimalFormat("#,###", symbols);
+        try {
+            DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+            symbols.setGroupingSeparator('.');
+            DecimalFormat df = new DecimalFormat("#,###", symbols);
 
-        String idProduk = jtxId.getText();
-        String nama = jtxNama.getText();
-        String csatuan = satuan.getSelectedItem().toString();
-        String jumlah = jtxJumlah.getText();
-        String tipeHarga = jtxDiscount.getText();
-        String hargaSatuan = jtxHarga.getText();
-        String total = jtxTotal.getText();
+            String idProduk = jtxId.getText();
+            String nama = jtxNama.getText();
+            String csatuan = satuan.getSelectedItem().toString();
+            String jumlah = jtxJumlah.getText();
+            String tipeHarga = jtxDiscount.getText();
+            String hargaSatuan = jtxHarga.getText();
+            String total = jtxTotal.getText();
 
-        if (idProduk.isEmpty() || nama.isEmpty() || csatuan.isEmpty() || jumlah.isEmpty() || 
-            tipeHarga.isEmpty() || hargaSatuan.isEmpty() || total.isEmpty()) {
+            if (idProduk.isEmpty() || nama.isEmpty() || csatuan.isEmpty() || jumlah.isEmpty()
+                    || tipeHarga.isEmpty() || hargaSatuan.isEmpty() || total.isEmpty()) {
+                clearTextFields();
+                return;
+            }
+
+            double hargaSatuanValue = Double.parseDouble(hargaSatuan);
+            double totalValue = Double.parseDouble(total);
+
+            // Default nilai pcs_per_dos
+            int pcsPerDos = 1;
+            String sql = "SELECT pcs_per_dos FROM produk WHERE id_produk = ?";
+            PreparedStatement pst = cn.prepareStatement(sql);
+            pst.setString(1, idProduk);
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                pcsPerDos = rs.getInt("pcs_per_dos");
+            }
+
+            // Kalau bukan pcs, berarti dianggap dos → harga dikalikan pcs_per_dos
+            double hargaSatuanFinal = hargaSatuanValue;
+            if (!"pcs".equalsIgnoreCase(csatuan)) {
+                hargaSatuanFinal = hargaSatuanValue * pcsPerDos;
+            }
+
+            DefaultTableModel model = (DefaultTableModel) table.getModel();
+            Object[] data = {
+                idProduk,
+                nama,
+                csatuan,
+                jumlah,
+                tipeHarga,
+                df.format(hargaSatuanFinal),
+                df.format(totalValue)
+            };
+            model.addRow(data);
+            updateTotalLabel();
             clearTextFields();
-            return;
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Harga Satuan dan Total harus berupa angka!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
         }
-
-        double hargaSatuanValue = Double.parseDouble(hargaSatuan);
-        double totalValue = Double.parseDouble(total);
-
-        // Default nilai pcs_per_dos
-        int pcsPerDos = 1;
-        String sql = "SELECT pcs_per_dos FROM produk WHERE id_produk = ?";
-        PreparedStatement pst = cn.prepareStatement(sql);
-        pst.setString(1, idProduk);
-        ResultSet rs = pst.executeQuery();
-        if (rs.next()) {
-            pcsPerDos = rs.getInt("pcs_per_dos");
-        }
-
-        // Kalau bukan pcs, berarti dianggap dos → harga dikalikan pcs_per_dos
-        double hargaSatuanFinal = hargaSatuanValue;
-        if (!"pcs".equalsIgnoreCase(csatuan)) {
-            hargaSatuanFinal = hargaSatuanValue * pcsPerDos;
-        }
-
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
-        Object[] data = {
-            idProduk,        
-            nama,            
-            csatuan,           
-            jumlah,           
-            tipeHarga,       
-            df.format(hargaSatuanFinal), 
-            df.format(totalValue)        
-        };
-        model.addRow(data);
-        updateTotalLabel();
-        clearTextFields();
-
-    } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(null, "Harga Satuan dan Total harus berupa angka!");
-    } catch (Exception e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
     }
-}
 
-    
     private void updateTotalLabel() {
         try {
             DecimalFormatSymbols symbols = new DecimalFormatSymbols();
@@ -351,7 +576,7 @@ public class Form_transaksi extends javax.swing.JPanel {
     private void calculateKembalian() {
         try {
             DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-            symbols.setGroupingSeparator('.'); 
+            symbols.setGroupingSeparator('.');
             DecimalFormat df = new DecimalFormat("#,###", symbols);
 
             String totalStr = Ltotal.getText().replace("TOTAL: Rp ", "").replace(".", "");
@@ -373,7 +598,7 @@ public class Form_transaksi extends javax.swing.JPanel {
                 jtxKembalian.setText("");
                 return;
             }
-            
+
             double kembalianValue = bayarValue - totalValue;
 
             jtxKembalian.setText(df.format(kembalianValue));
@@ -387,7 +612,7 @@ public class Form_transaksi extends javax.swing.JPanel {
             jtxKembalian.setText("");
         }
     }
-    
+
     private int getIdPelanggan(String namaPelanggan) {
         try {
             String sql = "SELECT id_pelanggan FROM pelanggan WHERE nama = ?";
@@ -424,7 +649,7 @@ public class Form_transaksi extends javax.swing.JPanel {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error mencari karyawan: " + e.getMessage());
         }
-        return -1; 
+        return -1;
     }
 
     private void saveTransaction() {
@@ -435,14 +660,14 @@ public class Form_transaksi extends javax.swing.JPanel {
                 return;
             }
 
-            String namaPelanggan = comboBox.getSelectedItem().toString();
+            String namaPelanggan = combopelanggan.getSelectedItem().toString();
             String usernameKasir = jtxkasir.getText();
             String totalStr = Ltotal.getText().replace("TOTAL: Rp ", "").replace(".", "");
             String bayarStr = jtxBayar.getText().replace(".", "");
             String kembalianStr = jtxKembalian.getText().replace(".", "");
 
-            if (namaPelanggan.isEmpty() || usernameKasir.isEmpty() || totalStr.isEmpty() || 
-                bayarStr.isEmpty() || kembalianStr.isEmpty()) {
+            if (namaPelanggan.isEmpty() || usernameKasir.isEmpty() || totalStr.isEmpty()
+                    || bayarStr.isEmpty() || kembalianStr.isEmpty()) {
                 JOptionPane.showMessageDialog(null, "Semua field transaksi harus diisi!");
                 return;
             }
@@ -507,7 +732,47 @@ public class Form_transaksi extends javax.swing.JPanel {
             cn.commit();
             JOptionPane.showMessageDialog(null, "Transaksi berhasil disimpan!");
 
-            model.setRowCount(0); 
+            if (idPenjualan != -1) { // Pastikan ID Penjualan valid
+                System.out.println("Transaksi berhasil disimpan dengan ID: " + idPenjualan + ". Mencoba mencetak struk...");
+
+                // Buat instance dari PenjualanPrinterApp
+                PenjualanPrinterApp printerApp = new PenjualanPrinterApp();
+
+                // <<< KONFIGURASI PRINTER KAMU DI SINI >>>
+                // GANTI DENGAN NAMA PORT PRINTER FISIK KAMU
+                String printerPortUntukCetak = "LPT1"; // Contoh: "COM3" (Windows) atau "/dev/usb/lp0" (Linux)
+                // SET TRUE JIKA PRINTER JARINGAN (IP:PORT), FALSE JIKA PORT LOKAL
+                boolean isNetworkPrinterUntukCetak = false;
+                // ---------------------------------------------
+
+                // Data kustom untuk struk (nama toko, alamat, ucapan terima kasih)
+                // Ini akan diteruskan ke PenjualanPrinterApp
+                String namaTokoUntukCetak = "TOKO SEMBAKOGROK"; // <<< ISI NAMA TOKO
+                String alamatTokoUntukCetak = "Jl. Diponegoro No. 100, Jember"; // <<< ISI ALAMAT TOKO
+                String teleponTokoUntukCetak = "(0331) 123456"; // <<< ISI TELEPON TOKO
+                String pesanTerimaKasihUntukCetak = "Terima Kasih! Belanja Lagi Ya!"; // <<< ISI UCAPAN TERIMA KASIH
+
+                // Panggil metode cetak
+                boolean cetakSukses = printerApp.cetakStrukUntukTransaksi(
+                        String.valueOf(idPenjualan), // Konversi int idPenjualan ke String
+                        printerPortUntukCetak,
+                        isNetworkPrinterUntukCetak
+                );
+
+                if (cetakSukses) {
+                    System.out.println("Proses cetak struk berhasil dipicu.");
+                    // Opsional: Tampilkan pesan sukses cetak ke user
+                    // JOptionPane.showMessageDialog(null, "Struk berhasil dikirim ke printer.", "Cetak Struk", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    System.err.println("Proses cetak struk gagal dipicu.");
+                    // Opsional: Tampilkan pesan error cetak ke user
+                    JOptionPane.showMessageDialog(null, "Gagal mencetak struk. Silakan cek koneksi printer atau log aplikasi.", "Cetak Struk Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                System.err.println("ID Penjualan tidak valid setelah simpan transaksi. Tidak mencetak struk.");
+            }
+
+            model.setRowCount(0);
             clearTextFields();
             jtxBayar.setText("");
             jtxKembalian.setText("");
@@ -529,7 +794,7 @@ public class Form_transaksi extends javax.swing.JPanel {
             }
         }
     }
-    
+
     private void clearTextFields() {
         jtxId.setText("");
         jtxNama.setText("");
@@ -538,6 +803,7 @@ public class Form_transaksi extends javax.swing.JPanel {
         jtxDiscount.setText("");
         jtxHarga.setText("");
         jtxTotal.setText("");
+        txtRFID.setText("");
     }
 
     @SuppressWarnings("unchecked")
@@ -569,8 +835,10 @@ public class Form_transaksi extends javax.swing.JPanel {
         jLabel10 = new javax.swing.JLabel();
         jtxkasir = new jtextfield.TextFieldSuggestion();
         kasir = new javax.swing.JLabel();
-        comboBox = new jtextfield.ComboBoxSuggestion();
+        combopelanggan = new jtextfield.ComboBoxSuggestion();
         satuan = new jtextfield.ComboBoxSuggestion();
+        txtRFID = new jtextfield.TextFieldSuggestion();
+        jLabel12 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(250, 250, 250));
 
@@ -670,6 +938,14 @@ public class Form_transaksi extends javax.swing.JPanel {
         kasir.setFont(new java.awt.Font("Segoe UI", 3, 18)); // NOI18N
         kasir.setText("Kasir :");
 
+        txtRFID.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtRFIDActionPerformed(evt);
+            }
+        });
+
+        jLabel12.setText("RFID Scan");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -728,9 +1004,13 @@ public class Form_transaksi extends javax.swing.JPanel {
                             .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(comboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 68, Short.MAX_VALUE)))
+                            .addComponent(combopelanggan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtRFID, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 49, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -747,7 +1027,8 @@ public class Form_transaksi extends javax.swing.JPanel {
                     .addComponent(jLabel4)
                     .addComponent(jLabel6)
                     .addComponent(jLabel10)
-                    .addComponent(jLabel2))
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel12))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -757,7 +1038,8 @@ public class Form_transaksi extends javax.swing.JPanel {
                         .addComponent(jtxHarga, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jtxTotal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jtxNama, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(comboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(combopelanggan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtRFID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(satuan, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 369, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -815,14 +1097,19 @@ public class Form_transaksi extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_jtxkasirActionPerformed
 
+    private void txtRFIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtRFIDActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtRFIDActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Ltotal;
     private com.raven.component.Card card3;
-    private jtextfield.ComboBoxSuggestion comboBox;
+    private jtextfield.ComboBoxSuggestion combopelanggan;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -844,5 +1131,6 @@ public class Form_transaksi extends javax.swing.JPanel {
     private javax.swing.JLabel kasir;
     private jtextfield.ComboBoxSuggestion satuan;
     private com.raven.swing.Table1 table;
+    private jtextfield.TextFieldSuggestion txtRFID;
     // End of variables declaration//GEN-END:variables
 }

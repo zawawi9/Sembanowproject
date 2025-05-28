@@ -6,61 +6,63 @@ import java.io.OutputStream;
 import java.io.FileOutputStream;
 import java.net.Socket;
 import java.math.BigDecimal;
-import java.text.DecimalFormat; // Import DecimalFormat
-import java.text.DecimalFormatSymbols; // Import DecimalFormatSymbols
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale; // Import Locale
+import java.util.Locale;
 
-/**
- * Kelas ini bertanggung jawab menghasilkan byte array perintah ESC/POS untuk
- * mencetak struk berdasarkan data yang diberikan, hanya menggunakan data dari
- * query SQL asli + info toko/footer kustom. PERHATIAN: Nilai byte untuk
- * perintah ESC/POS mungkin perlu disesuaikan dengan manual spesifik printer
- * Anda.
- */
 public class StrukEscposDesigner {
 
     // --- Perintah ESC/POS Umum (INI HANYA CONTOH! CEK MANUAL PRINTER ANDA!) ---
-    // Inisialisasi printer: ESC @
-    private static final byte[] ESC_INIT = {0x1B, 0x40};
-    // Line Feed (\n)
-    private static final byte[] LF = {0x0A};
+    private static final byte[] ESC_INIT = {0x1B, 0x40}; // Inisialisasi printer
+    private static final byte[] LF = {0x0A}; // Line Feed (\n)
 
-    // Bold mode: ESC E n (n=1: on, n=0: off)
     private static final byte[] ESC_BOLD_ON = {0x1B, 0x45, 0x01};
     private static final byte[] ESC_BOLD_OFF = {0x1B, 0x45, 0x00};
 
-    // Select print mode(s): ESC ! n (gabungan byte untuk ukuran/font)
-    // Contoh: Normal font (0), Double Height (0x10), Double Width (0x20), Double HW (0x30)
-    private static final byte[] ESC_FONT_NORMAL = {0x1B, 0x21, 0x00};
-    private static final byte[] ESC_FONT_DOUBLE_HEIGHT = {0x1B, 0x21, 0x10};
-    private static final byte[] ESC_FONT_DOUBLE_WIDTH = {0x1B, 0x21, 0x20};
-    private static final byte[] ESC_FONT_DOUBLE_HW = {0x1B, 0x21, 0x30};
-    private static final byte[] ESC_FONT_SMALL = {0x1B, 0x21, 0x01}; // Font A (default) atau B (kecil)
+    // ESC ! n (mode cetak gabungan)
+    private static final byte[] ESC_FONT_NORMAL = {0x1B, 0x21, 0x00}; // Font A (default)
+    private static final byte[] ESC_FONT_SMALL = {0x1B, 0x21, 0x01}; // Font B (kecil)
+    // Untuk judul toko, gunakan kombinasi Double Width dan Double Height
+    private static final byte[] ESC_FONT_DOUBLE_HW = {0x1B, 0x21, 0x30}; // Double Width, Double Height
 
-    // Select justification: ESC a n (n=0: left, n=1: center, n=2: right)
+    // Alignment
     private static final byte[] ESC_ALIGN_LEFT = {0x1B, 0x61, 0x00};
     private static final byte[] ESC_ALIGN_CENTER = {0x1B, 0x61, 0x01};
     private static final byte[] ESC_ALIGN_RIGHT = {0x1B, 0x61, 0x02};
 
-    // Cut paper: GS V m (m=0: full cut, m=1: partial cut)
+    // Cut paper: GS V m
     private static final byte[] GS_CUT_FULL = {0x1D, 0x56, 0x00};
+    // Open Cash Drawer (Biasanya ESC p m t1 t2) - Sesuaikan jika berbeda
+    private static final byte[] ESC_OPEN_DRAWER = {0x1B, 0x70, 0x00, 0x32, 0x32}; // Contoh untuk Epson/Star
 
     // --- Konfigurasi Lebar Printer ---
     // Sesuaikan nilai ini dengan lebar karakter maksimal printer thermal Anda.
-    // Umumnya 48 untuk printer 80mm, atau 32/42 untuk printer 58mm.
-    // Anda mungkin perlu mencoba beberapa nilai untuk menemukan yang paling pas.
+    // Umumnya 48 untuk printer 80mm (font normal), atau 32 untuk printer 58mm.
     private static final int PRINTER_CHAR_WIDTH = 48; // Lebar standar untuk printer 80mm.
 
+    // --- Encoding Karakter (PENTING!) ---
+    // Coba "UTF-8" atau "CP437" (IBM437) atau "Windows-1252"
+    private static final String CHARACTER_ENCODING = "UTF-8"; // Sesuaikan dengan printer Anda
+
     // --- Metode Utilitas ---
+    private byte[] generateLineBytes(String text) throws IOException {
+        return (text + "\n").getBytes(CHARACTER_ENCODING);
+    }
+
+    private byte[] newLine() {
+        return LF;
+    }
+
     // Fungsi untuk format rupiah (dari BigDecimal ke String)
     private String formatRupiah(BigDecimal value) {
         // Gunakan Locale Indonesia untuk pemisah ribuan dan desimal
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("id", "ID"));
-        // Atur format tanpa simbol mata uang di awal, karena kita tambahkan "Rp " manual
-        DecimalFormat formatter = new DecimalFormat("#,##0.00", symbols);
+        // Atur format tanpa desimal jika Anda tidak membutuhkannya, misal: "#,##0"
+        // Jika perlu desimal: "#,##0.00"
+        DecimalFormat formatter = new DecimalFormat("#,##0", symbols); // Tanpa desimal
         return formatter.format(value);
     }
 
@@ -74,34 +76,41 @@ public class StrukEscposDesigner {
         return String.format("%" + n + "s", s);
     }
 
+    // Fungsi untuk menengahkan teks
+    private String centerText(String text) {
+        if (text == null) return "";
+        int padding = (PRINTER_CHAR_WIDTH - text.length()) / 2;
+        if (padding < 0) padding = 0; // Hindari padding negatif
+        return String.format("%" + (padding + text.length()) + "s", text);
+    }
+
     // --- Metode untuk menghasilkan byte array per bagian struk ---
     // Menghasilkan byte untuk Header Struk (Info Toko & Detail Transaksi Minimal)
+    // Tambahkan namaPelanggan sebagai parameter
     public byte[] generateHeaderBytes(String namaToko, String alamatToko, String teleponToko,
-            String billNo, String waiter, Date tanggal) throws IOException {
+                                      String billNo, String waiter, Date tanggal, String namaPelanggan) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm"); // Format tanggal & jam
 
         bos.write(ESC_ALIGN_CENTER);
-        bos.write(ESC_FONT_DOUBLE_HW); // Font besar
-        bos.write(namaToko.getBytes()); // Perhatikan encoding jika ada karakter non-ASCII
+        bos.write(ESC_FONT_DOUBLE_HW); // Font besar (Double Width & Double Height)
+        bos.write(namaToko.getBytes(CHARACTER_ENCODING));
         bos.write(LF);
 
         bos.write(ESC_FONT_NORMAL); // Font normal
-        bos.write(alamatToko.getBytes());
+        bos.write(alamatToko.getBytes(CHARACTER_ENCODING));
         bos.write(LF);
-        bos.write(teleponToko.getBytes()); // Telp Toko
+        bos.write(teleponToko.getBytes(CHARACTER_ENCODING));
         bos.write(LF);
         bos.write(LF); // Spasi
 
         // Detail Transaksi (sesuai data dari SQL asli)
         bos.write(ESC_ALIGN_LEFT);
-        bos.write(("Nomor Transaksi: TRX-" + billNo).getBytes());
-        bos.write(LF);
-        bos.write(("Kasir: " + (waiter != null ? waiter : "-")).getBytes());
-        bos.write(LF);
-        bos.write(("Tanggal: " + dateFormat.format(tanggal)).getBytes());
-        bos.write(LF);
-
+        bos.write(generateLineBytes("Bill No  : " + billNo));
+        bos.write(generateLineBytes("Kasir    : " + (waiter != null ? waiter : "-")));
+        bos.write(generateLineBytes("Tanggal  : " + dateFormat.format(tanggal)));
+        // Cetak Nama Pelanggan
+        bos.write(generateLineBytes("Pelanggan: " + (namaPelanggan != null && !namaPelanggan.isEmpty() ? namaPelanggan : "Umum")));
         bos.write(LF); // Spasi
 
         return bos.toByteArray();
@@ -111,42 +120,52 @@ public class StrukEscposDesigner {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         bos.write(ESC_FONT_NORMAL); // Pastikan font normal untuk garis
         bos.write(ESC_ALIGN_LEFT); // Pastikan rata kiri untuk menggambar garis
+        StringBuilder separator = new StringBuilder();
         for (int i = 0; i < length; i++) {
-            bos.write(character);
+            separator.append(character);
         }
-        bos.write(LF);
+        bos.write(generateLineBytes(separator.toString()));
         return bos.toByteArray();
     }
 
-    // Menghasilkan byte untuk Detail Item (tidak ada perubahan, menggunakan List<StrukItem>)
+    // Menghasilkan byte untuk Detail Item (dimodifikasi untuk Qty x Harga di bawah)
     public byte[] generateItemBytes(List<StrukItem> items) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         bos.write(ESC_FONT_NORMAL);
         bos.write(ESC_ALIGN_LEFT);
         bos.write(ESC_BOLD_ON);
-        // Header kolom - sesuaikan jaraknya agar rapi di printer 80mm (sekitar 32-48 karakter)
-        // Sesuaikan lebar kolom agar totalnya tidak melebihi PRINTER_CHAR_WIDTH
-        // Contoh: Nama (20), Qty (4), Harga (10), Subtotal (10) -> Total 44 + spasi
-        String headerLineSingle = String.format("%-20s %4s %10s %10s\n", "Nama", "Qty", "Harga", "Subtotal");
-        bos.write(headerLineSingle.getBytes());
+        // Header kolom baru: Hanya Nama Produk dan Subtotal
+        // Asumsi Subtotal 10 karakter (Rp 1.000.000)
+        int subtotalColWidth = 12; // "Rp 1.000.000" sekitar 10-12 karakter
+        int namaProdukHeaderWidth = PRINTER_CHAR_WIDTH - subtotalColWidth;
+        String headerLineSingle = String.format("%-" + namaProdukHeaderWidth + "s %" + subtotalColWidth + "s", "Nama Produk", "Subtotal");
+        bos.write(generateLineBytes(headerLineSingle));
         bos.write(ESC_BOLD_OFF);
 
         for (StrukItem item : items) {
             String nama = item.getNama();
-            // Potong nama jika terlalu panjang agar tidak merusak layout kolom lain
-            if (nama.length() > 20) {
-                nama = nama.substring(0, 17) + "..."; // 20 adalah lebar nama, 3 untuk "..."
-            }
-            String itemLine = String.format("%-20s %4d %10s %10s\n", // Sesuaikan lebar agar total = PRINTER_CHAR_WIDTH atau mendekati
-                    nama,
-                    item.getQty(),
-                    formatRupiah(item.getHargaSatuan()), // Format rupiah di sini
-                    formatRupiah(item.getSubTotal()));   // Format rupiah di sini
+            String subTotalFormatted = "Rp " + formatRupiah(item.getSubTotal()); // Tambah "Rp"
 
-            bos.write(itemLine.getBytes());
+            // Baris pertama: Nama Produk dan Subtotal
+            // Sesuaikan lebar nama produk agar tidak tumpang tindih
+            int actualNamaWidth = PRINTER_CHAR_WIDTH - subTotalFormatted.length();
+            if (nama.length() > actualNamaWidth) {
+                nama = nama.substring(0, actualNamaWidth - 3) + "..."; // Potong dan tambahkan "..."
+            }
+            String itemLine1 = String.format("%-" + actualNamaWidth + "s%s", nama, subTotalFormatted);
+            bos.write(generateLineBytes(itemLine1));
+
+            // Baris kedua: Qty x Harga Satuan (kecil di bawah nama produk)
+            String qtyHargaLine = String.format("%d x Rp %s",
+                    item.getQty(),
+                    formatRupiah(item.getHargaSatuan()));
+
+            bos.write(ESC_FONT_SMALL); // Atur font ke kecil
+            bos.write(generateLineBytes(qtyHargaLine)); // generateLineBytes akan menangani newline dan padding
+            bos.write(ESC_FONT_NORMAL); // Kembalikan font ke normal setelah baris qty x harga
         }
-        bos.write(LF); // Spasi setelah item list
+        bos.write(newLine()); // Spasi setelah item list
 
         return bos.toByteArray();
     }
@@ -156,54 +175,28 @@ public class StrukEscposDesigner {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         bos.write(ESC_FONT_NORMAL); // Font normal
-        bos.write(ESC_ALIGN_LEFT); // Kembali ke rata kiri untuk memulai baris
+        bos.write(ESC_ALIGN_LEFT);
 
         // Subtotal (Dihitung dari total item)
         String subtotalLabel = "SUBTOTAL";
         String subtotalValue = "Rp " + formatRupiah(subtotalSebelumPajak);
-        String subtotalLine = String.format("%-" + (PRINTER_CHAR_WIDTH - subtotalValue.length()) + "s%s\n",
+        String subtotalLine = String.format("%-" + (PRINTER_CHAR_WIDTH - subtotalValue.length()) + "s%s",
                 subtotalLabel, subtotalValue);
-        bos.write(subtotalLine.getBytes());
+        bos.write(generateLineBytes(subtotalLine));
 
-        bos.write(LF); // Spasi
+        bos.write(newLine()); // Spasi
 
         // GRAND TOTAL (Bold dan Font Double Width)
+        // Cara paling mudah untuk GRAND TOTAL dengan font besar adalah di tengahkan
+        bos.write(ESC_ALIGN_CENTER);
         bos.write(ESC_BOLD_ON);
-        bos.write(ESC_FONT_DOUBLE_WIDTH); // Ini membuat karakter 2x lebar
-        bos.write(ESC_ALIGN_LEFT); // Penting: Kembali ke rata kiri untuk mengontrol padding
-
-        String grandTotalLabel = "GRAND TOTAL";
-        String grandTotalValue = "Rp " + formatRupiah(grandTotal);
-
-        // Karena ESC_FONT_DOUBLE_WIDTH, karakter akan menjadi dua kali lebar.
-        // Jadi kita perlu membagi PRINTER_CHAR_WIDTH dengan 2 untuk perhitungan padding yang akurat
-        // untuk karakter double-width.
-        int effectiveWidth = PRINTER_CHAR_WIDTH / 2; // Lebar efektif dalam karakter normal
-
-        // Hitung spasi yang dibutuhkan
-        // Perhatikan bahwa panjang string 'grandTotalLabel' dan 'grandTotalValue' dihitung dalam karakter normal.
-        // Printer akan menggandakan lebarnya.
-        int totalLengthOfContent = grandTotalLabel.length() + grandTotalValue.length();
-        int spacesNeeded = effectiveWidth - totalLengthOfContent;
-
-        // Pastikan spasi tidak negatif
-        if (spacesNeeded < 1) {
-            spacesNeeded = 1; // Minimal 1 spasi
-        }
-
-        StringBuilder grandTotalLineBuilder = new StringBuilder();
-        grandTotalLineBuilder.append(grandTotalLabel);
-        for (int i = 0; i < spacesNeeded; i++) {
-            grandTotalLineBuilder.append(" ");
-        }
-        grandTotalLineBuilder.append(grandTotalValue);
-        grandTotalLineBuilder.append("\n"); // Tambahkan newline di akhir
-
-        bos.write(grandTotalLineBuilder.toString().getBytes());
-
+        bos.write(ESC_FONT_DOUBLE_HW); // Double Height dan Double Width
+        bos.write(generateLineBytes("TOTAL"));
+        bos.write(generateLineBytes("Rp " + formatRupiah(grandTotal)));
         bos.write(ESC_BOLD_OFF);
         bos.write(ESC_FONT_NORMAL); // Kembali ke normal
-        bos.write(ESC_ALIGN_LEFT); // Kembali ke kiri
+        bos.write(ESC_ALIGN_LEFT); // Kembali ke rata kiri
+        bos.write(newLine());
 
         return bos.toByteArray();
     }
@@ -213,21 +206,21 @@ public class StrukEscposDesigner {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         bos.write(ESC_FONT_NORMAL);
-        bos.write(ESC_ALIGN_LEFT); // Menggunakan rata kiri untuk semua baris dan padding manual
+        bos.write(ESC_ALIGN_LEFT);
 
         // Bayar
         String bayarLabel = "Bayar";
         String bayarValue = "Rp " + formatRupiah(bayar);
-        String bayarLine = String.format("%-" + (PRINTER_CHAR_WIDTH - bayarValue.length()) + "s%s\n",
+        String bayarLine = String.format("%-" + (PRINTER_CHAR_WIDTH - bayarValue.length()) + "s%s",
                 bayarLabel, bayarValue);
-        bos.write(bayarLine.getBytes());
+        bos.write(generateLineBytes(bayarLine));
 
         // Kembalian
         String kembalianLabel = "Kembalian";
         String kembalianValue = "Rp " + formatRupiah(kembalian);
-        String kembalianLine = String.format("%-" + (PRINTER_CHAR_WIDTH - kembalianValue.length()) + "s%s\n",
+        String kembalianLine = String.format("%-" + (PRINTER_CHAR_WIDTH - kembalianValue.length()) + "s%s",
                 kembalianLabel, kembalianValue);
-        bos.write(kembalianLine.getBytes());
+        bos.write(generateLineBytes(kembalianLine));
 
         return bos.toByteArray();
     }
@@ -236,44 +229,41 @@ public class StrukEscposDesigner {
     public byte[] generateFooterBytes(String pesanTerimaKasih) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
-        bos.write(LF); // Spasi
+        bos.write(newLine()); // Spasi
         bos.write(ESC_ALIGN_CENTER); // Tengahkan footer
         bos.write(ESC_FONT_SMALL); // Mungkin gunakan font lebih kecil untuk footer
-        bos.write(pesanTerimaKasih.getBytes());
-        bos.write(LF);
-        // Website dihapus
-
-        bos.write(LF); // Spasi kosong sebelum potong
+        bos.write(generateLineBytes(pesanTerimaKasih));
+        bos.write(newLine()); // Spasi kosong sebelum potong
         bos.write(ESC_FONT_NORMAL); // Kembali ke normal
         return bos.toByteArray();
     }
 
-    public byte[] generateCutCommand() {
+    public byte[] generateCutAndDrawerCommands() {
         // Tambahkan spasi kosong untuk memudahkan potong kertas
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            bos.write(LF);
-            bos.write(LF);
-            bos.write(LF);
+            bos.write(newLine());
+            bos.write(newLine());
+            bos.write(newLine());
             bos.write(GS_CUT_FULL);
+            bos.write(ESC_OPEN_DRAWER); // Buka laci kasir
         } catch (IOException e) {
-            e.printStackTrace(); // Seharusnya tidak terjadi
+            e.printStackTrace(); // Seharusnya tidak terjadi pada ByteArrayOutputStream
         }
         return bos.toByteArray();
     }
 
     // --- Metode utama untuk menggabungkan byte ---
     /**
-     * Membangun byte array lengkap untuk struk dalam format ESC/POS, hanya
-     * menggunakan data dari query SQL asli + info toko/footer kustom.
+     * Membangun byte array lengkap untuk struk dalam format ESC/POS.
      *
      * @param namaToko Nama toko (kustom)
      * @param alamatToko Alamat toko (kustom)
-     * @param teleponToko Telepon toko (kustom, diasumsikan ada bersama info
-     * toko)
+     * @param teleponToko Telepon toko (kustom, diasumsikan ada bersama info toko)
      * @param billNo Nomor Bill / ID Penjualan (dari DB)
      * @param waiter Nama Kasir / Waiter (dari DB)
      * @param tanggal Tanggal dan waktu transaksi (dari DB)
+     * @param namaPelanggan Nama pelanggan (dari DB)
      * @param items Daftar item yang dibeli (dari DB)
      * @param subtotalSebelumPajak Subtotal sebelum pajak/pembulatan (Dihitung)
      * @param grandTotal GRAND TOTAL (total_keseluruhan dari DB)
@@ -284,26 +274,26 @@ public class StrukEscposDesigner {
      * @throws IOException jika terjadi error saat menulis byte
      */
     public byte[] buildFullStruk(String namaToko, String alamatToko, String teleponToko,
-            String billNo, String waiter, Date tanggal,
-            List<StrukItem> items, BigDecimal subtotalSebelumPajak, BigDecimal grandTotal,
-            BigDecimal bayar, BigDecimal kembalian,
-            String pesanTerimaKasih) throws IOException {
+                                  String billNo, String waiter, Date tanggal, String namaPelanggan, // <<< TAMBAH NAMA PELANGGAN DI SINI
+                                  List<StrukItem> items, BigDecimal subtotalSebelumPajak, BigDecimal grandTotal,
+                                  BigDecimal bayar, BigDecimal kembalian,
+                                  String pesanTerimaKasih) throws IOException {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         bos.write(ESC_INIT); // Inisialisasi printer
 
-        bos.write(generateHeaderBytes(namaToko, alamatToko, teleponToko, billNo, waiter, tanggal));
-        // Sesuaikan panjang garis pemisah dengan PRINTER_CHAR_WIDTH
+        // Panggil generateHeaderBytes dengan namaPelanggan
+        bos.write(generateHeaderBytes(namaToko, alamatToko, teleponToko, billNo, waiter, tanggal, namaPelanggan));
         bos.write(generateSeparator('-', PRINTER_CHAR_WIDTH));
         bos.write(generateItemBytes(items));
         bos.write(generateSeparator('-', PRINTER_CHAR_WIDTH));
         bos.write(generateSummaryBytes(subtotalSebelumPajak, grandTotal));
         bos.write(generateSeparator('-', PRINTER_CHAR_WIDTH));
-        bos.write(generatePaymentDetailsBytes(bayar, kembalian)); // Detail Pembayaran
-        bos.write(generateFooterBytes(pesanTerimaKasih)); // Footer
+        bos.write(generatePaymentDetailsBytes(bayar, kembalian));
+        bos.write(generateFooterBytes(pesanTerimaKasih));
 
-        bos.write(generateCutCommand()); // Perintah potong
+        bos.write(generateCutAndDrawerCommands()); // Perintah potong dan buka laci
 
         return bos.toByteArray();
     }

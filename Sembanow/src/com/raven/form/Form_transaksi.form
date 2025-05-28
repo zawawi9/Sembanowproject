@@ -93,10 +93,15 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jLabel10" min="-2" pref="107" max="-2" attributes="0"/>
-                          <Component id="comboBox" min="-2" max="-2" attributes="0"/>
+                          <Component id="combopelanggan" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel10" alignment="0" min="-2" pref="107" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="0" pref="68" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jLabel12" min="-2" pref="107" max="-2" attributes="0"/>
+                          <Component id="txtRFID" min="-2" pref="129" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="0" pref="49" max="32767" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -118,6 +123,7 @@
                   <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel10" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel12" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -128,7 +134,8 @@
                       <Component id="jtxHarga" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jtxTotal" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jtxNama" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="comboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="combopelanggan" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="txtRFID" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="satuan" min="-2" pref="36" max="-2" attributes="0"/>
               </Group>
@@ -309,9 +316,19 @@
         <Property name="text" type="java.lang.String" value="Kasir :"/>
       </Properties>
     </Component>
-    <Component class="jtextfield.ComboBoxSuggestion" name="comboBox">
+    <Component class="jtextfield.ComboBoxSuggestion" name="combopelanggan">
     </Component>
     <Component class="jtextfield.ComboBoxSuggestion" name="satuan">
+    </Component>
+    <Component class="jtextfield.TextFieldSuggestion" name="txtRFID">
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtRFIDActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel12">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="RFID Scan"/>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>
