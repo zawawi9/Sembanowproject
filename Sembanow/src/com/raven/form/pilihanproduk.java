@@ -69,7 +69,7 @@ public class pilihanproduk extends javax.swing.JPanel {
             .addGap(0, 265, Short.MAX_VALUE)
         );
 
-        tabbedPaneCustom1.addTab("search", jPanel1);
+        tabbedPaneCustom1.addTab("Produk", jPanel1);
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
 

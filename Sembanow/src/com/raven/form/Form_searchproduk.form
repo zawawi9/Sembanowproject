@@ -51,16 +51,20 @@
                           </Group>
                           <Component id="jLabel8" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel7" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel11" min="-2" pref="60" max="-2" attributes="0"/>
                           <Component id="QperD" min="-2" pref="169" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="Tambah" min="-2" pref="73" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="Restock" min="-2" pref="73" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="Edit" min="-2" pref="73" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Component id="Edit" min="-2" pref="73" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="btnCetakBarcode" min="-2" pref="73" max="-2" attributes="0"/>
+                          </Group>
                           <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                           <Component id="barcode" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel11" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
                   </Group>
@@ -109,7 +113,10 @@
                   <Component id="Restock" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="Edit" min="-2" pref="32" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="Edit" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
+                  <Component id="btnCetakBarcode" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
+              </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
@@ -220,7 +227,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel11">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Q/Stok"/>
+        <Property name="text" type="java.lang.String" value="Quantity/Stok"/>
       </Properties>
     </Component>
     <Component class="jtextfield.TextFieldSuggestion" name="QperD">
@@ -320,6 +327,14 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="barcode">
+    </Component>
+    <Component class="Custom.Custom_ButtonRounded" name="btnCetakBarcode">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Print"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCetakBarcodeActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>
