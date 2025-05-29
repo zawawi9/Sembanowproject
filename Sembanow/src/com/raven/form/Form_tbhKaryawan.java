@@ -34,7 +34,6 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
      */
     private List<String> karyawantype = Arrays.asList("admin", "karyawan");
     private DocumentListener myListener;
-
     public Form_tbhKaryawan(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         setUndecorated(true);
@@ -59,121 +58,119 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
         }
         );
         NIKKaryawan.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                char c = evt.getKeyChar();
-                if (!Character.isDigit(c) && c != '\b') {
-                    evt.consume(); // Mengabaikan input jika bukan angka atau backspace
-                }
-            }
-        });
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+});
         Telepon_Karyawan.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                char c = evt.getKeyChar();
-                if (!Character.isDigit(c) && c != '\b') {
-                    evt.consume(); // Mengabaikan input jika bukan angka atau backspace
-                }
-            }
-        });
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+});
+        RFIDKaryawan.addKeyListener(new java.awt.event.KeyAdapter() {
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isDigit(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+});
         Nama_Karyawan.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                char c = evt.getKeyChar();
-                if (Character.isDigit(c)) {
-                    evt.consume();
-                }
-            }
-        });
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isLetter(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+});
         jabatan.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                char c = evt.getKeyChar();
-                if (Character.isDigit(c)) {
-                    evt.consume();
-                }
-            }
-        });
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isLetter(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+});
         
-        gaji.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                char c = evt.getKeyChar();
-                if (!Character.isDigit(c) && c != '\b') {
-                    evt.consume(); // Mengabaikan input jika bukan angka atau backspace
-                }
-            }
-        });
-
         NIKKaryawan.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
+            public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                    Nama_Karyawan.requestFocus();
-                }
+                Nama_Karyawan.requestFocus();
+            }
             }
         });
         Nama_Karyawan.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
+            public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                    Telepon_Karyawan.requestFocus();
-                }
+                Telepon_Karyawan.requestFocus();
+            }
             }
         });
         Telepon_Karyawan.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
+            public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                    Alamat_Karyawan.requestFocus();
-                }
+                Alamat_Karyawan.requestFocus();
+            }
             }
         });
         Alamat_Karyawan.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
+            public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                    RFIDKaryawan.requestFocus();
-                }
+                RFIDKaryawan.requestFocus();
+            }
             }
         });
         RFIDKaryawan.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
+            public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                    UNKaryawan.requestFocus();
-                }
+                UNKaryawan.requestFocus();
+            }
             }
         });
         UNKaryawan.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
+            public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                    PWKaryawan.requestFocus();
-                }
+                PWKaryawan.requestFocus();
+            }
             }
         });
         PWKaryawan.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
+            public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                    jabatan.requestFocus();
-                }
+                jabatan.requestFocus();
+            }
             }
         });
         jabatan.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
+            public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                    gaji.requestFocus();
-                }
+                gaji.requestFocus();
+            }
             }
         });
         BoxTipe.addActionListener((evt) -> {
-            String selectedType = (String) BoxTipe.getSelectedItem();
-            if (selectedType != null && !selectedType.isEmpty()) {
+            String selectedType = (String)BoxTipe.getSelectedItem();
+            if (selectedType!=null && !selectedType.isEmpty()) {
                 jabatan.setText(selectedType);
             }
         });
     }
-
-    public void listen() {
+    public void listen(){
         if (!jabatan.isShowing() || !BoxTipe.isShowing()) {
             return;
-
+            
         }
         String keyword = jabatan.getText().toLowerCase();
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
-
+        
         boolean hasResult = false;
-        for (String Tipe : karyawantype) {
+        for (String Tipe : karyawantype){
             if (Tipe.toLowerCase().contains(keyword)) {
                 model.addElement(Tipe);
                 hasResult = true;
@@ -182,48 +179,44 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
         BoxTipe.setModel(model);
         if (hasResult && !keyword.isEmpty()) {
             BoxTipe.showPopup();
-        } else {
+        }else{
             BoxTipe.hidePopup();
         }
     }
-
     public void fadeIn() {
-        setOpacity(0f); // Mulai dari transparan
-        new Thread(() -> {
-            try {
-                for (float i = 0f; i <= 1f; i += 0.05f) {
-                    Thread.sleep(10);
-                    setOpacity(i);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+    setOpacity(0f); // Mulai dari transparan
+    new Thread(() -> {
+        try {
+            for (float i = 0f; i <= 1f; i += 0.05f) {
+                Thread.sleep(10);
+                setOpacity(i);
             }
-        }).start();
-    }
-
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }).start();
+}
     public int generateRandomID() {
-        Random rand = new Random();
-        return rand.nextInt(90000) + 10000; // hasil: antara 10000 - 99999
-    }
-
+    Random rand = new Random();
+    return rand.nextInt(90000) + 10000; // hasil: antara 10000 - 99999
+}
     public int generateUniqueID(Connection conn) throws SQLException {
-        int id;
-        do {
-            id = generateRandomID();
-        } while (isIDExist(conn, id)); // Ulangi kalau sudah ada di DB
-        return id;
-    }
+    int id;
+    do {
+        id = generateRandomID();
+    } while (isIDExist(conn, id)); // Ulangi kalau sudah ada di DB
+    return id;
+}
 
-    public boolean isIDExist(Connection conn, int id) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM karyawan WHERE id_karyawan = ?";
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        stmt.setInt(1, id);
-        ResultSet rs = stmt.executeQuery();
-        rs.next();
-        return rs.getInt(1) > 0;
-    }
-
-    private void Tambahkan() {
+public boolean isIDExist(Connection conn, int id) throws SQLException {
+    String sql = "SELECT COUNT(*) FROM karyawan WHERE id_karyawan = ?";
+    PreparedStatement stmt = conn.prepareStatement(sql);
+    stmt.setInt(1, id);
+    ResultSet rs = stmt.executeQuery();
+    rs.next();
+    return rs.getInt(1) > 0;
+}
+    private void Tambahkan(){
         int ID = generateRandomID();
         String NIK = NIKKaryawan.getText();
         String RFID = RFIDKaryawan.getText();
@@ -234,27 +227,27 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
         String Password = PWKaryawan.getText();
         String Jabatan = jabatan.getText();
         String Gaji = gaji.getText();
-
-        if (RFID.isEmpty() || Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty() || Username.isEmpty() || Password.isEmpty() || Jabatan.isEmpty() || Gaji.isEmpty()) {
-            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(this);
+        
+        if(RFID.isEmpty() || Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty() || Username.isEmpty() || Password.isEmpty() || Jabatan.isEmpty() || Gaji.isEmpty()){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
             LengkapiData lengkap = new LengkapiData(parent, true);
             lengkap.setVisible(true);
             return;
         }
-        if (!Nama.matches("[a-zA-Z\\s]+")) {
-            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(this);
+        if(!Nama.matches("[a-zA-Z\\s]+")){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
             SesuaiFormat frmt = new SesuaiFormat(parent, true);
             frmt.setVisible(true);
             return;
         }
-        if (!Telepon.matches("\\d+")) {
-            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(this);
+        if(!Telepon.matches("\\d+")){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
             SesuaiFormat frmt = new SesuaiFormat(parent, true);
             frmt.setVisible(true);
             return;
         }
-        if (!(Jabatan.equalsIgnoreCase("admin") || Jabatan.equalsIgnoreCase("karyawan"))) {
-            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(this);
+        if(!(Jabatan.equalsIgnoreCase("admin") || Jabatan.equalsIgnoreCase("karyawan"))){
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
             JabatanOnly jabat = new JabatanOnly(parent, true);
             jabat.setVisible(true);
             return;
@@ -266,20 +259,20 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
             String dbUser = "root";
             String dbPass = "";
             conn = DriverManager.getConnection(url, dbUser, dbPass);
-
+            
             String checkSql = "SELECT COUNT(*) FROM karyawan WHERE id_karyawan = ? OR username = ? OR nik = ?";
             PreparedStatement check = conn.prepareStatement(checkSql);
             check.setInt(1, ID);
             check.setString(2, Username);
             check.setString(3, NIK);
             ResultSet rs = check.executeQuery();
-            if (rs.next() && rs.getInt(1) > 0) {
-                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(this);
+            if (rs.next() && rs.getInt(1)>0) {
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
                 DataAda ada = new DataAda(parent, true);
-                ada.setVisible(true);
-                return;
+            ada.setVisible(true);
+            return;
             }
-
+            
             String sql = "INSERT INTO karyawan (id_karyawan, uidrfid, nama_karyawan, no_hp, alamat, username, password, nik, status, gaji) VALUES (?,?,?,?,?,?,?,?,?,?)";
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, ID);
@@ -292,26 +285,25 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
             pstmt.setString(8, NIK);
             pstmt.setString(9, Jabatan);
             pstmt.setString(10, Gaji);
-
+            
             int success = pstmt.executeUpdate();
-            if (success > 0) {
+            if(success>0){
                 System.out.println("Data ditambahkan");
                 clearFields();
                 dispose();
-                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(this);
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
                 Loading muat = new Loading(parent, true);
-                muat.setVisible(true);
-            } else {
+            muat.setVisible(true);
+            }else{
                 JOptionPane.showMessageDialog(null, "Datanya gabisa ditambahin ini T_T");
             }
-
+            
         } catch (Exception e) {
-
-            e.printStackTrace();
+            
+                e.printStackTrace();
         }
     }
-
-    private void clearFields() {
+    private void clearFields(){
         NIKKaryawan.setText("");
         RFIDKaryawan.setText("");
         Nama_Karyawan.setText("");
@@ -321,6 +313,7 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
         PWKaryawan.setText("");
         jabatan.setText("");
     }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -425,7 +418,7 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
         });
         jPanel1.add(tombolbatal, new org.netbeans.lib.awtextra.AbsoluteConstraints(262, 450, 100, 40));
 
-        jLabel5.setText("RFID");
+        jLabel5.setText("ID");
         jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(264, 46, -1, -1));
 
         RFIDKaryawan.addActionListener(new java.awt.event.ActionListener() {
@@ -618,6 +611,14 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(Form_tbhKaryawan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>

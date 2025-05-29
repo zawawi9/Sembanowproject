@@ -66,6 +66,14 @@ private Runnable ondataEdited;
         }
     }
 });
+        Nama_Pelanggan.addKeyListener(new java.awt.event.KeyAdapter() {
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isLetter(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+});
         RFIDpelanggan1.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt){
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
@@ -152,25 +160,36 @@ private Runnable ondataEdited;
         String Alamat = Alamat_Pelanggan.getText();
         String Tipe = TipePelanggan.getText();
         
+        
+        return new String[]{ID, RFID, Nama, Telepon, Alamat, Tipe};
+    }
+    public boolean validasi(){
+        String[]data = getData();
+        String RFID = data[1];
+        String Nama = data[2];
+        String Telepon = data[3];
+        String Alamat = data[4];
+        String Tipe = data[5];
+        
         if(RFID.isEmpty() || Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty() || Tipe.isEmpty()){
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
             LengkapiData lengkap = new LengkapiData(parent, true);
             lengkap.setVisible(true);
-            return null;
+            return false;
         }
         if(!Nama.matches("[a-zA-Z\\s]+")){
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
             SesuaiFormat frmt = new SesuaiFormat(parent, true);
             frmt.setVisible(true);
-            return null;
+            return false;
         }
         if(!Telepon.matches("\\d+")){
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
             SesuaiFormat frmt = new SesuaiFormat(parent, true);
             frmt.setVisible(true);
-            return null;
+            return false;
         }
-        return new String[]{ID, RFID, Nama, Telepon, Alamat, Tipe};
+        return true;
     }
     public void Refresh(){
         try {
@@ -409,7 +428,7 @@ private Runnable ondataEdited;
 
     private void tomboleditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tomboleditActionPerformed
         String[]data=getData();
-        if(data==null){
+        if(!validasi()){
             return;
         }
         String ID = data[0];
@@ -518,6 +537,14 @@ private Runnable ondataEdited;
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(Form_editPelanggan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
