@@ -73,7 +73,7 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
         }
     }
 });
-        Nama_Karyawan.addKeyListener(new java.awt.event.KeyAdapter() {
+        RFIDKaryawan.addKeyListener(new java.awt.event.KeyAdapter() {
     public void keyTyped(java.awt.event.KeyEvent evt) {
         char c = evt.getKeyChar();
         if (!Character.isDigit(c) && c != '\b') {
@@ -81,10 +81,18 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
         }
     }
 });
+        Nama_Karyawan.addKeyListener(new java.awt.event.KeyAdapter() {
+    public void keyTyped(java.awt.event.KeyEvent evt) {
+        char c = evt.getKeyChar();
+        if (!Character.isLetter(c) && c != '\b') {
+            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+        }
+    }
+});
         jabatan.addKeyListener(new java.awt.event.KeyAdapter() {
     public void keyTyped(java.awt.event.KeyEvent evt) {
         char c = evt.getKeyChar();
-        if (!Character.isDigit(c) && c != '\b') {
+        if (!Character.isLetter(c) && c != '\b') {
             evt.consume(); // Mengabaikan input jika bukan angka atau backspace
         }
     }

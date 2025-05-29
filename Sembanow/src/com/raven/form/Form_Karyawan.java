@@ -395,6 +395,9 @@ table1.getColumnModel().getColumn(0).setWidth(0);
         JOptionPane.showMessageDialog(null, "Error saat mencari data: " + e.getMessage());
     }
 }
+    private String valueToString(Object value) {
+    return value != null ? value.toString() : ""; // jika null, jadikan string kosong
+}
     public void EditKaryawan(){
         getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("3"),"editkaryawan");
         getActionMap().put("editkaryawan", new AbstractAction(){
@@ -404,15 +407,15 @@ table1.getColumnModel().getColumn(0).setWidth(0);
         if(selectedRows.length==1){
             int rows = selectedRows[0];
             DefaultTableModel Model = (DefaultTableModel) table1.getModel();
-            String ID = Model.getValueAt(rows, 0).toString();
-            String RFID = Model.getValueAt(rows, 1).toString();
-            String Nama = Model.getValueAt(rows, 2).toString();
-            String Alamat = Model.getValueAt(rows, 3).toString();
-            String Telepon = Model.getValueAt(rows, 4).toString();
-            String Username = Model.getValueAt(rows, 5).toString();
-            String Password = Model.getValueAt(rows, 6).toString();
-            String NIK = Model.getValueAt(rows, 7).toString();
-            String Gaji = Model.getValueAt(rows, 9).toString();
+            String ID = valueToString(Model.getValueAt(rows, 0));
+            String RFID = valueToString(Model.getValueAt(rows, 1));
+            String Nama = valueToString(Model.getValueAt(rows, 2));
+            String Alamat = valueToString(Model.getValueAt(rows, 3));
+            String Telepon = valueToString(Model.getValueAt(rows, 4));
+            String Username = valueToString(Model.getValueAt(rows, 5));
+            String Password = valueToString(Model.getValueAt(rows, 6));
+            String NIK = valueToString(Model.getValueAt(rows, 7));
+            String Gaji = valueToString(Model.getValueAt(rows, 9));
             
             Window window = SwingUtilities.getWindowAncestor(Form_Karyawan.this);
             Form_editKaryawan editKaryawan = new Form_editKaryawan((Frame)window, true);
@@ -1143,15 +1146,15 @@ table1.getColumnModel().getColumn(0).setWidth(0);
         if(selectedRows.length==1){
             int rows = selectedRows[0];
             DefaultTableModel Model = (DefaultTableModel) table1.getModel();
-            String ID = Model.getValueAt(rows, 0).toString();
-            String RFID = Model.getValueAt(rows, 1).toString();
-            String Nama = Model.getValueAt(rows, 2).toString();
-            String Alamat = Model.getValueAt(rows, 3).toString();
-            String Telepon = Model.getValueAt(rows, 4).toString();
-            String Username = Model.getValueAt(rows, 5).toString();
-            String Password = Model.getValueAt(rows, 6).toString();
-            String NIK = Model.getValueAt(rows, 7).toString();
-            String Gaji = Model.getValueAt(rows, 9).toString();
+            String ID = valueToString(Model.getValueAt(rows, 0));
+            String RFID = valueToString(Model.getValueAt(rows, 1));
+            String Nama = valueToString(Model.getValueAt(rows, 2));
+            String Alamat = valueToString(Model.getValueAt(rows, 3));
+            String Telepon = valueToString(Model.getValueAt(rows, 4));
+            String Username = valueToString(Model.getValueAt(rows, 5));
+            String Password = valueToString(Model.getValueAt(rows, 6));
+            String NIK = valueToString(Model.getValueAt(rows, 7));
+            String Gaji = valueToString(Model.getValueAt(rows, 9));
             
             Window window = SwingUtilities.getWindowAncestor(Form_Karyawan.this);
             Form_editKaryawan editKaryawan = new Form_editKaryawan((Frame)window, true);

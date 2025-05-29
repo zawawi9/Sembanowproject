@@ -63,7 +63,7 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         Nama_Karyawan.addKeyListener(new java.awt.event.KeyAdapter() {
     public void keyTyped(java.awt.event.KeyEvent evt) {
         char c = evt.getKeyChar();
-        if (!Character.isDigit(c) && c != '\b') {
+        if (!Character.isLetter(c) && c != '\b') {
             evt.consume(); // Mengabaikan input jika bukan angka atau backspace
         }
     }
@@ -149,31 +149,44 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         String Gaji = gaji.getText();
         
         
+        return new String[]{ID, NIK, RFIDkaryawan, Nama, Telepon, Alamat, Username, Password, Gaji};
+    }
+    public boolean validasi(){
+        String[]data = getData();
+        String NIK = data[1];
+        String RFIDkaryawan = data[2];
+        String Nama = data[3];
+        String Telepon = data[4];
+        String Alamat = data[5];
+        String Username = data[6];
+        String Password = data[7];
+        String Gaji = data[8];
+        
         if(NIK.isEmpty() || RFIDkaryawan.isEmpty() || Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty() || Username.isEmpty() || Password.isEmpty() || Gaji.isEmpty()){
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
             LengkapiData lengkap = new LengkapiData(parent, true);
             lengkap.setVisible(true);
-            return null;
+            return false;
         }
         if(!NIK.matches("\\d+")){
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
             SesuaiFormat frmt = new SesuaiFormat(parent, true);
             frmt.setVisible(true);
-            return null;
+            return false;
         }
         if(!Nama.matches("[a-zA-Z\\s]+")){
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
             SesuaiFormat frmt = new SesuaiFormat(parent, true);
             frmt.setVisible(true);
-            return null;
+            return false;
         }
         if(!Telepon.matches("\\d+")){
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
             SesuaiFormat frmt = new SesuaiFormat(parent, true);
             frmt.setVisible(true);
-            return null;
+            return false;
         }
-        return new String[]{ID, NIK, RFIDkaryawan, Nama, Telepon, Alamat, Username, Password, Gaji};
+        return true;
     }
     public void Refresh(){
         try {
@@ -511,7 +524,7 @@ public class Form_editKaryawan extends javax.swing.JDialog {
 
     private void tomboleditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tomboleditActionPerformed
         String[]data=getData();
-        if(data==null){
+        if(!validasi()){
             return;
         }
         String ID = data[0];

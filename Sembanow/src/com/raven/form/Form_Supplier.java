@@ -655,6 +655,9 @@ table1.getColumnModel().getColumn(0).setWidth(0);
     table1.setFocusable(true);
     table1.requestFocusInWindow();
 }
+    private String valueToString(Object value) {
+    return value != null ? value.toString() : "";
+    }
     
     public void EditSupplier(){
         getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("3"),"editkaryawan");
@@ -666,9 +669,9 @@ table1.getColumnModel().getColumn(0).setWidth(0);
             int rows = selectedRows[0];
             DefaultTableModel Model = (DefaultTableModel) table1.getModel();
             String ID = Model.getValueAt(rows, 0).toString();
-            String Nama = Model.getValueAt(rows, 1).toString();
-            String Telepon = Model.getValueAt(rows, 2).toString();
-            String Alamat = Model.getValueAt(rows, 3).toString();
+            String Nama = valueToString(Model.getValueAt(rows, 1));
+            String Telepon = valueToString(Model.getValueAt(rows, 2));
+            String Alamat = valueToString(Model.getValueAt(rows, 3));
             
             Window window = SwingUtilities.getWindowAncestor(Form_Supplier.this);
             Form_editSupplier editsup = new Form_editSupplier((Frame)window, true);
@@ -917,9 +920,9 @@ table1.getColumnModel().getColumn(0).setWidth(0);
             int rows = selectedRows[0];
             DefaultTableModel Model = (DefaultTableModel) table1.getModel();
             String ID = Model.getValueAt(rows, 0).toString();
-            String Nama = Model.getValueAt(rows, 1).toString();
-            String Telepon = Model.getValueAt(rows, 2).toString();
-            String Alamat = Model.getValueAt(rows, 3).toString();
+            String Nama = valueToString(Model.getValueAt(rows, 1));
+            String Telepon = valueToString(Model.getValueAt(rows, 2));
+            String Alamat = valueToString(Model.getValueAt(rows, 3));
             
             Window window = SwingUtilities.getWindowAncestor(Form_Supplier.this);
             Form_editSupplier editsup = new Form_editSupplier((Frame)window, true);

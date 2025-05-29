@@ -221,6 +221,9 @@ public class Form_Pelanggan extends javax.swing.JPanel {
         }
         return idPelanggan;
     }
+    private String valueToString(Object value) {
+    return value != null ? value.toString() : "";
+    }
     public void EditPelanggan(){
         getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(javax.swing.KeyStroke.getKeyStroke("3"),"editpelanggan");
         getActionMap().put("editpelanggan", new AbstractAction(){
@@ -231,11 +234,11 @@ public class Form_Pelanggan extends javax.swing.JPanel {
             int rows = selectedRows[0];
             DefaultTableModel Model = (DefaultTableModel) table1.getModel();
             
-            String RFID = Model.getValueAt(rows, 0).toString();
-            String Nama = Model.getValueAt(rows, 1).toString();
-            String Telepon = Model.getValueAt(rows, 2).toString();
-            String Alamat = Model.getValueAt(rows, 3).toString();
-            String Tipe = Model.getValueAt(rows, 4).toString();
+            String RFID = valueToString(Model.getValueAt(rows, 0));
+            String Nama = valueToString(Model.getValueAt(rows, 1));
+            String Telepon = valueToString(Model.getValueAt(rows, 2));
+            String Alamat = valueToString(Model.getValueAt(rows, 3));
+            String Tipe = valueToString(Model.getValueAt(rows, 4));
             
             String ID = getIDPelanggan(RFID);
             Window window = SwingUtilities.getWindowAncestor(Form_Pelanggan.this);
@@ -1020,11 +1023,11 @@ public void table2() {
             int rows = selectedRows[0];
             DefaultTableModel Model = (DefaultTableModel) table1.getModel();
             
-            String RFID = Model.getValueAt(rows, 0).toString();
-            String Nama = Model.getValueAt(rows, 1).toString();
-            String Telepon = Model.getValueAt(rows, 2).toString();
-            String Alamat = Model.getValueAt(rows, 3).toString();
-            String Tipe = Model.getValueAt(rows, 4).toString();
+            String RFID = valueToString(Model.getValueAt(rows, 0));
+            String Nama = valueToString(Model.getValueAt(rows, 1));
+            String Telepon = valueToString(Model.getValueAt(rows, 2));
+            String Alamat = valueToString(Model.getValueAt(rows, 3));
+            String Tipe = valueToString(Model.getValueAt(rows, 4));
             
             String ID = getIDPelanggan(RFID);
             Window window = SwingUtilities.getWindowAncestor(Form_Pelanggan.this);
@@ -1052,7 +1055,6 @@ public void table2() {
             
         }
         showData();
-            
     }//GEN-LAST:event_EditActionPerformed
 
     private void HapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_HapusActionPerformed
