@@ -11,7 +11,17 @@ import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
+import raven.dialog.FailLoaded;
+import raven.dialog.Loading;
+import raven.dialog.MasukkanTanggal;
+import raven.dialog.SesuaiFormat_YYYYMMDD;
+import raven.dialog.SesuaiFormat_MM;
+import raven.dialog.SesuaiFormat2_2;
+import raven.dialog.SesuaiFormat_DD;
+import raven.dialog.SesuaiFormat_Tanggal;
+import raven.dialog.SesuaiFormat_YYYY;
 
 public class Form_pemasukan extends javax.swing.JPanel {
     
@@ -27,7 +37,9 @@ public class Form_pemasukan extends javax.swing.JPanel {
         initComponents();
         chart();
         table();
-       
+       java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pemasukan.this);
+                Loading load = new Loading(parent, true);
+            load.setVisible(true);
     }
     
     private void chart() {
@@ -68,7 +80,9 @@ public class Form_pemasukan extends javax.swing.JPanel {
         chart.start();
     } catch (SQLException e) {
         e.printStackTrace();
-        javax.swing.JOptionPane.showMessageDialog(null, "Error saat mengambil data chart: " + e.getMessage());
+        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pemasukan.this);
+            FailLoaded load = new FailLoaded(parent, true);
+            load.setVisible(true);
     }
 }
     
@@ -115,7 +129,9 @@ public class Form_pemasukan extends javax.swing.JPanel {
 
     } catch (SQLException e) {
         e.printStackTrace();
-        javax.swing.JOptionPane.showMessageDialog(null, "Error saat mengambil data tabel: " + e.getMessage());
+        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pemasukan.this);
+            FailLoaded load = new FailLoaded(parent, true);
+            load.setVisible(true);
     }
 }
     
@@ -130,7 +146,9 @@ public class Form_pemasukan extends javax.swing.JPanel {
     try {
         String inputTanggal = pencarian.getText().trim();
         if (inputTanggal.isEmpty()) {
-            javax.swing.JOptionPane.showMessageDialog(null, "Masukkan tanggal terlebih dahulu!");
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pemasukan.this);
+            MasukkanTanggal load = new MasukkanTanggal(parent, true);
+            load.setVisible(true);
             return;
         }
 
@@ -141,7 +159,9 @@ public class Form_pemasukan extends javax.swing.JPanel {
 
         if (dateParts.length == 3) {
             if (!dateParts[0].matches("\\d{4}") || !dateParts[1].matches("\\d{2}") || !dateParts[2].matches("\\d{2}")) {
-                javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy-MM-dd (contoh: 2025-04-26).");
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pemasukan.this);
+                SesuaiFormat_YYYYMMDD load = new SesuaiFormat_YYYYMMDD(parent, true);
+            load.setVisible(true);
                 return;
             }
             
@@ -149,11 +169,15 @@ public class Form_pemasukan extends javax.swing.JPanel {
             int bulan = Integer.parseInt(dateParts[1]);
             int tanggal = Integer.parseInt(dateParts[2]);
             if (bulan < 1 || bulan > 12) {
-                javax.swing.JOptionPane.showMessageDialog(null, "Bulan harus antara 01 dan 12!");
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pemasukan.this);
+                SesuaiFormat_MM load = new SesuaiFormat_MM(parent, true);
+            load.setVisible(true);
                 return;
             }
             if (tanggal < 1 || tanggal > 31) {
-                javax.swing.JOptionPane.showMessageDialog(null, "Tanggal harus antara 01 dan 31!");
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pemasukan.this);
+                SesuaiFormat_DD load = new SesuaiFormat_DD(parent, true);
+            load.setVisible(true);
                 return;
             }
 
@@ -177,13 +201,17 @@ public class Form_pemasukan extends javax.swing.JPanel {
         } else if (dateParts.length == 2) {
             // Format: yyyy/MM (bulan spesifik)
             if (!dateParts[0].matches("\\d{4}") || !dateParts[1].matches("\\d{2}")) {
-                javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy-MM (contoh: 2025-04).");
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pemasukan.this);
+                SesuaiFormat2_2 load = new SesuaiFormat2_2(parent, true);
+            load.setVisible(true);
                 return;
             }
 
             int bulan = Integer.parseInt(dateParts[1]);
             if (bulan < 1 || bulan > 12) {
-                javax.swing.JOptionPane.showMessageDialog(null, "Bulan harus antara 01 dan 12!");
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pemasukan.this);
+                SesuaiFormat_MM load = new SesuaiFormat_MM(parent, true);
+            load.setVisible(true);
                 return;
             }
 
@@ -208,7 +236,9 @@ public class Form_pemasukan extends javax.swing.JPanel {
         } else if (dateParts.length == 1) {
             // Format: yyyy (tahun spesifik)
             if (!dateParts[0].matches("\\d{4}")) {
-                javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy (contoh: 2025).");
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pemasukan.this);
+                SesuaiFormat_YYYY load = new SesuaiFormat_YYYY(parent, true);
+            load.setVisible(true);
                 return;
             }
 
@@ -231,7 +261,9 @@ public class Form_pemasukan extends javax.swing.JPanel {
             }
         } else {
             // Jika format tidak valid
-            javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy/MM/dd, yyyy/MM, atau yyyy.");
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pemasukan.this);
+                SesuaiFormat_Tanggal load = new SesuaiFormat_Tanggal(parent, true);
+            load.setVisible(true);
             return;
         }
 
@@ -252,7 +284,9 @@ public class Form_pemasukan extends javax.swing.JPanel {
 
     } catch (SQLException e) {
         e.printStackTrace();
-        javax.swing.JOptionPane.showMessageDialog(null, "Error saat mengambil data tabel: " + e.getMessage());
+        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pemasukan.this);
+                FailLoaded load = new FailLoaded(parent, true);
+            load.setVisible(true);
     }
 }
     

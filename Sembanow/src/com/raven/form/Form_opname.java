@@ -27,8 +27,14 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import jtextfield.ComboBoxSuggestion;
 import jtextfield.TextFieldSuggestion;
+import raven.dialog.Cancelled;
+import raven.dialog.FailLoaded;
+import raven.dialog.FailSaved;
+import raven.dialog.FailUpdated;
 import raven.dialog.LengkapiData;
 import raven.dialog.Loading;
+import raven.dialog.PilihTanggal;
+import raven.dialog.UpdateSure;
 
 public class Form_opname extends javax.swing.JPanel {
 
@@ -83,7 +89,9 @@ public class Form_opname extends javax.swing.JPanel {
                             ex.printStackTrace();
                         }
                     } else {
-                        JOptionPane.showMessageDialog(null, "Error: ID tidak boleh kosong");
+                       java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
+                LengkapiData load = new LengkapiData(parent, true);
+            load.setVisible(true);
                     }
                 }
             }
@@ -169,18 +177,17 @@ public class Form_opname extends javax.swing.JPanel {
                             String selectedDate = (String) comboBox.getSelectedItem();
 
                             if (selectedDate == null || selectedDate.equals("Pilih Tanggal")) {
-                                JOptionPane.showMessageDialog(null, "Pilih tanggal opname terlebih dahulu.");
+                                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
+                                PilihTanggal load = new PilihTanggal(parent, true);
+            load.setVisible(true);
                                 return;
                             }
 
-                            int pilihan = JOptionPane.showConfirmDialog(
-                                    null,
-                                    "Barang dicatat 'hilang'. Ganti catatan jadi 'aman'?",
-                                    "Konfirmasi",
-                                    JOptionPane.YES_NO_OPTION
-                            );
+                            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
+                            UpdateSure yakin = new UpdateSure(parent, true);
+            yakin.setVisible(true);
 
-                            if (pilihan == JOptionPane.YES_OPTION) {
+                            if (yakin.isConfirmed()) {
                                 table.setValueAt("aman", selectedRow, colCatatan);
                                 try {
                                     String update = "UPDATE opname SET catatan = 'aman' WHERE id_produk = ? AND tanggal_opname = ?";
@@ -197,7 +204,8 @@ public class Form_opname extends javax.swing.JPanel {
 
                                 } catch (SQLException ex) {
                                     ex.printStackTrace();
-                                    JOptionPane.showMessageDialog(null, "Gagal update catatan: " + ex.getMessage());
+                                    FailUpdated load = new FailUpdated(parent, true);
+            load.setVisible(true);
                                 }
                             }
                         }
@@ -234,7 +242,9 @@ public class Form_opname extends javax.swing.JPanel {
             clear();
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Gagal menampilkan data: " + e.getMessage());
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
+                            FailLoaded yakin = new FailLoaded(parent, true);
+            yakin.setVisible(true);
         }
     }
 
@@ -340,7 +350,9 @@ public class Form_opname extends javax.swing.JPanel {
 
             if (idProduk.isEmpty() || nama.isEmpty() || awalD.isEmpty() || awalP.isEmpty()
                     || akhirD.isEmpty() || akhirP.isEmpty() || sel.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Semua field harus diisi!");
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
+                            LengkapiData lengkapi = new LengkapiData(parent, true);
+            lengkapi.setVisible(true);
                 return;
             }
 
@@ -359,7 +371,9 @@ public class Form_opname extends javax.swing.JPanel {
 
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
+                            FailLoaded yakin = new FailLoaded(parent, true);
+            yakin.setVisible(true);
         }
     }
 
@@ -408,7 +422,9 @@ public class Form_opname extends javax.swing.JPanel {
 
             stmtOpname.executeBatch();
             cn.commit();
-            JOptionPane.showMessageDialog(null, "Data opname berhasil disimpan!");
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
+                            Loading load = new Loading(parent, true);
+            load.setVisible(true);
             model.setRowCount(0); // Kosongkan tabel
 
         } catch (SQLException e) {
@@ -418,7 +434,9 @@ public class Form_opname extends javax.swing.JPanel {
                 rollbackEx.printStackTrace();
             }
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Terjadi kesalahan saat menyimpan data opname: " + e.getMessage());
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
+                            FailSaved gagal = new FailSaved(parent, true);
+            gagal.setVisible(true);
         }
     }
 
@@ -520,7 +538,9 @@ public class Form_opname extends javax.swing.JPanel {
 
         Object selectedValue = optionPane.getValue();
         if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
-            
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
+                            Cancelled dibatal = new Cancelled(parent, true);
+            dibatal.setVisible(true);
             return;
         }
 
@@ -579,7 +599,9 @@ public class Form_opname extends javax.swing.JPanel {
             } catch (SQLException rollbackEx) {
                 rollbackEx.printStackTrace();
             }
-            JOptionPane.showMessageDialog(this, "Error menyimpan data: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
+                            FailSaved gagal = new FailSaved(parent, true);
+            gagal.setVisible(true);
             ex.printStackTrace();
         } finally {
             try {
