@@ -25,8 +25,20 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import jtextfield.TextFieldSuggestion;
+import raven.dialog.Cancelled;
+import raven.dialog.FailLoaded;
+import raven.dialog.FailSaved;
+import raven.dialog.LengkapiData;
+import raven.dialog.Loading;
+import raven.dialog.MasukkanTanggal;
+import raven.dialog.SesuaiFormat_DD;
+import raven.dialog.SesuaiFormat_MM;
+import raven.dialog.SesuaiFormat_Tanggal;
+import raven.dialog.SesuaiFormat_YYYY;
+import raven.dialog.SesuaiFormat_YYYYMMDD;
 
 public class Form_pengeluaran extends javax.swing.JPanel {
 
@@ -43,6 +55,9 @@ public class Form_pengeluaran extends javax.swing.JPanel {
         initComponents();
         chart();
         table();
+        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                Loading load = new Loading(parent, true);
+            load.setVisible(true);
        
     }
     
@@ -84,7 +99,9 @@ public class Form_pengeluaran extends javax.swing.JPanel {
         chart.start();
     } catch (SQLException e) {
         e.printStackTrace();
-        javax.swing.JOptionPane.showMessageDialog(null, "Error saat mengambil data chart: " + e.getMessage());
+        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                FailLoaded load = new FailLoaded(parent, true);
+            load.setVisible(true);
     }
 }
 
@@ -135,7 +152,9 @@ public class Form_pengeluaran extends javax.swing.JPanel {
 
     } catch (SQLException e) {
         e.printStackTrace();
-        javax.swing.JOptionPane.showMessageDialog(null, "Error saat mengambil data tabel: " + e.getMessage());
+        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                FailLoaded load = new FailLoaded(parent, true);
+            load.setVisible(true);
     }
 }
     
@@ -153,7 +172,9 @@ public class Form_pengeluaran extends javax.swing.JPanel {
         // Ambil input dari jtxPencarian
         String inputTanggal = pencarian.getText().trim();
         if (inputTanggal.isEmpty()) {
-            javax.swing.JOptionPane.showMessageDialog(null, "Masukkan tanggal terlebih dahulu!");
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                MasukkanTanggal load = new MasukkanTanggal(parent, true);
+            load.setVisible(true);
             return;
         }
 
@@ -169,7 +190,9 @@ public class Form_pengeluaran extends javax.swing.JPanel {
             // Format: yyyy/MM/dd (tanggal spesifik)
             // Validasi bahwa setiap bagian adalah angka
             if (!dateParts[0].matches("\\d{4}") || !dateParts[1].matches("\\d{2}") || !dateParts[2].matches("\\d{2}")) {
-                javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy-MM-dd (contoh: 2025-04-26).");
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                SesuaiFormat_YYYYMMDD load = new SesuaiFormat_YYYYMMDD(parent, true);
+            load.setVisible(true);
                 return;
             }
             
@@ -177,11 +200,15 @@ public class Form_pengeluaran extends javax.swing.JPanel {
             int bulan = Integer.parseInt(dateParts[1]);
             int tanggal = Integer.parseInt(dateParts[2]);
             if (bulan < 1 || bulan > 12) {
-                javax.swing.JOptionPane.showMessageDialog(null, "Bulan harus antara 01 dan 12!");
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                SesuaiFormat_MM load = new SesuaiFormat_MM(parent, true);
+            load.setVisible(true);
                 return;
             }
             if (tanggal < 1 || tanggal > 31) {
-                javax.swing.JOptionPane.showMessageDialog(null, "Tanggal harus antara 01 dan 31!");
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                SesuaiFormat_DD load = new SesuaiFormat_DD(parent, true);
+            load.setVisible(true);
                 return;
             }
 
@@ -208,13 +235,17 @@ public class Form_pengeluaran extends javax.swing.JPanel {
         } else if (dateParts.length == 2) {
             // Format: yyyy/MM (bulan spesifik)
             if (!dateParts[0].matches("\\d{4}") || !dateParts[1].matches("\\d{2}")) {
-                javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy-MM (contoh: 2025-04).");
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                SesuaiFormat_YYYYMMDD load = new SesuaiFormat_YYYYMMDD(parent, true);
+            load.setVisible(true);
                 return;
             }
 
             int bulan = Integer.parseInt(dateParts[1]);
             if (bulan < 1 || bulan > 12) {
-                javax.swing.JOptionPane.showMessageDialog(null, "Bulan harus antara 01 dan 12!");
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                SesuaiFormat_MM load = new SesuaiFormat_MM(parent, true);
+            load.setVisible(true);
                 return;
             }
 
@@ -242,7 +273,9 @@ public class Form_pengeluaran extends javax.swing.JPanel {
         } else if (dateParts.length == 1) {
             // Format: yyyy (tahun spesifik)
             if (!dateParts[0].matches("\\d{4}")) {
-                javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy (contoh: 2025).");
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                SesuaiFormat_YYYY load = new SesuaiFormat_YYYY(parent, true);
+            load.setVisible(true);
                 return;
             }
 
@@ -268,7 +301,9 @@ public class Form_pengeluaran extends javax.swing.JPanel {
             }
         } else {
             // Jika format tidak valid
-            javax.swing.JOptionPane.showMessageDialog(null, "Format tanggal tidak valid! Gunakan yyyy/MM/dd, yyyy/MM, atau yyyy.");
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                SesuaiFormat_Tanggal load = new SesuaiFormat_Tanggal(parent, true);
+            load.setVisible(true);
             return;
         }
 
@@ -289,7 +324,9 @@ public class Form_pengeluaran extends javax.swing.JPanel {
 
     } catch (SQLException e) {
         e.printStackTrace();
-        javax.swing.JOptionPane.showMessageDialog(null, "Error saat mengambil data tabel: " + e.getMessage());
+        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                FailLoaded load = new FailLoaded(parent, true);
+            load.setVisible(true);
     }
 }
     
@@ -356,10 +393,9 @@ public class Form_pengeluaran extends javax.swing.JPanel {
         // Dapatkan hasil dari dialog
         Object selectedValue = optionPane.getValue();
         if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
-            String message = (selectedValue != null && (Integer) selectedValue == JOptionPane.CLOSED_OPTION)
-                ? "Dialog ditutup. Operasi dibatalkan."
-                : "Operasi dibatalkan.";
-            JOptionPane.showMessageDialog(this, message);
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                Cancelled load = new Cancelled(parent, true);
+            load.setVisible(true);
             return;
         }
 
@@ -372,7 +408,9 @@ public class Form_pengeluaran extends javax.swing.JPanel {
         try {
             // Validasi input
             if (valketerangan.isEmpty() || valtotal.isEmpty() ) {
-                JOptionPane.showMessageDialog(this, "harus di isi semua.", "Error", JOptionPane.ERROR_MESSAGE);
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                LengkapiData lengkapi = new LengkapiData(parent, true);
+            lengkapi.setVisible(true);
                 return;
             }
 
@@ -392,7 +430,9 @@ public class Form_pengeluaran extends javax.swing.JPanel {
             table();
 
             cn.commit(); // Commit transaksi
-            JOptionPane.showMessageDialog(this, "Data pengeluaran berhasil disimpan!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                Loading load = new Loading(parent, true);
+            load.setVisible(true);
 
         } catch (SQLException | NumberFormatException ex) {
             try {
@@ -400,7 +440,9 @@ public class Form_pengeluaran extends javax.swing.JPanel {
             } catch (SQLException rollbackEx) {
                 rollbackEx.printStackTrace();
             }
-            JOptionPane.showMessageDialog(this, "Error menyimpan data: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                FailSaved gagal = new FailSaved(parent, true);
+            gagal.setVisible(true);
             ex.printStackTrace();
         } 
     }
@@ -433,7 +475,7 @@ public class Form_pengeluaran extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         pencarian1 = new jtextfield.TextFieldSuggestion();
-        jButton1 = new javax.swing.JButton();
+        Tambah = new Custom.Custom_ButtonRounded();
 
         setBackground(new java.awt.Color(250, 250, 250));
 
@@ -466,10 +508,10 @@ public class Form_pengeluaran extends javax.swing.JPanel {
             }
         });
 
-        jButton1.setText("tambah");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        Tambah.setText("Tambah");
+        Tambah.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                TambahActionPerformed(evt);
             }
         });
 
@@ -487,7 +529,7 @@ public class Form_pengeluaran extends javax.swing.JPanel {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(jButton1)
+                                .addComponent(Tambah, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -509,8 +551,8 @@ public class Form_pengeluaran extends javax.swing.JPanel {
                     .addComponent(pencarian1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
                     .addComponent(pencarian, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1)
-                    .addComponent(jLabel1))
+                    .addComponent(jLabel1)
+                    .addComponent(Tambah, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
                 .addContainerGap())
@@ -525,14 +567,14 @@ public class Form_pengeluaran extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_pencarian1ActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void TambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TambahActionPerformed
         addpengeluaran();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_TambahActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private Custom.Custom_ButtonRounded Tambah;
     private chart.CurveLineChart chart;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;

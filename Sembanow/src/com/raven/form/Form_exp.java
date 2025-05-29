@@ -27,12 +27,15 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import jtextfield.TextFieldSuggestion;
+import raven.dialog.Cancelled;
+import raven.dialog.FailLoaded;
+import raven.dialog.FailUpdated;
 import raven.dialog.Loading;
 import raven.dialog.MasukkanTanggal;
 import raven.dialog.NegatifBarang;
 import raven.dialog.OverBarang;
 import raven.dialog.Pilihdahulu;
-import raven.dialog.SesuaiFormat1;
+import raven.dialog.SesuaiFormat_YYYYMMDD;
 import raven.dialog.Tidakadajumlahbarang;
 
 public class Form_exp extends javax.swing.JPanel {
@@ -72,10 +75,9 @@ public class Form_exp extends javax.swing.JPanel {
             }
             table.setModel(model);
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null,
-                "Error loading data: " + ex.getMessage(),
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_exp.this);
+                            FailLoaded gagal = new FailLoaded(parent, true);
+            gagal.setVisible(true);
             ex.printStackTrace();
         }
     }
@@ -167,6 +169,9 @@ public class Form_exp extends javax.swing.JPanel {
 
     Object selectedValue = optionPane.getValue();
     if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
+        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_exp.this);
+                            Cancelled dibatal = new Cancelled(parent, true);
+            dibatal.setVisible(true);
         return;
     }
     String newExpDateStr = tanggalField.getText().trim();
@@ -185,7 +190,7 @@ public class Form_exp extends javax.swing.JPanel {
         newExpDate = new java.sql.Date(parsedDate.getTime());
     } catch (ParseException ex) {
         Window window = SwingUtilities.getWindowAncestor(Form_exp.this);
-                SesuaiFormat1 pilih = new SesuaiFormat1((Frame)window, true);
+                SesuaiFormat_YYYYMMDD pilih = new SesuaiFormat_YYYYMMDD((Frame)window, true);
                 pilih.setVisible(true);
         return;
     }
@@ -202,20 +207,14 @@ public class Form_exp extends javax.swing.JPanel {
                 load.setVisible(true);
             showData();
         } else {
-            JOptionPane.showMessageDialog(
-                this,
-                "Failed to update expiration date. Record not found.",
-                "Error",
-                JOptionPane.ERROR_MESSAGE
-            );
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_exp.this);
+                            FailUpdated gagal = new FailUpdated(parent, true);
+            gagal.setVisible(true);
         }
     } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(
-            this,
-            "Error updating expiration date: " + ex.getMessage(),
-            "Error",
-            JOptionPane.ERROR_MESSAGE
-        );
+        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_exp.this);
+                            FailUpdated gagal = new FailUpdated(parent, true);
+            gagal.setVisible(true);
         ex.printStackTrace();
     }
 }
@@ -321,6 +320,9 @@ private void deleteAndTransferToPengeluaran(int selectedRow) {
     // Handle dialog result
     Object selectedValue = optionPane.getValue();
     if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
+        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_exp.this);
+                            Cancelled dibatal = new Cancelled(parent, true);
+            dibatal.setVisible(true);
         return;
     }
 
@@ -402,7 +404,9 @@ private void deleteAndTransferToPengeluaran(int selectedRow) {
         } catch (SQLException rollbackEx) {
             rollbackEx.printStackTrace();
         }
-        JOptionPane.showMessageDialog(this, "Error menyimpan data: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_exp.this);
+                            FailUpdated gagal = new FailUpdated(parent, true);
+            gagal.setVisible(true);
         ex.printStackTrace();
     } finally {
         try {

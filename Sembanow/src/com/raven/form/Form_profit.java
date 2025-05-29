@@ -14,7 +14,11 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
+import raven.dialog.Cancelled;
+import raven.dialog.FailLoaded;
+import raven.dialog.Loading;
 
 public class Form_profit extends javax.swing.JPanel {
     
@@ -31,6 +35,9 @@ public class Form_profit extends javax.swing.JPanel {
         clean();
         comboboxTanggal();
         keylistener();
+        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_profit.this);
+                Loading load = new Loading(parent, true);
+            load.setVisible(true);
     }
 
     public Form_profit(DecimalFormat df) {
@@ -198,7 +205,9 @@ public class Form_profit extends javax.swing.JPanel {
 
     } catch (SQLException e) {
         e.printStackTrace();
-        JOptionPane.showMessageDialog(null, "Error saat mengambil data tabel: " + e.getMessage());
+        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_profit.this);
+                FailLoaded load = new FailLoaded(parent, true);
+            load.setVisible(true);
     }
 }
 
@@ -262,7 +271,9 @@ public class Form_profit extends javax.swing.JPanel {
 
     } catch (SQLException e) {
         e.printStackTrace();
-        JOptionPane.showMessageDialog(null, "Error saat mengambil data tabel: " + e.getMessage());
+        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_profit.this);
+                FailLoaded load = new FailLoaded(parent, true);
+            load.setVisible(true);
     }
 }
 

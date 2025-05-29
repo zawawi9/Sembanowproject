@@ -11,7 +11,11 @@ import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
+import raven.dialog.FailCount;
+import raven.dialog.FailLoaded;
+import raven.dialog.Loading;
 
 public class Form_rekapharian extends javax.swing.JPanel {
     
@@ -27,6 +31,9 @@ public class Form_rekapharian extends javax.swing.JPanel {
     initComponents();
     table1();
     addcost();
+    java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_rekapharian.this);
+                Loading load = new Loading(parent, true);
+            load.setVisible(true);
     
     // Tambahkan ListSelectionListener untuk table1
     
@@ -123,7 +130,9 @@ public class Form_rekapharian extends javax.swing.JPanel {
             pengeluaran1.setText( df.format(totalSum));
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error saat menghitung total: " + e.getMessage());
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_rekapharian.this);
+                FailCount load = new FailCount(parent, true);
+            load.setVisible(true);
         }
     }
     
@@ -170,7 +179,9 @@ public class Form_rekapharian extends javax.swing.JPanel {
 
     } catch (SQLException e) {
         e.printStackTrace();
-        javax.swing.JOptionPane.showMessageDialog(null, "Error saat mengambil data tabel 1: " + e.getMessage());
+        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_rekapharian.this);
+                FailLoaded load = new FailLoaded(parent, true);
+            load.setVisible(true);
     }
 }
     
