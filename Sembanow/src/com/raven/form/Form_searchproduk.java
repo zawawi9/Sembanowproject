@@ -792,10 +792,6 @@ public class Form_searchproduk extends javax.swing.JPanel {
 
         Object selectedValue = optionPane.getValue();
         if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
-            String message = (selectedValue != null && (Integer) selectedValue == JOptionPane.CLOSED_OPTION)
-                    ? "Dialog ditutup. Operasi dibatalkan."
-                    : "Operasi dibatalkan.";
-            JOptionPane.showMessageDialog(this, message);
             return;
         }
 
