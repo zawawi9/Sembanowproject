@@ -28,6 +28,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import jtextfield.TextFieldSuggestion;
 import raven.dialog.Cancelled;
+import raven.dialog.FailFilters;
 import raven.dialog.FailLoaded;
 import raven.dialog.FailUpdated;
 import raven.dialog.Loading;
@@ -113,10 +114,9 @@ public class Form_exp extends javax.swing.JPanel {
         }
         table.setModel(model);
     } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(null,
-            "Error filtering data: " + ex.getMessage(),
-            "Error",
-            JOptionPane.ERROR_MESSAGE);
+        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_exp.this);
+                            FailFilters gagal = new FailFilters(parent, true);
+            gagal.setVisible(true);
         ex.printStackTrace();
     }
 }
