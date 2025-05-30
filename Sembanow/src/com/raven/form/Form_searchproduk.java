@@ -797,10 +797,13 @@ public class Form_searchproduk extends javax.swing.JPanel {
                 JOptionPane.PLAIN_MESSAGE,
                 JOptionPane.OK_CANCEL_OPTION
         );
+        JDialog dialog = optionPane.createDialog(this, "Tambah Produk");
+        setBackgroundRecursively(dialog.getContentPane(), Color.WHITE);
+        dialog.setVisible(true);
 
 
         Object selectedValue = optionPane.getValue();
-        if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
+        if (!(selectedValue instanceof Integer) || (Integer) selectedValue != JOptionPane.OK_OPTION) {
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_searchproduk.this);
             Cancelled dibatal = new Cancelled(parent, true);
             dibatal.setVisible(true);
