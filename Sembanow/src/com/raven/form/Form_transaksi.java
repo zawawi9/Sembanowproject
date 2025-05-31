@@ -72,6 +72,7 @@ public class Form_transaksi extends javax.swing.JPanel {
         combobox();
         setupBarcodeScannerListener();
         setupRfidScannerListener();
+        SwingUtilities.invokeLater(() -> txtRFID.requestFocusInWindow());
     }
 
     private void setupBarcodeScannerListener() {

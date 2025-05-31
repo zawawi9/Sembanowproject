@@ -89,9 +89,7 @@ public class Form_opname extends javax.swing.JPanel {
                             ex.printStackTrace();
                         }
                     } else {
-                        java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_opname.this);
-                        LengkapiData load = new LengkapiData(parent, true);
-                        load.setVisible(true);
+                        handleEmptyIdEnter();
                     }
                 }
             }
@@ -217,6 +215,57 @@ public class Form_opname extends javax.swing.JPanel {
 
     }
 
+    private void handleEmptyIdEnter() {
+        java.awt.Frame parentFrame = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_opname.this);
+
+        // Buat instance ProductSearchDialog
+        // Pastikan konstruktor ProductSearchDialog menerima parent frame dan koneksi database (cn)
+        ProductSearchDialog dialog = new ProductSearchDialog(parentFrame, cn);
+        dialog.setVisible(true); // Tampilkan dialog
+
+        // Setelah dialog ditutup, ambil ID yang dipilih
+        String selectedId = dialog.getSelectedId();
+
+        // Jika ID dipilih (tidak kosong), set ke jtxId dan proses
+        if (selectedId != null && !selectedId.isEmpty()) {
+            jtxId.setText(selectedId); // Mengisi jtxId dengan ID yang dipilih
+            // Panggil logika untuk memproses ID yang sudah dipilih dari dialog
+            // Ini akan mengambil data produk dan mengisi field lain, mirip dengan yang di 'if (!idProduk.isEmpty())'
+            processProductDetails(selectedId); // Memanggil metode baru untuk memproses detail produk
+        }
+    }
+
+    private void processProductDetails(String idProduk) {
+        try {
+            String sql = "CALL GetProductStock(?);";
+            PreparedStatement stmt = cn.prepareStatement(sql);
+            stmt.setString(1, idProduk);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                awaldos.setText(rs.getString("total_stok_dos"));
+                awalpcs.setText(rs.getString("total_stok_pcs"));
+                jtxNama.setText(rs.getString("nama"));
+                akhirdos.requestFocusInWindow();
+            } else {
+                jtxNama.setText("ID Produk tidak ditemukan");
+                // Opsional: bersihkan field lain jika ID tidak ditemukan
+                awaldos.setText("");
+                awalpcs.setText("");
+                akhirdos.setText("");
+                akhirpcs.setText("");
+                selisih.setText("");
+            }
+        } catch (SQLException ex) {
+            jtxNama.setText("Error: " + ex.getMessage());
+            ex.printStackTrace();
+            // Anda mungkin ingin menampilkan dialog error di sini juga
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_opname.this);
+            FailLoaded fail = new FailLoaded(parent, true); // Contoh dialog error
+            fail.setVisible(true);
+        }
+    }
+    
     private void tampilDataBerdasarkanTanggal(String tanggal) {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         model.setRowCount(0);
