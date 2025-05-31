@@ -38,6 +38,33 @@ public class Form_transaksi extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Error saat inisialisasi koneksi: " + ex.getMessage(), "Error Koneksi", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
         }
+        
+        jtxJumlah.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                char c = evt.getKeyChar();
+                if (!Character.isDigit(c) && c != '\b') {
+                    evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+                }
+            }
+        });
+        
+        jtxBayar.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                char c = evt.getKeyChar();
+                if (!Character.isDigit(c) && c != '\b') {
+                    evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+                }
+            }
+        });
+        
+        jtxKembalian.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                char c = evt.getKeyChar();
+                if (!Character.isDigit(c) && c != '\b') {
+                    evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+                }
+            }
+        });
 
         keyListener();
         setupTableModel();
@@ -921,6 +948,7 @@ public class Form_transaksi extends javax.swing.JPanel {
             }
         });
 
+        jtxKembalian.setEditable(false);
         jtxKembalian.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jtxKembalianActionPerformed(evt);

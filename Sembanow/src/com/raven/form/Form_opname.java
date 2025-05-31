@@ -47,7 +47,7 @@ public class Form_opname extends javax.swing.JPanel {
         setupListeners();
         comboboxTanggalOpname();
         Window window = SwingUtilities.getWindowAncestor(Form_opname.this);
-                Loading muat = new Loading((java.awt.Frame) window, true);
+        Loading muat = new Loading((java.awt.Frame) window, true);
         muat.setVisible(true);
     }
 
@@ -89,9 +89,9 @@ public class Form_opname extends javax.swing.JPanel {
                             ex.printStackTrace();
                         }
                     } else {
-                       java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
-                LengkapiData load = new LengkapiData(parent, true);
-            load.setVisible(true);
+                        java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_opname.this);
+                        LengkapiData load = new LengkapiData(parent, true);
+                        load.setVisible(true);
                     }
                 }
             }
@@ -177,15 +177,15 @@ public class Form_opname extends javax.swing.JPanel {
                             String selectedDate = (String) comboBox.getSelectedItem();
 
                             if (selectedDate == null || selectedDate.equals("Pilih Tanggal")) {
-                                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
+                                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_opname.this);
                                 PilihTanggal load = new PilihTanggal(parent, true);
-            load.setVisible(true);
+                                load.setVisible(true);
                                 return;
                             }
 
-                            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
+                            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_opname.this);
                             UpdateSure yakin = new UpdateSure(parent, true);
-            yakin.setVisible(true);
+                            yakin.setVisible(true);
 
                             if (yakin.isConfirmed()) {
                                 table.setValueAt("aman", selectedRow, colCatatan);
@@ -205,7 +205,7 @@ public class Form_opname extends javax.swing.JPanel {
                                 } catch (SQLException ex) {
                                     ex.printStackTrace();
                                     FailUpdated load = new FailUpdated(parent, true);
-            load.setVisible(true);
+                                    load.setVisible(true);
                                 }
                             }
                         }
@@ -242,8 +242,8 @@ public class Form_opname extends javax.swing.JPanel {
             clear();
         } catch (SQLException e) {
             e.printStackTrace();
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
-                            FailLoaded yakin = new FailLoaded(parent, true);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_opname.this);
+            FailLoaded yakin = new FailLoaded(parent, true);
             yakin.setVisible(true);
         }
     }
@@ -350,9 +350,9 @@ public class Form_opname extends javax.swing.JPanel {
 
             if (idProduk.isEmpty() || nama.isEmpty() || awalD.isEmpty() || awalP.isEmpty()
                     || akhirD.isEmpty() || akhirP.isEmpty() || sel.isEmpty()) {
-                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
-                            LengkapiData lengkapi = new LengkapiData(parent, true);
-            lengkapi.setVisible(true);
+                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_opname.this);
+                LengkapiData lengkapi = new LengkapiData(parent, true);
+                lengkapi.setVisible(true);
                 return;
             }
 
@@ -371,8 +371,8 @@ public class Form_opname extends javax.swing.JPanel {
 
         } catch (Exception e) {
             e.printStackTrace();
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
-                            FailLoaded yakin = new FailLoaded(parent, true);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_opname.this);
+            FailLoaded yakin = new FailLoaded(parent, true);
             yakin.setVisible(true);
         }
     }
@@ -422,8 +422,8 @@ public class Form_opname extends javax.swing.JPanel {
 
             stmtOpname.executeBatch();
             cn.commit();
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
-                            Loading load = new Loading(parent, true);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_opname.this);
+            Loading load = new Loading(parent, true);
             load.setVisible(true);
             model.setRowCount(0); // Kosongkan tabel
 
@@ -434,8 +434,8 @@ public class Form_opname extends javax.swing.JPanel {
                 rollbackEx.printStackTrace();
             }
             e.printStackTrace();
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
-                            FailSaved gagal = new FailSaved(parent, true);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_opname.this);
+            FailSaved gagal = new FailSaved(parent, true);
             gagal.setVisible(true);
         }
     }
@@ -479,8 +479,8 @@ public class Form_opname extends javax.swing.JPanel {
                     String idProduk = jtxId.getText().trim();
                     if (idProduk.isEmpty()) {
                         Window window = SwingUtilities.getWindowAncestor(Form_opname.this);
-                        LengkapiData barang = new LengkapiData((Frame)window, true);
-                barang.setVisible(true);
+                        LengkapiData barang = new LengkapiData((Frame) window, true);
+                        barang.setVisible(true);
                         return;
                     }
                     try {
@@ -538,9 +538,7 @@ public class Form_opname extends javax.swing.JPanel {
 
         Object selectedValue = optionPane.getValue();
         if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
-                            Cancelled dibatal = new Cancelled(parent, true);
-            dibatal.setVisible(true);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_opname.this);
             return;
         }
 
@@ -553,7 +551,7 @@ public class Form_opname extends javax.swing.JPanel {
         try {
             if (idProduk.isEmpty() || valSatuan.isEmpty() || valJumlah.isEmpty() || valMenu.isEmpty() || valTanggalExp.isEmpty()) {
                 Window window = SwingUtilities.getWindowAncestor(Form_opname.this);
-                        LengkapiData barang = new LengkapiData((Frame)window, true);
+                LengkapiData barang = new LengkapiData((Frame) window, true);
                 barang.setVisible(true);
                 return;
             }
@@ -588,8 +586,8 @@ public class Form_opname extends javax.swing.JPanel {
 
             cn.commit();
             Window window = SwingUtilities.getWindowAncestor(Form_opname.this);
-                        Loading barang = new Loading((Frame)window, true);
-                barang.setVisible(true);
+            Loading barang = new Loading((Frame) window, true);
+            barang.setVisible(true);
 
         } catch (SQLException | NumberFormatException ex) {
             try {
@@ -599,8 +597,8 @@ public class Form_opname extends javax.swing.JPanel {
             } catch (SQLException rollbackEx) {
                 rollbackEx.printStackTrace();
             }
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_opname.this);
-                            FailSaved gagal = new FailSaved(parent, true);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_opname.this);
+            FailSaved gagal = new FailSaved(parent, true);
             gagal.setVisible(true);
             ex.printStackTrace();
         } finally {

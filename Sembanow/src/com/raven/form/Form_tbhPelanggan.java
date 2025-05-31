@@ -33,6 +33,7 @@ public class Form_tbhPelanggan extends javax.swing.JDialog {
 
     private List<String> pelanggantype = Arrays.asList("h1", "h2", "h3");
     private DocumentListener myListener;
+
     public Form_tbhPelanggan(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         setUndecorated(true);
@@ -57,76 +58,76 @@ public class Form_tbhPelanggan extends javax.swing.JDialog {
         }
         );
         RFIDpelanggan1.addKeyListener(new java.awt.event.KeyAdapter() {
-    public void keyTyped(java.awt.event.KeyEvent evt) {
-        char c = evt.getKeyChar();
-        if (!Character.isDigit(c) && c != '\b') {
-            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
-        }
-    }
-});
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                char c = evt.getKeyChar();
+                if (!Character.isDigit(c) && c != '\b') {
+                    evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+                }
+            }
+        });
         Telepon_Pelanggan.addKeyListener(new java.awt.event.KeyAdapter() {
-    public void keyTyped(java.awt.event.KeyEvent evt) {
-        char c = evt.getKeyChar();
-        if (!Character.isDigit(c) && c != '\b') {
-            evt.consume(); // Mengabaikan input jika bukan angka atau backspace
-        }
-    }
-});
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                char c = evt.getKeyChar();
+                if (!Character.isDigit(c) && c != '\b') {
+                    evt.consume(); // Mengabaikan input jika bukan angka atau backspace
+                }
+            }
+        });
         Nama_Pelanggan.addKeyListener(new java.awt.event.KeyAdapter() {
-    public void keyTyped(java.awt.event.KeyEvent evt) {
-        char c = evt.getKeyChar();
-        if (!Character.isLetter(c) && !Character.isWhitespace(c) && !Character.isISOControl(c)) {
-            evt.consume(); // Mengabaikan input selain huruf, spasi, dan karakter kontrol seperti backspace
-        }
-    }
-});
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                char c = evt.getKeyChar();
+                if (!Character.isLetter(c) && !Character.isWhitespace(c) && !Character.isISOControl(c)) {
+                    evt.consume(); // Mengabaikan input selain huruf, spasi, dan karakter kontrol seperti backspace
+                }
+            }
+        });
 
-        
         RFIDpelanggan1.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt){
+            public void keyPressed(java.awt.event.KeyEvent evt) {
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                Nama_Pelanggan.requestFocus();
-            }
+                    Nama_Pelanggan.requestFocus();
+                }
             }
         });
         Nama_Pelanggan.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt){
+            public void keyPressed(java.awt.event.KeyEvent evt) {
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                Telepon_Pelanggan.requestFocus();
-            }
+                    Telepon_Pelanggan.requestFocus();
+                }
             }
         });
         Telepon_Pelanggan.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt){
+            public void keyPressed(java.awt.event.KeyEvent evt) {
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                Alamat_Pelanggan.requestFocus();
-            }
+                    Alamat_Pelanggan.requestFocus();
+                }
             }
         });
         Alamat_Pelanggan.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt){
+            public void keyPressed(java.awt.event.KeyEvent evt) {
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                TipePelanggan.requestFocus();
-            }
+                    TipePelanggan.requestFocus();
+                }
             }
         });
         BoxTipe.addActionListener((evt) -> {
-            String selectedType = (String)BoxTipe.getSelectedItem();
-            if (selectedType!=null && !selectedType.isEmpty()) {
+            String selectedType = (String) BoxTipe.getSelectedItem();
+            if (selectedType != null && !selectedType.isEmpty()) {
                 TipePelanggan.setText(selectedType);
             }
         });
     }
-    public void listen(){
+
+    public void listen() {
         if (!TipePelanggan.isShowing() || !BoxTipe.isShowing()) {
             return;
-            
+
         }
         String keyword = TipePelanggan.getText().toLowerCase();
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
-        
+
         boolean hasResult = false;
-        for (String Tipe : pelanggantype){
+        for (String Tipe : pelanggantype) {
             if (Tipe.toLowerCase().contains(keyword)) {
                 model.addElement(Tipe);
                 hasResult = true;
@@ -135,74 +136,76 @@ public class Form_tbhPelanggan extends javax.swing.JDialog {
         BoxTipe.setModel(model);
         if (hasResult && !keyword.isEmpty()) {
             BoxTipe.showPopup();
-        }else{
+        } else {
             BoxTipe.hidePopup();
         }
     }
+
     public void fadeIn() {
-    setOpacity(0f); // Mulai dari transparan
-    new Thread(() -> {
-        try {
-            for (float i = 0f; i <= 1f; i += 0.05f) {
-                Thread.sleep(10);
-                setOpacity(i);
+        setOpacity(0f); // Mulai dari transparan
+        new Thread(() -> {
+            try {
+                for (float i = 0f; i <= 1f; i += 0.05f) {
+                    Thread.sleep(10);
+                    setOpacity(i);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }).start();
-}
+        }).start();
+    }
+
     public int generateRandomID() {
-    Random rand = new Random();
-    return rand.nextInt(90000) + 10000; // 10000 - 99999
-}
+        Random rand = new Random();
+        return rand.nextInt(90000) + 10000; // 10000 - 99999
+    }
 
-public boolean isIDExist(Connection conn, int id) throws SQLException {
-    String sql = "SELECT COUNT(*) FROM pelanggan WHERE id_pelanggan = ?";
-    PreparedStatement stmt = conn.prepareStatement(sql);
-    stmt.setInt(1, id);
-    ResultSet rs = stmt.executeQuery();
-    rs.next();
-    return rs.getInt(1) > 0;
-}
+    public boolean isIDExist(Connection conn, int id) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM pelanggan WHERE id_pelanggan = ?";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setInt(1, id);
+        ResultSet rs = stmt.executeQuery();
+        rs.next();
+        return rs.getInt(1) > 0;
+    }
 
-public int generateUniqueID(Connection conn) throws SQLException {
-    int id;
-    do {
-        id = generateRandomID();
-    } while (isIDExist(conn, id));
-    return id;
-}
+    public int generateUniqueID(Connection conn) throws SQLException {
+        int id;
+        do {
+            id = generateRandomID();
+        } while (isIDExist(conn, id));
+        return id;
+    }
 
-    private void Tambahkan(){
-        
+    private void Tambahkan() {
+
         int ID = generateRandomID();
         String RFID = RFIDpelanggan1.getText();
         String Nama = Nama_Pelanggan.getText();
         String Telepon = Telepon_Pelanggan.getText();
         String Alamat = Alamat_Pelanggan.getText();
         String Tipe = TipePelanggan.getText();
-        
-        if(RFID.isEmpty() || Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty() || Tipe.isEmpty()){
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+
+        if (RFID.isEmpty() || Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty() || Tipe.isEmpty()) {
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(this);
             LengkapiData lengkap = new LengkapiData(parent, true);
             lengkap.setVisible(true);
             return;
         }
-        if(!Nama.matches("[a-zA-Z\\s]+")){
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+        if (!Nama.matches("[a-zA-Z\\s]+")) {
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(this);
             SesuaiFormat frmt = new SesuaiFormat(parent, true);
             frmt.setVisible(true);
             return;
         }
-        if(!Telepon.matches("\\d+")){
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+        if (!Telepon.matches("\\d+")) {
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(this);
             SesuaiFormat frmt = new SesuaiFormat(parent, true);
             frmt.setVisible(true);
             return;
         }
-        if(!(Tipe.equalsIgnoreCase("h1") || Tipe.equalsIgnoreCase("h2") || Tipe.equalsIgnoreCase("h3"))){
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+        if (!(Tipe.equalsIgnoreCase("h1") || Tipe.equalsIgnoreCase("h2") || Tipe.equalsIgnoreCase("h3"))) {
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(this);
             TipeOnly tipe = new TipeOnly(parent, true);
             tipe.setVisible(true);
             return;
@@ -214,19 +217,19 @@ public int generateUniqueID(Connection conn) throws SQLException {
             String dbUser = "root";
             String dbPass = "";
             conn = DriverManager.getConnection(url, dbUser, dbPass);
-            
+
             String checkSql = "SELECT COUNT(*) FROM pelanggan WHERE id_pelanggan = ? OR rfidpelanggan = ?";
             PreparedStatement check = conn.prepareStatement(checkSql);
             check.setInt(1, ID);
             check.setString(2, RFID);
             ResultSet rs = check.executeQuery();
-            if (rs.next() && rs.getInt(1)>0) {
-                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+            if (rs.next() && rs.getInt(1) > 0) {
+                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(this);
                 DataAda ada = new DataAda(parent, true);
-            ada.setVisible(true);
-            return;
+                ada.setVisible(true);
+                return;
             }
-            
+
             String sql = "INSERT INTO pelanggan (id_pelanggan, rfidpelanggan, nama, alamat, tipe_harga, no_hp) VALUES (?,?,?,?,?,?)";
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, ID);
@@ -235,35 +238,34 @@ public int generateUniqueID(Connection conn) throws SQLException {
             pstmt.setString(4, Alamat);
             pstmt.setString(5, Tipe);
             pstmt.setString(6, Telepon);
-            
+
             int success = pstmt.executeUpdate();
-            if(success>0){
+            if (success > 0) {
                 System.out.println("Data ditambahkan");
                 clearFields();
                 dispose();
-                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(this);
                 Loading muat = new Loading(parent, true);
-            muat.setVisible(true);
-            }else{
+                muat.setVisible(true);
+            } else {
                 JOptionPane.showMessageDialog(null, "Datanya gabisa ditambahin ini T_T");
             }
-            
+
         } catch (Exception e) {
-            
-                e.printStackTrace();
+
+            e.printStackTrace();
         }
     }
-    private void clearFields(){
-        
+
+    private void clearFields() {
+
         RFIDpelanggan1.setText("");
         Nama_Pelanggan.setText("");
         Telepon_Pelanggan.setText("");
         Alamat_Pelanggan.setText("");
         TipePelanggan.setText("");
-        
+
     }
-    
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -467,7 +469,7 @@ public int generateUniqueID(Connection conn) throws SQLException {
     }//GEN-LAST:event_TipePelangganKeyReleased
 
     private void TipePelangganActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TipePelangganActionPerformed
-   
+
     }//GEN-LAST:event_TipePelangganActionPerformed
 
     private void BoxTipeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BoxTipeActionPerformed

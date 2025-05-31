@@ -36,6 +36,8 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                              <Component id="ExportPemasukan" min="-2" pref="76" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
                               <Component id="comboBox" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jLabel1" min="-2" pref="63" max="-2" attributes="0"/>
@@ -66,6 +68,7 @@
                   <Component id="total" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="comboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="ExportPemasukan" alignment="3" min="-2" pref="36" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="jScrollPane1" pref="240" max="32767" attributes="0"/>
@@ -140,6 +143,14 @@
       </Properties>
     </Component>
     <Component class="jtextfield.ComboBoxSuggestion" name="comboBox">
+    </Component>
+    <Component class="Custom.Custom_ButtonRounded" name="ExportPemasukan">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Export"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ExportPemasukanActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

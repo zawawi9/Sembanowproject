@@ -521,8 +521,6 @@ public class Form_searchproduk extends javax.swing.JPanel {
         Object selectedValue = optionPane.getValue();
         if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
             java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
-            Cancelled dibatal = new Cancelled(parent, true);
-            dibatal.setVisible(true);
             return;
         }
 
@@ -927,8 +925,6 @@ public class Form_searchproduk extends javax.swing.JPanel {
         Object selectedValue = optionPane.getValue();
         if (!(selectedValue instanceof Integer) || (Integer) selectedValue != JOptionPane.OK_OPTION) {
             java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
-            Cancelled dibatal = new Cancelled(parent, true);
-            dibatal.setVisible(true);
             return;
         }
 
@@ -1255,9 +1251,6 @@ public class Form_searchproduk extends javax.swing.JPanel {
         Object selectedValue = optionPane.getValue();
         if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
             java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
-            Cancelled dibatal = new Cancelled(parent, true);
-            dibatal.setVisible(true);
-
             return;
         }
 
