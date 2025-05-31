@@ -39,9 +39,9 @@ import raven.dialog.SesuaiFormat_MM;
 import raven.dialog.SesuaiFormat_Tanggal;
 import raven.dialog.SesuaiFormat_YYYY;
 import raven.dialog.SesuaiFormat_YYYYMMDD;
+import cetak.ReportGeneratorPdf;
 
 public class Form_pengeluaran extends javax.swing.JPanel {
-
 
     public Statement st;
     public ResultSet rs;
@@ -50,288 +50,336 @@ public class Form_pengeluaran extends javax.swing.JPanel {
 
     public Form_pengeluaran() {
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-        symbols.setGroupingSeparator('.'); 
+        symbols.setGroupingSeparator('.');
         df = new DecimalFormat("#,###", symbols);
         initComponents();
         chart();
         table();
-        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
-                Loading load = new Loading(parent, true);
-            load.setVisible(true);
-       
+        java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+        Loading load = new Loading(parent, true);
+        load.setVisible(true);
+
+        table1.setFocusable(true);
+        // Tambahkan KeyListener ke table1
+        table1.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_P) { // Jika tombol 'P' ditekan
+                    int selectedRow = table1.getSelectedRow();
+                    if (selectedRow != -1) {
+                        Object idObj = table1.getValueAt(selectedRow, 0);
+                        String idPengeluaran = null;
+
+                        if (idObj != null) {
+                            idPengeluaran = idObj.toString(); // Konversi ke String
+                        }
+
+                        if (idPengeluaran != null && !idPengeluaran.trim().isEmpty()) {
+                            // Tampilkan dialog loading
+                            Loading loading = new Loading(null, true);
+                            Thread t = new Thread(() -> {
+                                loading.setVisible(true);
+                            });
+                            t.start();
+
+                            try {
+                                // Panggil ReportGeneratorPdf
+                                // Menggunakan nama kelas yang lebih ringkas karena sudah di-import
+                                new ReportGeneratorPdf().generatePengeluaranReportPdf(idPengeluaran);
+                            } finally {
+                                // Pastikan dialog loading ditutup
+                                loading.dispose();
+                            }
+                        } else {
+                            JOptionPane.showMessageDialog(Form_pengeluaran.this,
+                                    "Tidak dapat mengambil ID pengeluaran yang valid dari tabel.",
+                                    "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+
+                    } else {
+                        JOptionPane.showMessageDialog(Form_pengeluaran.this,
+                                "Pilih baris pengeluaran terlebih dahulu di tabel.",
+                                "Informasi", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                }
+            }
+        });
     }
-    
+
     private void chart() {
-    chart.clear();
-    chart.setTitle("Pengeluaran Tahunan");
-    chart.addLegend("Pengeluaran ", Color.decode("#FF0000"), Color.decode("#FF6666")); // Ubah warna ke merah
+        chart.clear();
+        chart.setTitle("Pengeluaran Tahunan");
+        chart.addLegend("Pengeluaran ", Color.decode("#FF0000"), Color.decode("#FF6666")); // Ubah warna ke merah
 
-    try {
-        String sql = "SELECT MONTH(tanggal) AS bulan, SUM(total) AS total_pengeluaran " +
-                     "FROM pengeluaran " +
-                     "WHERE YEAR(tanggal) = YEAR(CURDATE()) " +
-                     "GROUP BY MONTH(tanggal)";
-        PreparedStatement stmt = cn.prepareStatement(sql);
-        ResultSet rs = stmt.executeQuery();
+        try {
+            String sql = "SELECT MONTH(tanggal) AS bulan, SUM(total) AS total_pengeluaran "
+                    + "FROM pengeluaran "
+                    + "WHERE YEAR(tanggal) = YEAR(CURDATE()) "
+                    + "GROUP BY MONTH(tanggal)";
+            PreparedStatement stmt = cn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
 
-        // Array untuk menyimpan total per bulan (Januari-Desember)
-        double[] totals = new double[12];
-        String[] months = {"January", "February", "March", "April", "May", "June", 
-                          "July", "August", "September", "October", "November", "December"};
+            // Array untuk menyimpan total per bulan (Januari-Desember)
+            double[] totals = new double[12];
+            String[] months = {"January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"};
 
-        // Inisialisasi array dengan 0
-        for (int i = 0; i < 12; i++) {
-            totals[i] = 0;
-        }
+            // Inisialisasi array dengan 0
+            for (int i = 0; i < 12; i++) {
+                totals[i] = 0;
+            }
 
-        // Isi total berdasarkan data dari query
-        while (rs.next()) {
-            int bulan = rs.getInt("bulan"); // Bulan dalam angka (1-12)
-            double totalPengeluaran = rs.getDouble("total_pengeluaran");
-            totals[bulan - 1] = totalPengeluaran; // Indeks array dimulai dari 0, bulan dari 1
-        }
+            // Isi total berdasarkan data dari query
+            while (rs.next()) {
+                int bulan = rs.getInt("bulan"); // Bulan dalam angka (1-12)
+                double totalPengeluaran = rs.getDouble("total_pengeluaran");
+                totals[bulan - 1] = totalPengeluaran; // Indeks array dimulai dari 0, bulan dari 1
+            }
 
-        // Tambahkan data ke chart
-        for (int i = 0; i < 12; i++) {
-            chart.addData(new ModelChart(months[i], new double[]{totals[i]}));
-        }
+            // Tambahkan data ke chart
+            for (int i = 0; i < 12; i++) {
+                chart.addData(new ModelChart(months[i], new double[]{totals[i]}));
+            }
 
-        chart.start();
-    } catch (SQLException e) {
-        e.printStackTrace();
-        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
-                FailLoaded load = new FailLoaded(parent, true);
+            chart.start();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+            FailLoaded load = new FailLoaded(parent, true);
             load.setVisible(true);
+        }
     }
-}
 
     public void table() {
-    DefaultTableModel model = new DefaultTableModel();
-    model.setRowCount(0);
-    model.setColumnCount(0);
-    model.addColumn("Status");
-    model.addColumn("Keterangan");
-    model.addColumn("Jumlah");
-    model.addColumn("Total");
-    model.addColumn("Tanggal");
+        DefaultTableModel model = new DefaultTableModel();
+        model.setRowCount(0);
+        model.setColumnCount(0);
+        model.addColumn("ID Pengeluaran");
+        model.addColumn("Status");
+        model.addColumn("Keterangan");
+        model.addColumn("Jumlah");
+        model.addColumn("Total");
+        model.addColumn("Tanggal");
 
-    try {
-        String sql = "SELECT status, jumlah, total, keterangan, tanggal " +
-                     "FROM pengeluaran " +
-                     "ORDER BY tanggal DESC";
-        PreparedStatement stmt = cn.prepareStatement(sql);
-        ResultSet rs = stmt.executeQuery();
+        try {
+            String sql = "SELECT id_pengeluaran, status, jumlah, total, keterangan, tanggal "
+                    + "FROM pengeluaran "
+                    + "ORDER BY tanggal DESC";
+            PreparedStatement stmt = cn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
 
-        double totalSum = 0; // Variabel untuk menyimpan jumlah total
-        while (rs.next()) {
-            double totalValue = rs.getDouble("total");
-            Object jumlah = rs.getObject("jumlah");
-            model.addRow(new Object[]{
-                rs.getString("status"),
-                rs.getString("keterangan"),
-                jumlah != null ? jumlah : "kosong",
-                df.format(totalValue),
-                new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal"))
-            });
-            totalSum += totalValue; // Tambahkan ke totalSum
-        }
+            double totalSum = 0; // Variabel untuk menyimpan jumlah total
+            while (rs.next()) {
+                double totalValue = rs.getDouble("total");
+                Object jumlah = rs.getObject("jumlah");
+                model.addRow(new Object[]{
+                    rs.getInt("id_pengeluaran"),
+                    rs.getString("status"),
+                    rs.getString("keterangan"),
+                    jumlah != null ? jumlah : "kosong",
+                    df.format(totalValue),
+                    new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal"))
+                });
+                totalSum += totalValue; // Tambahkan ke totalSum
+            }
 
-        table1.setModel(model);
-        
-        // Pengaturan lebar kolom (opsional, sesuaikan sesuai kebutuhan)
-        int[] columnWidths = {150, 100, 200, 150, 150};
-        for (int i = 0; i < columnWidths.length; i++) {
-            table1.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
-        }
-        
-        // Sesuaikan tabel dengan scroll pane (jika ada method custom)
-        table1.fixTable(jScrollPane1);
+            table1.setModel(model);
 
-        // Set total ke jtx bernama "total"
-        pencarian1.setText(df.format(totalSum));
+            // Pengaturan lebar kolom (opsional, sesuaikan sesuai kebutuhan)
+            int[] columnWidths = {150, 100, 200, 150, 150};
+            for (int i = 0; i < columnWidths.length; i++) {
+                table1.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
+            }
 
-    } catch (SQLException e) {
-        e.printStackTrace();
-        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
-                FailLoaded load = new FailLoaded(parent, true);
+            // Sesuaikan tabel dengan scroll pane (jika ada method custom)
+            table1.fixTable(jScrollPane1);
+
+            // Set total ke jtx bernama "total"
+            pencarian1.setText(df.format(totalSum));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+            FailLoaded load = new FailLoaded(parent, true);
             load.setVisible(true);
+        }
     }
-}
-    
+
     public void cariBerdasarkanTanggal() {
-    DefaultTableModel model = new DefaultTableModel();
-    model.setRowCount(0);
-    model.setColumnCount(0);
-    model.addColumn("Status");
-    model.addColumn("Keterangan");
-    model.addColumn("Jumlah");
-    model.addColumn("Total");
-    model.addColumn("Tanggal");
+        DefaultTableModel model = new DefaultTableModel();
+        model.setRowCount(0);
+        model.setColumnCount(0);
+        model.addColumn("ID Pengeluaran");
+        model.addColumn("Status");
+        model.addColumn("Keterangan");
+        model.addColumn("Jumlah");
+        model.addColumn("Total");
+        model.addColumn("Tanggal");
 
-    try {
-        // Ambil input dari jtxPencarian
-        String inputTanggal = pencarian.getText().trim();
-        if (inputTanggal.isEmpty()) {
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+        try {
+            // Ambil input dari jtxPencarian
+            String inputTanggal = pencarian.getText().trim();
+            if (inputTanggal.isEmpty()) {
+                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
                 MasukkanTanggal load = new MasukkanTanggal(parent, true);
-            load.setVisible(true);
-            return;
-        }
-
-        // Validasi format tanggal
-        String sql = "";
-        String[] dateParts = inputTanggal.split("-");
-        
-        // Variabel untuk menyimpan jumlah total
-        double totalSum = 0;
-
-        // Validasi apakah setiap bagian adalah angka
-        if (dateParts.length == 3) {
-            // Format: yyyy/MM/dd (tanggal spesifik)
-            // Validasi bahwa setiap bagian adalah angka
-            if (!dateParts[0].matches("\\d{4}") || !dateParts[1].matches("\\d{2}") || !dateParts[2].matches("\\d{2}")) {
-                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
-                SesuaiFormat_YYYYMMDD load = new SesuaiFormat_YYYYMMDD(parent, true);
-            load.setVisible(true);
-                return;
-            }
-            
-            // Validasi nilai bulan dan tanggal
-            int bulan = Integer.parseInt(dateParts[1]);
-            int tanggal = Integer.parseInt(dateParts[2]);
-            if (bulan < 1 || bulan > 12) {
-                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
-                SesuaiFormat_MM load = new SesuaiFormat_MM(parent, true);
-            load.setVisible(true);
-                return;
-            }
-            if (tanggal < 1 || tanggal > 31) {
-                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
-                SesuaiFormat_DD load = new SesuaiFormat_DD(parent, true);
-            load.setVisible(true);
+                load.setVisible(true);
                 return;
             }
 
-            sql = "SELECT status, jumlah, total, keterangan, tanggal " +
-                  "FROM pengeluaran " +
-                  "WHERE DATE(tanggal) = ? " +
-                  "ORDER BY tanggal DESC";
-            PreparedStatement stmt = cn.prepareStatement(sql);
-            stmt.setString(1, inputTanggal.replace("/", "-")); // Ubah format ke yyyy-MM-dd untuk SQL
-            ResultSet rs = stmt.executeQuery();
+            // Validasi format tanggal
+            String sql = "";
+            String[] dateParts = inputTanggal.split("-");
 
-            while (rs.next()) {
-                double totalValue = rs.getDouble("total");
-                Object jumlah = rs.getObject("jumlah");
-                model.addRow(new Object[]{
-                    rs.getString("status"),
-                    rs.getString("keterangan"),
-                    jumlah != null ? jumlah : "kosong",
-                    df.format(totalValue),
-                    new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal"))
-                });
-                totalSum += totalValue; // Tambahkan ke totalSum
-            }
-        } else if (dateParts.length == 2) {
-            // Format: yyyy/MM (bulan spesifik)
-            if (!dateParts[0].matches("\\d{4}") || !dateParts[1].matches("\\d{2}")) {
-                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
-                SesuaiFormat_YYYYMMDD load = new SesuaiFormat_YYYYMMDD(parent, true);
-            load.setVisible(true);
-                return;
-            }
+            // Variabel untuk menyimpan jumlah total
+            double totalSum = 0;
 
-            int bulan = Integer.parseInt(dateParts[1]);
-            if (bulan < 1 || bulan > 12) {
-                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
-                SesuaiFormat_MM load = new SesuaiFormat_MM(parent, true);
-            load.setVisible(true);
-                return;
-            }
+            // Validasi apakah setiap bagian adalah angka
+            if (dateParts.length == 3) {
+                // Format: yyyy/MM/dd (tanggal spesifik)
+                // Validasi bahwa setiap bagian adalah angka
+                if (!dateParts[0].matches("\\d{4}") || !dateParts[1].matches("\\d{2}") || !dateParts[2].matches("\\d{2}")) {
+                    java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                    SesuaiFormat_YYYYMMDD load = new SesuaiFormat_YYYYMMDD(parent, true);
+                    load.setVisible(true);
+                    return;
+                }
 
-            sql = "SELECT status, jumlah, total, keterangan, tanggal " +
-                  "FROM pengeluaran " +
-                  "WHERE YEAR(tanggal) = ? AND MONTH(tanggal) = ? " +
-                  "ORDER BY tanggal DESC";
-            PreparedStatement stmt = cn.prepareStatement(sql);
-            stmt.setInt(1, Integer.parseInt(dateParts[0])); // Tahun
-            stmt.setInt(2, bulan); // Bulan
-            ResultSet rs = stmt.executeQuery();
+                // Validasi nilai bulan dan tanggal
+                int bulan = Integer.parseInt(dateParts[1]);
+                int tanggal = Integer.parseInt(dateParts[2]);
+                if (bulan < 1 || bulan > 12) {
+                    java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                    SesuaiFormat_MM load = new SesuaiFormat_MM(parent, true);
+                    load.setVisible(true);
+                    return;
+                }
+                if (tanggal < 1 || tanggal > 31) {
+                    java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                    SesuaiFormat_DD load = new SesuaiFormat_DD(parent, true);
+                    load.setVisible(true);
+                    return;
+                }
 
-            while (rs.next()) {
-                double totalValue = rs.getDouble("total");
-                Object jumlah = rs.getObject("jumlah");
-                model.addRow(new Object[]{
-                    rs.getString("status"),
-                    rs.getString("keterangan"),
-                    jumlah != null ? jumlah : "kosong",
-                    df.format(totalValue),
-                    new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal"))
-                });
-                totalSum += totalValue; // Tambahkan ke totalSum
-            }
-        } else if (dateParts.length == 1) {
-            // Format: yyyy (tahun spesifik)
-            if (!dateParts[0].matches("\\d{4}")) {
-                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
-                SesuaiFormat_YYYY load = new SesuaiFormat_YYYY(parent, true);
-            load.setVisible(true);
-                return;
-            }
+                sql = "SELECT id_pengeluaran, status, jumlah, total, keterangan, tanggal "
+                        + "FROM pengeluaran "
+                        + "WHERE DATE(tanggal) = ? "
+                        + "ORDER BY tanggal DESC";
+                PreparedStatement stmt = cn.prepareStatement(sql);
+                stmt.setString(1, inputTanggal.replace("/", "-")); // Ubah format ke yyyy-MM-dd untuk SQL
+                ResultSet rs = stmt.executeQuery();
 
-            sql = "SELECT status, jumlah, total, keterangan, tanggal " +
-                  "FROM pengeluaran " +
-                  "WHERE YEAR(tanggal) = ? " +
-                  "ORDER BY tanggal DESC";
-            PreparedStatement stmt = cn.prepareStatement(sql);
-            stmt.setInt(1, Integer.parseInt(dateParts[0])); // Tahun
-            ResultSet rs = stmt.executeQuery();
+                while (rs.next()) {
+                    double totalValue = rs.getDouble("total");
+                    Object jumlah = rs.getObject("jumlah");
+                    model.addRow(new Object[]{
+                        rs.getString("status"),
+                        rs.getString("keterangan"),
+                        jumlah != null ? jumlah : "kosong",
+                        df.format(totalValue),
+                        new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal"))
+                    });
+                    totalSum += totalValue; // Tambahkan ke totalSum
+                }
+            } else if (dateParts.length == 2) {
+                // Format: yyyy/MM (bulan spesifik)
+                if (!dateParts[0].matches("\\d{4}") || !dateParts[1].matches("\\d{2}")) {
+                    java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                    SesuaiFormat_YYYYMMDD load = new SesuaiFormat_YYYYMMDD(parent, true);
+                    load.setVisible(true);
+                    return;
+                }
 
-            while (rs.next()) {
-                double totalValue = rs.getDouble("total");
-                Object jumlah = rs.getObject("jumlah");
-                model.addRow(new Object[]{
-                    rs.getString("status"),
-                    rs.getString("keterangan"),
-                    jumlah != null ? jumlah : "kosong",
-                    df.format(totalValue),
-                    new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal"))
-                });
-                totalSum += totalValue; // Tambahkan ke totalSum
-            }
-        } else {
-            // Jika format tidak valid
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                int bulan = Integer.parseInt(dateParts[1]);
+                if (bulan < 1 || bulan > 12) {
+                    java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                    SesuaiFormat_MM load = new SesuaiFormat_MM(parent, true);
+                    load.setVisible(true);
+                    return;
+                }
+
+                sql = "SELECT id_pengeluaran, status, jumlah, total, keterangan, tanggal "
+                        + "FROM pengeluaran "
+                        + "WHERE YEAR(tanggal) = ? AND MONTH(tanggal) = ? "
+                        + "ORDER BY tanggal DESC";
+                PreparedStatement stmt = cn.prepareStatement(sql);
+                stmt.setInt(1, Integer.parseInt(dateParts[0])); // Tahun
+                stmt.setInt(2, bulan); // Bulan
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()) {
+                    double totalValue = rs.getDouble("total");
+                    Object jumlah = rs.getObject("jumlah");
+                    model.addRow(new Object[]{
+                        rs.getString("status"),
+                        rs.getString("keterangan"),
+                        jumlah != null ? jumlah : "kosong",
+                        df.format(totalValue),
+                        new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal"))
+                    });
+                    totalSum += totalValue; // Tambahkan ke totalSum
+                }
+            } else if (dateParts.length == 1) {
+                // Format: yyyy (tahun spesifik)
+                if (!dateParts[0].matches("\\d{4}")) {
+                    java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+                    SesuaiFormat_YYYY load = new SesuaiFormat_YYYY(parent, true);
+                    load.setVisible(true);
+                    return;
+                }
+
+                sql = "SELECT id_pengeluaran, status, jumlah, total, keterangan, tanggal "
+                        + "FROM pengeluaran "
+                        + "WHERE YEAR(tanggal) = ? "
+                        + "ORDER BY tanggal DESC";
+                PreparedStatement stmt = cn.prepareStatement(sql);
+                stmt.setInt(1, Integer.parseInt(dateParts[0])); // Tahun
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()) {
+                    double totalValue = rs.getDouble("total");
+                    Object jumlah = rs.getObject("jumlah");
+                    model.addRow(new Object[]{
+                        rs.getString("status"),
+                        rs.getString("keterangan"),
+                        jumlah != null ? jumlah : "kosong",
+                        df.format(totalValue),
+                        new SimpleDateFormat("yyyy-MM-dd").format(rs.getTimestamp("tanggal"))
+                    });
+                    totalSum += totalValue; // Tambahkan ke totalSum
+                }
+            } else {
+                // Jika format tidak valid
+                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
                 SesuaiFormat_Tanggal load = new SesuaiFormat_Tanggal(parent, true);
+                load.setVisible(true);
+                return;
+            }
+
+            // Set model ke tabel
+            table1.setModel(model);
+
+            // Pengaturan lebar kolom
+            int[] columnWidths = {150, 100, 150, 200, 150, 150};
+            for (int i = 0; i < columnWidths.length; i++) {
+                table1.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
+            }
+
+            // Sesuaikan tabel dengan scroll pane
+            table1.fixTable(jScrollPane1);
+
+            // Set total ke jtx bernama "total"
+            pencarian1.setText(df.format(totalSum));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+            FailLoaded load = new FailLoaded(parent, true);
             load.setVisible(true);
-            return;
         }
-
-        // Set model ke tabel
-        table1.setModel(model);
-
-        // Pengaturan lebar kolom
-        int[] columnWidths = {150, 100, 150, 200, 150, 150};
-        for (int i = 0; i < columnWidths.length; i++) {
-            table1.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
-        }
-
-        // Sesuaikan tabel dengan scroll pane
-        table1.fixTable(jScrollPane1);
-
-        // Set total ke jtx bernama "total"
-        pencarian1.setText(df.format(totalSum));
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
-                FailLoaded load = new FailLoaded(parent, true);
-            load.setVisible(true);
     }
-}
-    
+
     private void addpengeluaran() {
-         // Membuat field input menggunakan TextFieldSuggestion
+        // Membuat field input menggunakan TextFieldSuggestion
         TextFieldSuggestion keterangan = new TextFieldSuggestion();
         TextFieldSuggestion total = new TextFieldSuggestion();
 
@@ -339,7 +387,6 @@ public class Form_pengeluaran extends javax.swing.JPanel {
         Dimension fieldSize = new Dimension(200, 35);
         total.setPreferredSize(fieldSize);
         keterangan.setPreferredSize(fieldSize);
-
 
         // Label untuk setiap field
         JLabel l0 = new JLabel("keterangan:");
@@ -375,9 +422,9 @@ public class Form_pengeluaran extends javax.swing.JPanel {
 
         // Buat JOptionPane dengan panel custom
         JOptionPane optionPane = new JOptionPane(
-            dialogPanel,
-            JOptionPane.PLAIN_MESSAGE,
-            JOptionPane.OK_CANCEL_OPTION
+                dialogPanel,
+                JOptionPane.PLAIN_MESSAGE,
+                JOptionPane.OK_CANCEL_OPTION
         );
 
         // Buat dialog
@@ -393,8 +440,8 @@ public class Form_pengeluaran extends javax.swing.JPanel {
         // Dapatkan hasil dari dialog
         Object selectedValue = optionPane.getValue();
         if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
-                Cancelled load = new Cancelled(parent, true);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+            Cancelled load = new Cancelled(parent, true);
             load.setVisible(true);
             return;
         }
@@ -407,10 +454,10 @@ public class Form_pengeluaran extends javax.swing.JPanel {
         // Lanjutkan dengan penyimpanan data
         try {
             // Validasi input
-            if (valketerangan.isEmpty() || valtotal.isEmpty() ) {
-                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+            if (valketerangan.isEmpty() || valtotal.isEmpty()) {
+                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
                 LengkapiData lengkapi = new LengkapiData(parent, true);
-            lengkapi.setVisible(true);
+                lengkapi.setVisible(true);
                 return;
             }
 
@@ -430,30 +477,32 @@ public class Form_pengeluaran extends javax.swing.JPanel {
             table();
 
             cn.commit(); // Commit transaksi
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
-                Loading load = new Loading(parent, true);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+            Loading load = new Loading(parent, true);
             load.setVisible(true);
 
         } catch (SQLException | NumberFormatException ex) {
             try {
-                if (cn != null) cn.rollback();
+                if (cn != null) {
+                    cn.rollback();
+                }
             } catch (SQLException rollbackEx) {
                 rollbackEx.printStackTrace();
             }
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
-                FailSaved gagal = new FailSaved(parent, true);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_pengeluaran.this);
+            FailSaved gagal = new FailSaved(parent, true);
             gagal.setVisible(true);
             ex.printStackTrace();
-        } 
+        }
     }
-    
+
     private JPanel createInputPanel(JLabel label, JComponent input) {
         JPanel panel = new JPanel(new BorderLayout(0, 2));
         panel.add(label, BorderLayout.NORTH);
         panel.add(input, BorderLayout.CENTER);
         return panel;
     }
-    
+
     private void setBackgroundRecursively(Container container, Color color) {
         container.setBackground(color);
         for (Component comp : container.getComponents()) {
@@ -463,7 +512,7 @@ public class Form_pengeluaran extends javax.swing.JPanel {
             }
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -547,12 +596,13 @@ public class Form_pengeluaran extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(chart, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(pencarian1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2)
-                    .addComponent(pencarian, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1)
-                    .addComponent(Tambah, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(Tambah, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(pencarian1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel2)
+                        .addComponent(pencarian, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel1)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
                 .addContainerGap())

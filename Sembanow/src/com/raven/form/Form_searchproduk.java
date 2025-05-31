@@ -55,6 +55,15 @@ import java.awt.print.Paper;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import cetak.BarcodePrintable;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.HashMap;
+import java.util.Map;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
+import javax.swing.JPopupMenu;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import raven.dialog.Cancelled;
 import raven.dialog.FailLoaded;
 import raven.dialog.FailSaved;
@@ -70,6 +79,7 @@ public class Form_searchproduk extends javax.swing.JPanel {
     Connection cn = koneksi.getKoneksi();
 
     public Form_searchproduk() {
+
         initComponents();
         showData1();
         setupListeners();
@@ -249,7 +259,7 @@ public class Form_searchproduk extends javax.swing.JPanel {
                 QperD.setText("");
             }
         } catch (SQLException ex) {
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
             Loading load = new Loading(parent, true);
             load.setVisible(true);
             FailLoaded fail = new FailLoaded(parent, true);
@@ -288,9 +298,9 @@ public class Form_searchproduk extends javax.swing.JPanel {
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
-                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_searchproduk.this);
-            FailLoaded load = new FailLoaded(parent, true);
-            load.setVisible(true);
+                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+                FailLoaded load = new FailLoaded(parent, true);
+                load.setVisible(true);
             }
         }
 
@@ -340,9 +350,9 @@ public class Form_searchproduk extends javax.swing.JPanel {
     }
 
     public void showData1() {
-        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_searchproduk.this);
-            Loading load = new Loading(parent, true);
-            load.setVisible(true);
+        java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+        Loading load = new Loading(parent, true);
+        load.setVisible(true);
         String[] columnNames = {"ID", "Produk", "Harga1", "Harga2", "Harga3", "Supplier"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         String sql = "SELECT id_produk, nama, h1, h2, h3, nama_supplier "
@@ -510,7 +520,7 @@ public class Form_searchproduk extends javax.swing.JPanel {
 
         Object selectedValue = optionPane.getValue();
         if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
             Cancelled dibatal = new Cancelled(parent, true);
             dibatal.setVisible(true);
             return;
@@ -627,8 +637,8 @@ public class Form_searchproduk extends javax.swing.JPanel {
             }
 
             cn.commit();
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_searchproduk.this);
-                                Loading load = new Loading(parent, true);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+            Loading load = new Loading(parent, true);
             load.setVisible(true);
 
         } catch (SQLException | NumberFormatException ex) {
@@ -639,8 +649,8 @@ public class Form_searchproduk extends javax.swing.JPanel {
             } catch (SQLException rollbackEx) {
                 rollbackEx.printStackTrace();
             }
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_searchproduk.this);
-                                FailSaved load = new FailSaved(parent, true);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+            FailSaved load = new FailSaved(parent, true);
             load.setVisible(true);
             ex.printStackTrace();
         } finally {
@@ -655,6 +665,19 @@ public class Form_searchproduk extends javax.swing.JPanel {
     }
 
     private void addproduk() {
+
+        ComboBoxSuggestion supplierComboBox = new ComboBoxSuggestion();
+        supplierComboBox.setEditable(true); // Penting agar bisa diketik dan muncul saran
+
+        // Isi supplierComboBox dari database
+        try {
+            populateSupplierComboBox(supplierComboBox);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Gagal memuat daftar supplier: " + ex.getMessage(), "Error Database", JOptionPane.ERROR_MESSAGE);
+            return; // Batalkan operasi jika gagal memuat supplier
+        }
+
         TextFieldSuggestion keterangan = new TextFieldSuggestion();
         TextFieldSuggestion total = new TextFieldSuggestion();
         TextFieldSuggestion id = new TextFieldSuggestion();
@@ -703,8 +726,8 @@ public class Form_searchproduk extends javax.swing.JPanel {
         JLabel l11 = new JLabel("Harga2:");
         JLabel l12 = new JLabel("Harga3:");
         JLabel l13 = new JLabel("Exp (yyyy-MM-dd):");
-        JLabel lh2 = new JLabel("h2:");
-        JLabel lh3 = new JLabel("h3:");
+        JLabel lh2 = new JLabel("minimal pcs h2:");
+        JLabel lh3 = new JLabel("minimal pcs h3:");
 
         JPanel mainPanel = new JPanel(new GridLayout(3, 5, 5, 5));
 
@@ -724,6 +747,103 @@ public class Form_searchproduk extends javax.swing.JPanel {
         mainPanel.add(createInputPanel(l13, exp));
         mainPanel.add(createInputPanel(lh2, pcsh2));
         mainPanel.add(createInputPanel(lh3, pcsh3));
+
+        JPopupMenu popup = new JPopupMenu();
+        JList<String> suggestionList = new JList<>();
+        JScrollPane scroll = new JScrollPane(suggestionList);
+        scroll.setPreferredSize(new Dimension(200, 100));
+        popup.add(scroll);
+
+// Simpan mapping nama ke ID supplier (optional kalau ingin digunakan)
+        Map<String, String> supplierMap = new HashMap<>();
+
+        keterangan.getDocument().addDocumentListener(new DocumentListener() {
+            private void updateSuggestions() {
+                String text = keterangan.getText().trim();
+                if (text.isEmpty()) {
+                    popup.setVisible(false);
+                    return;
+                }
+
+                DefaultListModel<String> model = new DefaultListModel<>();
+                supplierMap.clear();
+
+                try {
+                    String sql = "SELECT id_supplier, nama FROM supplier WHERE nama LIKE ?";
+                    try (PreparedStatement stmt = cn.prepareStatement(sql)) {
+                        stmt.setString(1, "%" + text + "%");
+                        try (ResultSet rs = stmt.executeQuery()) {
+                            while (rs.next()) {
+                                String name = rs.getString("nama");
+                                String id = rs.getString("id_supplier");
+                                model.addElement(name);
+                                supplierMap.put(name, id);
+                            }
+                        }
+                    }
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+
+                if (model.isEmpty()) {
+                    popup.setVisible(false);
+                } else {
+                    suggestionList.setModel(model);
+                    popup.show(keterangan, 0, keterangan.getHeight());
+                    keterangan.requestFocus(); // tetap fokus
+                }
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                updateSuggestions();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                updateSuggestions();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+            }
+        });
+
+        suggestionList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                String selected = suggestionList.getSelectedValue();
+                if (selected != null) {
+                    keterangan.setText(selected);
+                    popup.setVisible(false);
+                }
+            }
+        });
+
+        keterangan.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (popup.isVisible()) {
+                    if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                        suggestionList.requestFocus();
+                        suggestionList.setSelectedIndex(0);
+                    }
+                }
+            }
+        });
+
+        suggestionList.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    String selected = suggestionList.getSelectedValue();
+                    if (selected != null) {
+                        keterangan.setText(selected);
+                        popup.setVisible(false);
+                    }
+                }
+            }
+        });
 
         KeyListener enterKeyListener = new KeyAdapter() {
             @Override
@@ -774,6 +894,9 @@ public class Form_searchproduk extends javax.swing.JPanel {
             }
         });
 
+        Component editorSupplier = supplierComboBox.getEditor().getEditorComponent();
+        editorSupplier.addKeyListener(enterKeyListener);
+
         keterangan.addKeyListener(enterKeyListener);
         total.addKeyListener(enterKeyListener);
         id.addKeyListener(enterKeyListener);
@@ -801,10 +924,9 @@ public class Form_searchproduk extends javax.swing.JPanel {
         setBackgroundRecursively(dialog.getContentPane(), Color.WHITE);
         dialog.setVisible(true);
 
-
         Object selectedValue = optionPane.getValue();
         if (!(selectedValue instanceof Integer) || (Integer) selectedValue != JOptionPane.OK_OPTION) {
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
             Cancelled dibatal = new Cancelled(parent, true);
             dibatal.setVisible(true);
             return;
@@ -837,9 +959,9 @@ public class Form_searchproduk extends javax.swing.JPanel {
             int valPcsh3Num = valPcsh3.isEmpty() ? 0 : Integer.parseInt(valPcsh3);
 
             if (valKeterangan.isEmpty() || valProduk.isEmpty() || valExp.isEmpty()) {
-                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_searchproduk.this);
-            LengkapiData lengkapi = new LengkapiData(parent, true);
-            lengkapi.setVisible(true);
+                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+                LengkapiData lengkapi = new LengkapiData(parent, true);
+                lengkapi.setVisible(true);
                 return;
             }
 
@@ -849,9 +971,9 @@ public class Form_searchproduk extends javax.swing.JPanel {
                 java.util.Date parsedDate = dateFormat.parse(valExp);
                 expDate = new java.sql.Date(parsedDate.getTime());
             } catch (ParseException ex) {
-                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_searchproduk.this);
-            SesuaiFormat_YYYYMMDD lengkapi = new SesuaiFormat_YYYYMMDD(parent, true);
-            lengkapi.setVisible(true);
+                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+                SesuaiFormat_YYYYMMDD lengkapi = new SesuaiFormat_YYYYMMDD(parent, true);
+                lengkapi.setVisible(true);
                 return;
             }
 
@@ -905,6 +1027,10 @@ public class Form_searchproduk extends javax.swing.JPanel {
             try (PreparedStatement pstmt = cn.prepareStatement(produkSql, Statement.RETURN_GENERATED_KEYS)) {
                 int paramIndex = 1;
 
+                if (idProvided) {
+                    pstmt.setInt(paramIndex++, Integer.parseInt(valId));
+                }
+
                 pstmt.setString(paramIndex++, valProduk);
                 pstmt.setInt(paramIndex++, valHarga1Num);
                 pstmt.setInt(paramIndex++, valHarga2Num);
@@ -914,7 +1040,7 @@ public class Form_searchproduk extends javax.swing.JPanel {
                 pstmt.setInt(paramIndex++, Integer.parseInt(idSupplier));
 
                 if (includeSatuan) {
-                    pstmt.setString(paramIndex++, valSatuan);
+                    pstmt.setString(paramIndex++, valSatuan); // Ini adalah parameter tambahan jika ada satuan
                 }
 
                 pstmt.executeUpdate();
@@ -969,12 +1095,15 @@ public class Form_searchproduk extends javax.swing.JPanel {
                 pstmt.setString(1, status);
                 pstmt.setString(2, valProduk);
                 pstmt.setLong(3, valStokNum);
-                pstmt.setString(2, valSatuan);
-                pstmt.setLong(3, valTotalNum);
+                pstmt.setString(4, valSatuan);
+                pstmt.setLong(5, valTotalNum);
                 pstmt.executeUpdate();
             }
 
             cn.commit();
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+            Loading load = new Loading(parent, true);
+            load.setVisible(true);
 
         } catch (SQLException | NumberFormatException ex) {
             try {
@@ -984,7 +1113,7 @@ public class Form_searchproduk extends javax.swing.JPanel {
             } catch (SQLException rollbackEx) {
                 rollbackEx.printStackTrace();
             }
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
             FailSaved gagal = new FailSaved(parent, true);
             gagal.setVisible(true);
             ex.printStackTrace();
@@ -996,6 +1125,28 @@ public class Form_searchproduk extends javax.swing.JPanel {
             } catch (SQLException finallyEx) {
                 finallyEx.printStackTrace();
             }
+            showData1();
+        }
+    }
+
+    private void populateSupplierComboBox(ComboBoxSuggestion comboBox) throws SQLException {
+        comboBox.removeAllItems();
+        String sql = "SELECT nama FROM supplier ORDER BY nama";
+        System.out.println("Mencoba memuat supplier dengan query: " + sql);
+        try (PreparedStatement pstmt = cn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
+            int count = 0;
+            while (rs.next()) {
+                String supplierName = rs.getString("nama");
+                comboBox.addItem(supplierName);
+                System.out.println("Supplier ditambahkan: " + supplierName);
+                count++;
+            }
+            if (count == 0) {
+                System.out.println("Tidak ada supplier ditemukan di database.");
+            }
+        } catch (SQLException ex) {
+            System.err.println("SQL Error saat memuat supplier: " + ex.getMessage());
+            throw ex; // Re-throw untuk ditangani di addproduk()
         }
     }
 
@@ -1076,7 +1227,7 @@ public class Form_searchproduk extends javax.swing.JPanel {
         // Get selected row from JTable and populate id and produk
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
             Pilihdahulu pilih = new Pilihdahulu(parent, true);
             pilih.setVisible(true);
             return;
@@ -1103,7 +1254,7 @@ public class Form_searchproduk extends javax.swing.JPanel {
 
         Object selectedValue = optionPane.getValue();
         if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
             Cancelled dibatal = new Cancelled(parent, true);
             dibatal.setVisible(true);
 
@@ -1235,7 +1386,7 @@ public class Form_searchproduk extends javax.swing.JPanel {
             } catch (SQLException rollbackEx) {
                 rollbackEx.printStackTrace();
             }
-            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
             FailSaved gagal = new FailSaved(parent, true);
             gagal.setVisible(true);
             ex.printStackTrace();
@@ -1266,11 +1417,12 @@ public class Form_searchproduk extends javax.swing.JPanel {
             }
         }
     }
-    private String notif(){
-        java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(Form_searchproduk.this);
-            FailSaved gagal = new FailSaved(parent, true);
-            gagal.setVisible(true);
-            return null;
+
+    private String notif() {
+        java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+        FailSaved gagal = new FailSaved(parent, true);
+        gagal.setVisible(true);
+        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -1525,21 +1677,17 @@ public class Form_searchproduk extends javax.swing.JPanel {
         String idProduk = table.getValueAt(selectedRow, 0).toString(); // Ambil ID Produk dari kolom pertama
         String namaProduk = table.getValueAt(selectedRow, 1).toString(); // Ambil Nama Produk dari kolom kedua (sesuaikan indeks jika berbeda)
 
-        String inputJumlah = notif();
+        String inputJumlah = JOptionPane.showInputDialog(this, "Masukkan jumlah barcode yang ingin dicetak:", "Jumlah Cetak", JOptionPane.QUESTION_MESSAGE);
         int jumlahCetak = 1;
         if (inputJumlah != null && !inputJumlah.trim().isEmpty()) {
             try {
                 jumlahCetak = Integer.parseInt(inputJumlah.trim());
                 if (jumlahCetak <= 0) {
-                    Window window = SwingUtilities.getWindowAncestor(Form_searchproduk.this);
-                    JumlahBarcode pilih = new JumlahBarcode((Frame) window, true);
-            pilih.setVisible(true);
+                    JOptionPane.showMessageDialog(this, "Jumlah harus lebih dari 0.", "Peringatan", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
             } catch (NumberFormatException e) {
-                Window window = SwingUtilities.getWindowAncestor(Form_searchproduk.this);
-                    JumlahBarcodeInvalid pilih = new JumlahBarcodeInvalid((Frame) window, true);
-            pilih.setVisible(true);
+                JOptionPane.showMessageDialog(this, "Jumlah tidak valid. Masukkan angka.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
         } else {
@@ -1591,13 +1739,9 @@ public class Form_searchproduk extends javax.swing.JPanel {
         if (doPrint) {
             try {
                 job.print(); // Lakukan pencetakan
-                Window window = SwingUtilities.getWindowAncestor(Form_searchproduk.this);
-                Printed berhasil = new Printed((Frame) window, true);
-            berhasil.setVisible(true);
+                JOptionPane.showMessageDialog(this, "Barcode berhasil dikirim ke printer!", "Cetak Berhasil", JOptionPane.INFORMATION_MESSAGE);
             } catch (PrinterException ex) {
-                Window window = SwingUtilities.getWindowAncestor(Form_searchproduk.this);
-                PrintFailed gagal = new PrintFailed((Frame) window, true);
-            gagal.setVisible(true);
+                JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat mencetak: " + ex.getMessage(), "Error Cetak", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
             }
         }
