@@ -55,7 +55,7 @@ public class Form_editSupplier extends javax.swing.JDialog {
         Nama_Supplier.addKeyListener(new java.awt.event.KeyAdapter() {
     public void keyTyped(java.awt.event.KeyEvent evt) {
         char c = evt.getKeyChar();
-        if (!Character.isLetter(c) && c != '\b') {
+        if (!Character.isLetter(c) && c != ' ' && c != '\b') {
             evt.consume(); // Mengabaikan input jika bukan angka atau backspace
         }
     }
@@ -111,9 +111,9 @@ public class Form_editSupplier extends javax.swing.JDialog {
     }
     public boolean validasi(){
         String[]data = getData();
-        String Nama = data[2];
-        String Telepon = data[3];
-        String Alamat = data[4];
+        String Nama = data[1];
+        String Telepon = data[2];
+        String Alamat = data[3];
         
         if(Nama.isEmpty() || Telepon.isEmpty() || Alamat.isEmpty()){
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
@@ -159,8 +159,8 @@ public class Form_editSupplier extends javax.swing.JDialog {
         }
  
     }
-    private boolean isDuplicate(String ID, String Nama, String Telepon){
-        String sql = "SELECT COUNT(*) FROM supplier WHERE nama = ? AND no_hp = ? AND id_supplier != ?";
+    private boolean isDuplicate(String ID, String Nama, String Alamat, String Telepon){
+        String sql = "SELECT COUNT(*) FROM supplier WHERE nama = ? AND alamat = ? AND no_hp = ? AND id_supplier != ?";
         try {
            String url = "jdbc:mysql://localhost:/sembakogrok";
             String dbUser = "root";
@@ -168,8 +168,9 @@ public class Form_editSupplier extends javax.swing.JDialog {
             conn = DriverManager.getConnection(url, dbUser, dbPass);
            pstmt=conn.prepareStatement(sql);
            pstmt.setString(1, Nama);
-           pstmt.setString(2, Telepon);
-           pstmt.setString(3, ID);
+           pstmt.setString(2, Alamat);
+           pstmt.setString(3, Telepon);
+           pstmt.setString(4, ID);
            rs=pstmt.executeQuery();
            if(rs.next()){
                int count = rs.getInt(1);
@@ -391,7 +392,7 @@ public class Form_editSupplier extends javax.swing.JDialog {
                 return;
             }
         }
-        if (isDuplicate(ID,Nama,Telepon)) {
+        if (isDuplicate(ID,Nama,Alamat,Telepon)) {
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
                 DataAda ada = new DataAda(parent, true);
             ada.setVisible(true);

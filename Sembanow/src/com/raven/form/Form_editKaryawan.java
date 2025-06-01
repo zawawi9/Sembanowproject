@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.SwingUtilities;
 import raven.dialog.DataAda;
+import raven.dialog.DataAdaRFID;
 import raven.dialog.LengkapiData;
 import raven.dialog.Loading;
 import raven.dialog.SesuaiFormat;
@@ -63,7 +64,7 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         Nama_Karyawan.addKeyListener(new java.awt.event.KeyAdapter() {
     public void keyTyped(java.awt.event.KeyEvent evt) {
         char c = evt.getKeyChar();
-        if (!Character.isLetter(c) && c != '\b') {
+        if (!Character.isLetter(c) && c != ' ' && c != '\b') {
             evt.consume(); // Mengabaikan input jika bukan angka atau backspace
         }
     }
@@ -222,15 +223,62 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         }
  
     }
-    private boolean isDuplicate(String NIK, String ID){
-        String sql = "SELECT COUNT(*) FROM karyawan WHERE NIK = ? AND id_karyawan != ?";
+    private boolean isDuplicate(String Nama, String Alamat, String Telepon, String NIK, String ID){
+        String sql = "SELECT COUNT(*) FROM karyawan WHERE nama_karyawan = ? AND alamat = ? AND no_hp = ? AND NIK = ? AND id_karyawan != ?";
         try {
            String url = "jdbc:mysql://localhost:/sembakogrok";
             String dbUser = "root";
             String dbPass = "";
             conn = DriverManager.getConnection(url, dbUser, dbPass);
            pstmt=conn.prepareStatement(sql);
-           pstmt.setString(1, NIK);
+           pstmt.setString(1, Nama);
+           pstmt.setString(2, Alamat);
+           pstmt.setString(3, Telepon);
+           pstmt.setString(4, NIK);
+           pstmt.setString(5, ID);
+           rs=pstmt.executeQuery();
+           if(rs.next()){
+               int count = rs.getInt(1);
+               return count > 0;
+           }
+           
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    private boolean isDuplicateData(String Nama, String Alamat, String Telepon, String ID){
+        String sql = "SELECT COUNT(*) FROM karyawan WHERE nama_karyawan = ? AND alamat = ? AND no_hp = ? AND id_karyawan != ?";
+        try {
+           String url = "jdbc:mysql://localhost:/sembakogrok";
+            String dbUser = "root";
+            String dbPass = "";
+            conn = DriverManager.getConnection(url, dbUser, dbPass);
+           pstmt=conn.prepareStatement(sql);
+           pstmt.setString(1, Nama);
+           pstmt.setString(2, Alamat);
+           pstmt.setString(3, Telepon);
+           pstmt.setString(4, ID);
+           rs=pstmt.executeQuery();
+           if(rs.next()){
+               int count = rs.getInt(1);
+               return count > 0;
+           }
+           
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    private boolean isDuplicateRFID(String RFID, String ID){
+        String sql = "SELECT COUNT(*) FROM karyawan WHERE uidrfid = ? AND id_karyawan != ?";
+        try {
+           String url = "jdbc:mysql://localhost:/sembakogrok";
+            String dbUser = "root";
+            String dbPass = "";
+            conn = DriverManager.getConnection(url, dbUser, dbPass);
+           pstmt=conn.prepareStatement(sql);
+           pstmt.setString(1, RFID);
            pstmt.setString(2, ID);
            rs=pstmt.executeQuery();
            if(rs.next()){
@@ -243,7 +291,6 @@ public class Form_editKaryawan extends javax.swing.JDialog {
         }
         return false;
     }
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -547,9 +594,21 @@ public class Form_editKaryawan extends javax.swing.JDialog {
                 return;
             }
         }
-        if (isDuplicate(NIK, ID)) {
+        if (isDuplicate(Nama, Alamat, Telepon, NIK, ID)) {
             java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
                 DataAda ada = new DataAda(parent, true);
+            ada.setVisible(true);
+            return;
+        }
+        if (isDuplicateData(Nama, Alamat, Telepon, ID)) {
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+                DataAda ada = new DataAda(parent, true);
+            ada.setVisible(true);
+            return;
+        }
+        if (isDuplicateRFID(RFIDkaryawan, ID)) {
+            java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+                DataAdaRFID ada = new DataAdaRFID(parent, true);
             ada.setVisible(true);
             return;
         }
