@@ -18,6 +18,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import raven.dialog.DataAda;
+import raven.dialog.DataAdaRFID;
 import raven.dialog.JabatanOnly;
 import raven.dialog.LengkapiData;
 import raven.dialog.Loading;
@@ -84,7 +85,7 @@ public class Form_tbhKaryawan extends javax.swing.JDialog {
         Nama_Karyawan.addKeyListener(new java.awt.event.KeyAdapter() {
     public void keyTyped(java.awt.event.KeyEvent evt) {
         char c = evt.getKeyChar();
-        if (!Character.isLetter(c) && c != '\b') {
+        if (!Character.isLetter(c) && c != ' ' && c != '\b') {
             evt.consume(); // Mengabaikan input jika bukan angka atau backspace
         }
     }
@@ -266,9 +267,20 @@ public boolean isIDExist(Connection conn, int id) throws SQLException {
             check.setString(2, Username);
             check.setString(3, NIK);
             ResultSet rs = check.executeQuery();
+            String checkSqlFRID = "SELECT COUNT(*) FROM karyawan WHERE id_karyawan = ? OR username = ? OR uidrfid = ?";
+            PreparedStatement checkRFID = conn.prepareStatement(checkSqlFRID);
+            checkRFID.setInt(1, ID);
+            checkRFID.setString(2, Username);
+            checkRFID.setString(3, RFID);
+            ResultSet rsRFID = checkRFID.executeQuery();
             if (rs.next() && rs.getInt(1)>0) {
                 java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
                 DataAda ada = new DataAda(parent, true);
+            ada.setVisible(true);
+            return;
+            }else if (rsRFID.next() && rsRFID.getInt(1)>0) {
+                java.awt.Frame parent = (java.awt.Frame)SwingUtilities.getWindowAncestor(this);
+                DataAdaRFID ada = new DataAdaRFID(parent, true);
             ada.setVisible(true);
             return;
             }

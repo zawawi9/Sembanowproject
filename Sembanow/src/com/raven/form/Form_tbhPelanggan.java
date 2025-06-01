@@ -19,6 +19,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import raven.dialog.DataAda;
+import raven.dialog.DataAdaRFID;
 import raven.dialog.JabatanOnly;
 import raven.dialog.LengkapiData;
 import raven.dialog.Loading;
@@ -223,7 +224,18 @@ public class Form_tbhPelanggan extends javax.swing.JDialog {
             check.setInt(1, ID);
             check.setString(2, RFID);
             ResultSet rs = check.executeQuery();
+            String checkSqlData = "SELECT COUNT(*) FROM pelanggan WHERE nama = ? AND alamat = ? AND no_hp = ?";
+            PreparedStatement checkData = conn.prepareStatement(checkSqlData);
+            checkData.setString(1, Nama);
+            checkData.setString(2, Alamat);
+            checkData.setString(3, Telepon);
+            ResultSet rsData = checkData.executeQuery();
             if (rs.next() && rs.getInt(1) > 0) {
+                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(this);
+                DataAdaRFID ada = new DataAdaRFID(parent, true);
+                ada.setVisible(true);
+                return;
+            }else if (rsData.next() && rsData.getInt(1) > 0) {
                 java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(this);
                 DataAda ada = new DataAda(parent, true);
                 ada.setVisible(true);

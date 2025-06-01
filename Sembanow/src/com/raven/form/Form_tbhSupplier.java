@@ -39,7 +39,7 @@ public class Form_tbhSupplier extends javax.swing.JDialog {
         Nama_Supplier.addKeyListener(new java.awt.event.KeyAdapter() {
     public void keyTyped(java.awt.event.KeyEvent evt) {
         char c = evt.getKeyChar();
-        if (!Character.isLetter(c) && c != '\b') {
+        if (!Character.isLetter(c) && c != ' ' && c != '\b') {
             evt.consume(); // Mengabaikan input jika bukan angka atau backspace
         }
     }
@@ -140,7 +140,7 @@ public int generateUniqueID(Connection conn) throws SQLException {
             String dbPass = "";
             conn = DriverManager.getConnection(url, dbUser, dbPass);
             
-            String checkSql = "SELECT COUNT(*) FROM supplier WHERE id_supplier = ? OR nama = ? OR no_hp = ? OR alamat = ?";
+            String checkSql = "SELECT COUNT(*) FROM supplier WHERE id_supplier = ? OR nama = ? AND no_hp = ? AND alamat = ?";
             PreparedStatement check = conn.prepareStatement(checkSql);
             check.setInt(1, ID);
             check.setString(2, Nama);
