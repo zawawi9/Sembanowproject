@@ -70,6 +70,7 @@ import raven.dialog.FailLoaded;
 import raven.dialog.FailSaved;
 import raven.dialog.JumlahBarcode;
 import raven.dialog.JumlahBarcodeInvalid;
+import raven.dialog.MasukkanDataValid1;
 import raven.dialog.NoBarcode;
 import raven.dialog.PrintFailed;
 import raven.dialog.Printed;
@@ -1251,6 +1252,8 @@ public class Form_searchproduk extends javax.swing.JPanel {
         Object selectedValue = optionPane.getValue();
         if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
             java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+                Cancelled dibatal = new Cancelled(parent, true);
+                dibatal.setVisible(true);
             return;
         }
 

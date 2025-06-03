@@ -15,6 +15,16 @@ import cetak.PenjualanPrinterApp;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Date;
+import raven.dialog.FailCount;
+import raven.dialog.LengkapiData;
+import raven.dialog.MasukkanDataValid;
+import raven.dialog.MasukkanDataValid1;
+import raven.dialog.MasukkanJumlah;
+import raven.dialog.Pilihdahulu;
+import raven.dialog.TransaksiBerhasil;
+import raven.dialog.TransaksiCountInvalid;
+import raven.dialog.TransaksiCountKosong;
+import raven.dialog.TransaksiCountKurang;
 
 public class Form_transaksi extends javax.swing.JPanel {
 
@@ -328,7 +338,9 @@ public class Form_transaksi extends javax.swing.JPanel {
 
             stmt.close();
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "ID dan Jumlah harus berupa angka!");
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_transaksi.this);
+                MasukkanDataValid lengkapi = new MasukkanDataValid(parent, true);
+                lengkapi.setVisible(true);
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
         }
@@ -477,7 +489,9 @@ public class Form_transaksi extends javax.swing.JPanel {
                         clearTextFields();
                         jtxId.requestFocusInWindow();
                     } else {
-                        JOptionPane.showMessageDialog(null, "Pilih baris yang ingin dihapus!");
+                        java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_transaksi.this);
+                        Pilihdahulu pilih = new Pilihdahulu(parent, true);
+                pilih.setVisible(true);
                     }
                 } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
                     jtxId.requestFocusInWindow();
@@ -572,7 +586,9 @@ public class Form_transaksi extends javax.swing.JPanel {
             clearTextFields();
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Harga Satuan dan Total harus berupa angka!");
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_transaksi.this);
+                        MasukkanDataValid1 pilih = new MasukkanDataValid1(parent, true);
+                pilih.setVisible(true);
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
@@ -597,7 +613,9 @@ public class Form_transaksi extends javax.swing.JPanel {
             Ltotal.setText("TOTAL: Rp " + df.format(totalSum));
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error saat menghitung total: " + e.getMessage());
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_transaksi.this);
+                        FailCount fail = new FailCount(parent, true);
+                fail.setVisible(true);
         }
     }
 
@@ -609,20 +627,26 @@ public class Form_transaksi extends javax.swing.JPanel {
 
             String totalStr = Ltotal.getText().replace("TOTAL: Rp ", "").replace(".", "");
             if (totalStr.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Total transaksi belum ada!");
+                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_transaksi.this);
+                        TransaksiCountKosong kosong = new TransaksiCountKosong(parent, true);
+                kosong.setVisible(true);
                 return;
             }
             double totalValue = Double.parseDouble(totalStr);
 
             String bayarStr = jtxBayar.getText().replace(".", "");
             if (bayarStr.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Masukkan jumlah yang dibayar!");
+                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_transaksi.this);
+                        MasukkanJumlah count = new MasukkanJumlah(parent, true);
+                count.setVisible(true);
                 return;
             }
             double bayarValue = Double.parseDouble(bayarStr);
 
             if (bayarValue < totalValue) {
-                JOptionPane.showMessageDialog(null, "Jumlah yang dibayar kurang! Total: Rp " + df.format(totalValue));
+                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_transaksi.this);
+                        TransaksiCountKurang count = new TransaksiCountKurang(parent, true);
+                count.setVisible(true);
                 jtxKembalian.setText("");
                 return;
             }
@@ -632,7 +656,9 @@ public class Form_transaksi extends javax.swing.JPanel {
             jtxKembalian.setText(df.format(kembalianValue));
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Jumlah yang dibayar harus berupa angka!");
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_transaksi.this);
+                        TransaksiCountInvalid count = new TransaksiCountInvalid(parent, true);
+                count.setVisible(true);
             jtxKembalian.setText("");
         } catch (Exception e) {
             e.printStackTrace();
@@ -696,7 +722,9 @@ public class Form_transaksi extends javax.swing.JPanel {
 
             if (namaPelanggan.isEmpty() || usernameKasir.isEmpty() || totalStr.isEmpty()
                     || bayarStr.isEmpty() || kembalianStr.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Semua field transaksi harus diisi!");
+                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_transaksi.this);
+                        LengkapiData lengkapi = new LengkapiData(parent, true);
+                lengkapi.setVisible(true);
                 return;
             }
 
@@ -758,7 +786,9 @@ public class Form_transaksi extends javax.swing.JPanel {
             stmtTransaksi.executeBatch();
 
             cn.commit();
-            JOptionPane.showMessageDialog(null, "Transaksi berhasil disimpan!");
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_transaksi.this);
+                        TransaksiBerhasil berhasil = new TransaksiBerhasil(parent, true);
+                berhasil.setVisible(true);
 
             if (idPenjualan != -1) { // Pastikan ID Penjualan valid
                 System.out.println("Transaksi berhasil disimpan dengan ID: " + idPenjualan + ". Mencoba mencetak struk...");
