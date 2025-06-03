@@ -15,12 +15,19 @@ import cetak.PenjualanPrinterApp;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Date;
+import raven.dialog.DataKosong;
+import raven.dialog.DataKosong1;
 import raven.dialog.FailCount;
+import raven.dialog.FailFoundPelanggan;
+import raven.dialog.FailSearchProduk;
 import raven.dialog.LengkapiData;
+import raven.dialog.Loading;
 import raven.dialog.MasukkanDataValid;
 import raven.dialog.MasukkanDataValid1;
 import raven.dialog.MasukkanJumlah;
+import raven.dialog.PelangganNotFound;
 import raven.dialog.Pilihdahulu;
+import raven.dialog.ProdukTidakDitemukan;
 import raven.dialog.TransaksiBerhasil;
 import raven.dialog.TransaksiCountInvalid;
 import raven.dialog.TransaksiCountKosong;
@@ -170,13 +177,17 @@ public class Form_transaksi extends javax.swing.JPanel {
                 }
                 satuan.requestFocusInWindow();
             } else {
-                JOptionPane.showMessageDialog(null, "Produk dengan ID " + idProdukInput + " tidak ditemukan!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_transaksi.this);
+                        ProdukTidakDitemukan tidaktemuproduk = new ProdukTidakDitemukan(parent, true);
+                tidaktemuproduk.setVisible(true);
                 clearTextFields();
                 jtxId.requestFocusInWindow();
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error mencari produk: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_transaksi.this);
+                        FailSearchProduk gagalcari = new FailSearchProduk(parent, true);
+                gagalcari.setVisible(true);
             clearTextFields();
             jtxId.requestFocusInWindow();
         } finally {
@@ -263,15 +274,21 @@ public class Form_transaksi extends javax.swing.JPanel {
                 // Ini akan memilih item di combopelanggan jika namaPelanggan ada di dalamnya
                 combopelanggan.setSelectedItem(namaPelanggan);
 
-                JOptionPane.showMessageDialog(null, "Pelanggan ditemukan: " + namaPelanggan, "Info", JOptionPane.INFORMATION_MESSAGE);
+                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_transaksi.this);
+                        Loading load = new Loading(parent, true);
+                load.setVisible(true);
                 jtxId.requestFocusInWindow(); // Pindah fokus ke jtxId untuk scan produk berikutnya
             } else {
-                JOptionPane.showMessageDialog(null, "Pelanggan dengan ID RFID " + rfidId + " tidak ditemukan!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_transaksi.this);
+                        PelangganNotFound gagalcari = new PelangganNotFound(parent, true);
+                gagalcari.setVisible(true);
                 combopelanggan.setSelectedIndex(-1); // Mengosongkan pilihan di combobox
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error mencari pelanggan via RFID: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_transaksi.this);
+                        FailFoundPelanggan gagalcari = new FailFoundPelanggan(parent, true);
+                gagalcari.setVisible(true);
         } finally {
             try {
                 if (rs != null) {
@@ -329,7 +346,9 @@ public class Form_transaksi extends javax.swing.JPanel {
                     jtxHarga.setText(String.valueOf(rs.getInt("harga_satuan")));
                     jtxTotal.setText(String.valueOf(rs.getInt("total")));
                 } else {
-                    JOptionPane.showMessageDialog(null, "Data tidak ditemukan!");
+                    java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_transaksi.this);
+                        DataKosong kosong = new DataKosong(parent, true);
+                kosong.setVisible(true);
                 }
                 rs.close();
             } else {
@@ -377,7 +396,9 @@ public class Form_transaksi extends javax.swing.JPanel {
                     if (table.getRowCount() > 0) {
                         jtxBayar.requestFocus();
                     } else {
-                        JOptionPane.showMessageDialog(null, "Error: tabel kosong !!");
+                        java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_transaksi.this);
+                        DataKosong1 kosong = new DataKosong1(parent, true);
+                kosong.setVisible(true);
                     }
                 } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
                     jtxId.requestFocusInWindow();
@@ -710,7 +731,9 @@ public class Form_transaksi extends javax.swing.JPanel {
         try {
             DefaultTableModel model = (DefaultTableModel) table.getModel();
             if (model.getRowCount() == 0) {
-                JOptionPane.showMessageDialog(null, "Tabel transaksi kosong!");
+                java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_transaksi.this);
+                DataKosong1 kosong = new DataKosong1(parent, true);
+                kosong.setVisible(true);
                 return;
             }
 
