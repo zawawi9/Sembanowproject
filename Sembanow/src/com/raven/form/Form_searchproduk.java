@@ -65,10 +65,13 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import raven.dialog.Cancelled;
+import raven.dialog.FailCount;
 import raven.dialog.FailLoaded;
 import raven.dialog.FailSaved;
 import raven.dialog.JumlahBarcode;
 import raven.dialog.JumlahBarcodeInvalid;
+import raven.dialog.MasukkanDataValid1;
+import raven.dialog.NoBarcode;
 import raven.dialog.PrintFailed;
 import raven.dialog.Printed;
 
@@ -238,10 +241,9 @@ public class Form_searchproduk extends javax.swing.JPanel {
                 }
             }
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null,
-                    "Error loading discount data: " + ex.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+            Window window = SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+            FailLoaded fail = new FailLoaded((Frame) window, true);
+            fail.setVisible(true);
             ex.printStackTrace();
         }
     }
@@ -341,10 +343,9 @@ public class Form_searchproduk extends javax.swing.JPanel {
             }
             table.setModel(model);
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null,
-                    "Error filtering data: " + ex.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+            Window window = SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+            FailLoaded fail = new FailLoaded((Frame) window, true);
+            fail.setVisible(true);
             ex.printStackTrace();
         }
     }
@@ -1251,6 +1252,8 @@ public class Form_searchproduk extends javax.swing.JPanel {
         Object selectedValue = optionPane.getValue();
         if (selectedValue == null || (Integer) selectedValue != JOptionPane.OK_OPTION) {
             java.awt.Frame parent = (java.awt.Frame) SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+                Cancelled dibatal = new Cancelled(parent, true);
+                dibatal.setVisible(true);
             return;
         }
 
@@ -1676,11 +1679,15 @@ public class Form_searchproduk extends javax.swing.JPanel {
             try {
                 jumlahCetak = Integer.parseInt(inputJumlah.trim());
                 if (jumlahCetak <= 0) {
-                    JOptionPane.showMessageDialog(this, "Jumlah harus lebih dari 0.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                    Window window = SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+            JumlahBarcode masukkanjumlah = new JumlahBarcode((Frame) window, true);
+            masukkanjumlah.setVisible(true);
                     return;
                 }
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Jumlah tidak valid. Masukkan angka.", "Error", JOptionPane.ERROR_MESSAGE);
+                Window window = SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+            JumlahBarcodeInvalid invalid = new JumlahBarcodeInvalid((Frame) window, true);
+            invalid.setVisible(true);
                 return;
             }
         } else {
@@ -1703,13 +1710,17 @@ public class Form_searchproduk extends javax.swing.JPanel {
             barcodeImageToPrint = ImageIO.read(new ByteArrayInputStream(baos.toByteArray()));
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Gagal menyiapkan barcode untuk dicetak: " + e.getMessage(), "Error Cetak", JOptionPane.ERROR_MESSAGE);
+            Window window = SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+            PrintFailed failed = new PrintFailed((Frame) window, true);
+            failed.setVisible(true);
             e.printStackTrace();
             return;
         }
 
         if (barcodeImageToPrint == null) {
-            JOptionPane.showMessageDialog(this, "Gambar barcode tidak tersedia untuk dicetak.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            Window window = SwingUtilities.getWindowAncestor(Form_searchproduk.this);
+            NoBarcode invalid = new NoBarcode((Frame) window, true);
+            invalid.setVisible(true);
             return;
         }
 
